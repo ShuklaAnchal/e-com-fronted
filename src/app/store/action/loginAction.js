@@ -1,0 +1,91 @@
+import axios from "@/app/utils/axios";
+import {
+  loginuser,
+  logoutuser,
+  iserror,
+  removeerror,
+  currentuser,
+  editUser,
+} from "../reducer/loginReducer";
+
+export const asyncfetchlogin = (formData) => async (dispatch, getState) => {
+  try {
+console.log({formDatas:formData});
+
+
+    dispatch(removeerror()); // clear previous errors if any
+    const { data } = await axios.post("/adminlogin", formData); // send formData via POST
+ 
+    // Save token (if API returns it)
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
+
+    // store only user details in redux
+    dispatch(loginuser(data.user));
+
+    return { success: true, payload: data };
+  } catch (error) {
+    dispatch(iserror(error.response.data.error || "Login failed"));
+      console.log({error:error.response.data.error});
+     
+    return {
+      success: false,
+      message: error.response.data.error || "Login failed",
+    };
+  }
+};
+
+export const fetchCurrentUser = () => async (dispatch) => {
+  try {
+    const { data } = await axios.post("/currentadmin"); // your API endpoint
+    dispatch(currentuser(data.admin));
+    console.log({data});
+    
+    return { success: true, payload: data.user };
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    dispatch(iserror("Failed to fetch user"));
+    return { success: false };
+  }
+};
+
+export const updateCurrentUser =
+  (id, payload) => async (dispatch, getState) => {
+    try {
+      const token = getToken(); // get token from localStorage
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`, // attach token in headers
+        },
+      };
+
+      const result = await axios.put(`/portal/update/${id}`, payload, config);
+
+      dispatch(editUser(result));
+      return { success: true, payload: result };
+    } catch (error) {
+      dispatch(
+        iserror(error?.response?.data?.message || "Failed to create product")
+      );
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Error",
+      };
+    }
+  };
+
+export const logoutCurrentUser = () => async (dispatch) => {
+  try {
+    const { data } = await axios.post("/portal/logout"); // sends token in header (see axios config)
+    dispatch(logoutuser()); // correct action to reset state
+    return { success: true };
+  } catch (error) {
+    console.error(
+      "Logout failed:",
+      error?.response?.data?.message || error.message
+    );
+    dispatch(iserror("Logout failed"));
+    return { success: false };
+  }
+};
