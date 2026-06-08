@@ -35,37 +35,32 @@ const sidenavbar = () => {
   const dispatch = useDispatch();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
-
   const loginState = useSelector((state) => state.login);
-  console.log({loginState});
-  
-  const admin = loginState?.admin;
 
-  console.log({admin});
-  
-  const id = admin?.id;
-  const userType = admin?.userType;
+  console.log("Login State:", loginState);
 
+  // Adjust this based on your reducer structure
+  const admin = loginState?.admin || null;
 
-  // 2. Handle user dropdown outside click
+  // Fetch current user if token exists and admin is not loaded
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    const token = localStorage.getItem("token");
 
-  // 3. Auto-fetch user if token exists
- useEffect(() => {
-  const token = localStorage.getItem("token");
+    if (token && !admin) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, admin]);
 
-  if (token && !admin) {
-    dispatch(fetchCurrentUser());
-  }
-}, [dispatch, admin]);
+  // Save admin data only when it exists
+  useEffect(() => {
+    if (admin) {
+      localStorage.setItem("admin", JSON.stringify(admin));
+    }
+  }, [admin]);
+
+  const id = admin?.id || "";
+  const userType = admin?.userType || "";
+  const adminName = admin?.adminName || "";
 
   const data = [
     { id: 0, Links: "/admin/dashboard/category", text: "Dashboard" },
@@ -192,8 +187,8 @@ const sidenavbar = () => {
       <div className="w-full flex flex-row gap-5 px-4">
         <FaUserCircle className="icons" />
         <div className="flex flex-col gap-3">
-          {/* <h3>{admin.adminName}</h3> */}
-          <h4>UserRole</h4>
+            <h3>{adminName || "Loading..."}</h3>
+    <h4>{userType || "User Role"}</h4>
         </div>
       </div>
     </div>

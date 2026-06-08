@@ -1,117 +1,141 @@
 "use client";
 
-import React, { useState } from "react";
-import Navbar from "@/app/component/navbar";
-import Table from "@/app/component/table";
+import React, { useEffect, useRef, useState } from "react";
+import Table from "@/app/component/table/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import CategoryForm from "@/app/component/forms/categoryForm";
+import { asyncfetchcategory } from "@/app/store/action/categoryAction";
+import { useDispatch } from "react-redux";
 
 const columnHelper = createColumnHelper();
 
 export default function CategoryPage() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  const data = [
-    {
-      id: 1,
-      name: "Luxury Sofa",
-      category: "Furniture",
-      descripition: "$1200",
-      stock: 15,
-    },
-    {
-      id: 2,
-      name: "Dining Table",
-      category: "Furniture",
-      descripition: "$850",
-      stock: 8,
-    },
-    {
-      id: 3,
-      name: "Office Chair",
-      category: "Office",
-      descripition: "$250",
-      stock: 20,
-    },
-    {
-      id: 4,
-      name: "Coffee Table",
-      category: "Living Room",
-      descripition: "$180",
-      stock: 12,
-    },
-    {
-      id: 5,
-      name: "King Bed",
-      category: "Bedroom",
-      descripition: "$1450",
-      stock: 4,
-    },
-    {
-      id: 6,
-      name: "Wardrobe",
-      category: "Bedroom",
-      descripition: "$980",
-      stock: 7,
-    },
-    {
-      id: 7,
-      name: "TV Unit",
-      category: "Living Room",
-      descripition: "$650",
-      stock: 10,
-    },
-    {
-      id: 8,
-      name: "Bookshelf",
-      category: "Office",
-      descripition: "$320",
-      stock: 14,
-    },
-  ];
+  const dispatch = useDispatch();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [openMenu, setOpenMenu] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [category, setCategory] = useState([]);
+  const [openEditModal, setOpenEditModal] = useState(true);
+  const [tableData, setTableData] = useState([]);
+  const dropdownRefs = useRef({});
+  const searchRef = useRef();
+
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const refreshCategories = async () => {
+    try {
+      const result = await dispatch(asyncfetchcategory());
+
+      if (result && result.categories) {
+        setCategory(result.categories);
+      }
+    } catch (error) {
+      console.error("Error refreshing product data:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await dispatch(asyncfetchcategory());
+
+        if (result && result.categories) {
+          setCategory(result.categories);
+        }
+      } catch (error) {
+        console.error("Error fetching product data:", error);
+      }
+    };
+    fetchData();
+  }, [dispatch]);
+
+  console.log({ category });
 
   const columns = [
-    columnHelper.accessor("id", {
+    columnHelper.accessor("_id", {
       header: "ID",
     }),
 
     columnHelper.accessor("name", {
-      header: "Category Name",
+      header: "Category",
       enableSorting: true,
-      cell: (info) => (
-        <span className="font-medium text-[#5C4033]">{info.getValue()}</span>
+      cell: ({ row, getValue }) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={row.original.image}
+            alt={getValue()}
+            className="w-10 h-10 rounded-md object-cover border"
+          />
+
+          <span className="font-medium text-[#5C4033]">{getValue()}</span>
+        </div>
       ),
     }),
 
-    columnHelper.accessor("category", {
+    columnHelper.accessor("slug", {
       header: "Slug",
     }),
 
-    columnHelper.accessor("descripition", {
+    columnHelper.accessor("description", {
       header: "Description",
     }),
 
     columnHelper.display({
       id: "actions",
       header: () => <div className="text-center">Action</div>,
-      cell: ({ row }) => (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            onClick={() => console.log("Selected Row:", row.original)}
-          >
-            <HiOutlineDotsVertical size={18} className="text-[#5C4033]" />
-          </button>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const rowId = row.original._id; // or id
+
+        return (
+          <div className="relative flex justify-center">
+            <button
+              onClick={() => setOpenMenu(openMenu === rowId ? null : rowId)}
+              className="p-2 rounded-md hover:bg-gray-100"
+            >
+              <HiOutlineDotsVertical size={18} />
+            </button>
+
+            {openMenu === rowId && (
+              <div className="absolute right-10 top-6 z-50 w-20 bg-white border rounded-lg shadow-lg">
+                <button className="block w-full px-4 py-2 text-left">
+                  Edit
+                </button>
+
+                <button className="block w-full px-4 py-2 text-left">
+                  View
+                </button>
+
+                <button className="block w-full px-4 py-2 text-left text-red-600">
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      },
     }),
   ];
 
   return (
-    <div className="h-screen w-screen flex">
-      <Navbar />
+    <div>
+      {/* <Navbar /> */}
 
       <div className="flex-1 bg-[#F8F4F1] flex flex-col overflow-hidden">
         <div className="p-8">
@@ -130,7 +154,7 @@ export default function CategoryPage() {
           </div>
 
           {/* Table */}
-          <Table columns={columns} data={data} />
+          <Table columns={columns} data={category} />
         </div>
       </div>
 
@@ -154,7 +178,10 @@ export default function CategoryPage() {
 
             {/* Modal Body */}
             <div className="p-6">
-              <CategoryForm />
+              <CategoryForm
+                onClose={() => setShowCategoryModal(false)}
+                refreshCategories={refreshCategories}
+              />
             </div>
           </div>
         </div>

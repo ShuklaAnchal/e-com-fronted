@@ -10,12 +10,11 @@ import {
 
 export const asyncfetchlogin = (formData) => async (dispatch, getState) => {
   try {
-console.log({formDatas:formData});
-
+    console.log({ formDatas: formData });
 
     dispatch(removeerror()); // clear previous errors if any
     const { data } = await axios.post("/adminlogin", formData); // send formData via POST
- 
+
     // Save token (if API returns it)
     if (data.token) {
       localStorage.setItem("token", data.token);
@@ -26,12 +25,18 @@ console.log({formDatas:formData});
 
     return { success: true, payload: data };
   } catch (error) {
-    dispatch(iserror(error.response.data.error || "Login failed"));
-      console.log({error:error.response.data.error});
-     
+    console.log("Full Error:", error);
+    console.log("Response:", error.response);
+    console.log("Response Data:", error.response?.data);
+
+    const errorMessage =
+      error.response?.data?.message || error.message || "Login failed";
+
+    dispatch(iserror(errorMessage));
+
     return {
       success: false,
-      message: error.response.data.error || "Login failed",
+      message: errorMessage,
     };
   }
 };
@@ -40,8 +45,8 @@ export const fetchCurrentUser = () => async (dispatch) => {
   try {
     const { data } = await axios.post("/currentadmin"); // your API endpoint
     dispatch(currentuser(data.admin));
-    console.log({data});
-    
+    console.log({ data });
+
     return { success: true, payload: data.user };
   } catch (error) {
     console.error("Error fetching current user:", error);
@@ -66,7 +71,7 @@ export const updateCurrentUser =
       return { success: true, payload: result };
     } catch (error) {
       dispatch(
-        iserror(error?.response?.data?.message || "Failed to create product")
+        iserror(error?.response?.data?.message || "Failed to create product"),
       );
       return {
         success: false,
@@ -83,7 +88,7 @@ export const logoutCurrentUser = () => async (dispatch) => {
   } catch (error) {
     console.error(
       "Logout failed:",
-      error?.response?.data?.message || error.message
+      error?.response?.data?.message || error.message,
     );
     dispatch(iserror("Logout failed"));
     return { success: false };

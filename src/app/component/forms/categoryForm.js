@@ -1,12 +1,95 @@
-import React from "react";
+"use client";
 
-const CategoryForm = () => {
+import React, { useState } from "react";
+import {
+  createCategory,
+  asyncfetchcategory,
+} from "@/app/store/action/categoryAction";
+import { useDispatch } from "react-redux";
+
+const CategoryForm = ({ onClose, refreshCategories }) => {
+  const [category, setCategory] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    icon: "",
+    metaTitle: "",
+    metaDescription: "",
+    keywords: "",
+    sortOrder: 0,
+    active: true,
+  });
+
+  const [image, setImage] = useState(null);
+
+  const dispatch = useDispatch();
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setCategory((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+    Object.keys(category).forEach((key) => {
+      formData.append(key, category[key]);
+    });
+
+    if (image) {
+      formData.append("image", image);
+    }
+
+    try {
+      const result = await dispatch(createCategory(formData));
+
+      if (result?.success) {
+        // Refresh categories in parent
+        if (refreshCategories) {
+          await refreshCategories();
+        }
+
+        // Reset form
+        setCategory({
+          name: "",
+          slug: "",
+          description: "",
+          icon: "",
+          metaTitle: "",
+          metaDescription: "",
+          keywords: "",
+          sortOrder: 0,
+          active: true,
+        });
+
+        setImage(null);
+
+        // Close modal
+        if (onClose) {
+          onClose();
+        }
+      }
+    } catch (error) {
+      console.error("Create category error:", error);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <h2 className="text-2xl font-bold mb-6">Create Category</h2>
 
-        <form className="space-y-8">
+        <form className="space-y-8" onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div>
             <h3 className="text-lg font-semibold mb-4 border-b pb-2">
@@ -14,172 +97,112 @@ const CategoryForm = () => {
             </h3>
 
             <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Category Name *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Electronics"
-                  className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                name="name"
+                placeholder="Electronics"
+                value={category.name}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-4 py-2"
+              />
 
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Slug *
-                </label>
-                <input
-                  type="text"
-                  placeholder="electronics"
-                  className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <label className="block mb-2 text-sm font-medium">
-                Description
-              </label>
-              <textarea
-                rows={4}
-                placeholder="Category description..."
-                className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              <input
+                type="text"
+                name="slug"
+                placeholder="electronics"
+                value={category.slug}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-4 py-2"
               />
             </div>
+
+            <textarea
+              name="description"
+              rows={4}
+              value={category.description}
+              onChange={handleChange}
+              placeholder="Category description..."
+              className="w-full border rounded-lg px-4 py-2 mt-4"
+            />
           </div>
 
           {/* Media */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              Media
-            </h3>
+            <input
+              type="file"
+              onChange={handleImageChange}
+              className="w-full border rounded-lg p-2"
+            />
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Category Image
-                </label>
-
-                <input
-                  type="file"
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Icon
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="fa-mobile-screen"
-                  className="w-full border rounded-lg px-4 py-2"
-                />
-              </div>
-            </div>
+            <input
+              type="text"
+              name="icon"
+              value={category.icon}
+              onChange={handleChange}
+              placeholder="fa-mobile-screen"
+              className="w-full border rounded-lg px-4 py-2 mt-4"
+            />
           </div>
 
           {/* SEO */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              SEO Settings
-            </h3>
+          <div className="space-y-4">
+            <input
+              type="text"
+              name="metaTitle"
+              value={category.metaTitle}
+              onChange={handleChange}
+              placeholder="Meta Title"
+              className="w-full border rounded-lg px-4 py-2"
+            />
 
-            <div className="space-y-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Meta Title
-                </label>
+            <textarea
+              name="metaDescription"
+              rows={3}
+              value={category.metaDescription}
+              onChange={handleChange}
+              placeholder="Meta Description"
+              className="w-full border rounded-lg px-4 py-2"
+            />
 
-                <input
-                  type="text"
-                  placeholder="Best Electronics Products"
-                  className="w-full border rounded-lg px-4 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Meta Description
-                </label>
-
-                <textarea
-                  rows={3}
-                  placeholder="SEO description..."
-                  className="w-full border rounded-lg px-4 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Keywords
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="electronics,mobile,laptop,gadgets"
-                  className="w-full border rounded-lg px-4 py-2"
-                />
-
-                <p className="text-xs text-gray-500 mt-1">
-                  Separate keywords with commas.
-                </p>
-              </div>
-            </div>
+            <input
+              type="text"
+              name="keywords"
+              value={category.keywords}
+              onChange={handleChange}
+              placeholder="electronics,mobile,laptop"
+              className="w-full border rounded-lg px-4 py-2"
+            />
           </div>
 
           {/* Settings */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              Settings
-            </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <input
+              type="number"
+              name="sortOrder"
+              value={category.sortOrder}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-4 py-2"
+            />
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Sort Order
-                </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                name="active"
+                checked={category.active}
+                onChange={handleChange}
+              />
 
-                <input
-                  type="number"
-                  defaultValue={0}
-                  className="w-full border rounded-lg px-4 py-2"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 mt-8">
-                <input
-                  type="checkbox"
-                  id="active"
-                  defaultChecked
-                  className="w-4 h-4"
-                />
-
-                <label htmlFor="active" className="font-medium">
-                  Active Category
-                </label>
-              </div>
+              <label>Active Category</label>
             </div>
           </div>
 
-          {/* Submit */}
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              className="px-6 py-2 border rounded-lg hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Create Category
-            </button>
-          </div>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
+          >
+            Create Category
+          </button>
         </form>
       </div>
     </div>

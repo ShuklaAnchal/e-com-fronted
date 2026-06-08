@@ -47,13 +47,13 @@ const Page = () => {
       }
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.message);
+      alert(error);
       // toast.error(
       //   error?.response?.data?.message ||
       //     "Something went wrong"
       // );
 
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
