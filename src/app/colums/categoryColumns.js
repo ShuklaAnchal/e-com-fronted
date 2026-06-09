@@ -3,7 +3,11 @@ import ActionDropdown from "../component/table/ActionDropdown";
 
 const columnHelper = createColumnHelper();
 
-export const categoryColumns = [
+export const categoryColumns = ({
+  onEdit,
+  onView,
+  onDelete,
+}) => [
   columnHelper.display({
     id: "srNo",
     header: "Sr No",
@@ -13,6 +17,7 @@ export const categoryColumns = [
   columnHelper.accessor("name", {
     header: "Category",
     enableSorting: true,
+
     cell: ({ row, getValue }) => (
       <div className="flex items-center gap-3">
         <img
@@ -36,18 +41,23 @@ export const categoryColumns = [
     header: "Description",
   }),
 
-columnHelper.display({
-  id: "actions",
-  header: () => (
-    <div className="flex justify-center">
-      Action
-    </div>
-  ),
+  columnHelper.display({
+    id: "actions",
 
-  cell: ({ row }) => (
-    <div className="flex justify-center">
-      <ActionDropdown category={row.original} />
-    </div>
-  ),
-})
+    header: () => (
+      <div className="flex justify-center">
+        Action
+      </div>
+    ),
+
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <ActionDropdown
+          onEdit={() => onEdit(row.original)}
+          onView={() => onView(row.original)}
+          onDelete={() => onDelete(row.original)}
+        />
+      </div>
+    ),
+  }),
 ];

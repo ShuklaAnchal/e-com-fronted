@@ -4,10 +4,13 @@ import React, { useState } from "react";
 import {
   createCategory,
   asyncfetchcategory,
+  editCategorydetailes
 } from "@/app/store/action/categoryAction";
 import { useDispatch } from "react-redux";
 
-const CategoryForm = ({ onClose, refreshCategories }) => {
+const CategoryForm = ({   editData,
+  onClose,
+  refreshCategories, }) => {
   const [category, setCategory] = useState({
     name: "",
     slug: "",
@@ -37,52 +40,39 @@ const CategoryForm = ({ onClose, refreshCategories }) => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const formData = new FormData();
+  const formData = new FormData();
 
-    Object.keys(category).forEach((key) => {
-      formData.append(key, category[key]);
-    });
+  formData.append("name", category.name);
+  formData.append("slug", category.slug);
+  formData.append(
+    "description",
+    category.description
+  );
 
-    if (image) {
-      formData.append("image", image);
+  try {
+    if (editData?._id) {
+      await dispatch(
+        editCategorydetailes(
+          editData._id,
+          formData
+        )
+      );
+    } else {
+      await dispatch(
+        createCategory(formData)
+      );
     }
 
-    try {
-      const result = await dispatch(createCategory(formData));
+    await refreshCategories();
 
-      if (result?.success) {
-        // Refresh categories in parent
-        if (refreshCategories) {
-          await refreshCategories();
-        }
-
-        // Reset form
-        setCategory({
-          name: "",
-          slug: "",
-          description: "",
-          icon: "",
-          metaTitle: "",
-          metaDescription: "",
-          keywords: "",
-          sortOrder: 0,
-          active: true,
-        });
-
-        setImage(null);
-
-        // Close modal
-        if (onClose) {
-          onClose();
-        }
-      }
-    } catch (error) {
-      console.error("Create category error:", error);
-    }
-  };
+    onClose();
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto p-6">

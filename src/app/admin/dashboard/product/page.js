@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "@/app/component/resuable/model";
-import CategoryForm from "@/app/component/forms/categoryForm";
+import ProductForm from "@/app/component/forms/productForm";
 import Table from "@/app/component/table/table";
 
 import useModal from "@/app/hooks/useModalHook";
@@ -37,8 +37,8 @@ export default function CategoryPage() {
         <button
           onClick={() =>
             openModal(
-              "Create Category",
-              <CategoryForm
+              "Create Product",
+              <ProductForm
                 onClose={closeModal}
                 refreshCategories={refreshCategories}
               />
