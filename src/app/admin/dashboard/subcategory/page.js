@@ -1,90 +1,98 @@
 "use client";
 
-import Modal from "@/app/component/resuable/model";
-import ProductForm from "@/app/component/forms/productForm";
-import Table from "@/app/component/table/table";
-
-import useModal from "@/app/hooks/useModalHook";
-import { useProducts } from "@/app/hooks/productHook";
-
-import { productColumns } from "@/app/colums/productColoum";
 import { useDispatch } from "react-redux";
 
-export default function ProductPage() {
+import Modal from "@/app/component/resuable/model";
+import Table from "@/app/component/table/table";
+import SubcategoryForm from "@/app/component/forms//subcategoryForm";
+import useModal from "@/app/hooks/useModalHook";
+import { useSubcategories } from "@/app/hooks/subcategoryHook";
+
+import { subcategoryColumns } from "@/app/colums/subcategoryColumns";
+
+import { deleteCategory } from "@/app/store/action/categoryAction";
+
+export default function SubcatgoryPage() {
   const dispatch = useDispatch();
 
   const { modal, openModal, closeModal } = useModal();
 
-  const { products, loading, refreshProducts } = useProducts();
+  const { Subcategories, loading, refreshSubcategories } = useSubcategories();
 
   const handleEdit = (category) => {
     console.log({ category });
 
-    openModal(  
+    openModal(
       "Edit Category",
-      <ProductForm
+      <SubcategoryForm
         editData={category}
         onClose={closeModal}
-        refreshProducts={refreshProducts}
+        refreshSubcategories={refreshSubcategories}
       />,
     );
   };
 
-  const handleView = (product) => {
+  const handleView = (category) => {
     console.log("View Category:", category);
   };
 
-  const handleDelete = async (product) => {
-    const confirmDelete = window.confirm(`Delete ${product.name}?`);
+  const handleDelete = async (category) => {
+    const confirmDelete = window.confirm(`Delete ${category.name}?`);
 
     if (!confirmDelete) return;
 
     try {
-      await dispatch(deleteCategory(product._id));
+      await dispatch(deleteCategory(category._id));
 
-      await refreshProducts();
+      await refreshCategories();
 
-      alert("Product deleted successfully");
+      alert("Category deleted successfully");
     } catch (error) {
       console.log(error);
     }
   };
 
-  const columns = productColumns({
+  const columns = subcategoryColumns({
     onEdit: handleEdit,
     onView: handleView,
     onDelete: handleDelete,
   });
+
+  if (loading) {
+    return <div className="p-8">Loading Categories...</div>;
+  }
 
   return (
     <div className="p-8 bg-[#F8F4F1] h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-[#5C4033]">
-          Product Management
+          Subcategory Management
         </h1>
 
         <button
           onClick={() =>
             openModal(
-              "Create Product",
-              <ProductForm
+              "Create Subcategory",
+              <SubcategoryForm
                 editData={null}
                 onClose={closeModal}
-                refreshProducts={refreshProducts}
+                refreshSubcategories={refreshSubcategories}
               />,
             )
           }
           className="bg-[#5C4033] text-white px-5 py-2 rounded-lg"
         >
-          +New Product
+          + New Subcategory
         </button>
       </div>
 
       {/* Table */}
-      <Table columns={columns} data={products} />
 
-      {/* Global Modal */}
+      <Table columns={columns} data={Subcategories} />
+
+      {/* Modal */}
+
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}
       </Modal>

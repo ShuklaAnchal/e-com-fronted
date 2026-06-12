@@ -2,34 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { asyncfetchcategory } from "@/app/store/action/";
+import { asyncfetchproduct } from "@/app/store/action/productAction";
 
-export function useCategories() {
+export function useProducts() {
   const dispatch = useDispatch();
 
-  const [categories, setCategories] = useState([]);
+  const [products, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const refreshCategories = async () => {
+  const refreshProducts = async () => {
     setLoading(true);
 
     const result =
-      await dispatch(asyncfetchcategory());
-
-    if (result?.categories) {
-      setCategories(result.categories);
+      await dispatch(asyncfetchproduct());
+   console.log({result});
+   
+    if (result?.products) {
+      setProduct(result.products);
     }
 
     setLoading(false);
   };
 
   useEffect(() => {
-    refreshCategories();
+    refreshProducts();
   }, []);
 
   return {
-    categories,
+    products,
     loading,
-    refreshCategories,
+    refreshProducts,
   };
 }

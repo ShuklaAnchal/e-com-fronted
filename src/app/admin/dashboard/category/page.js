@@ -19,20 +19,18 @@ export default function CategoryPage() {
 
   const { modal, openModal, closeModal } = useModal();
 
-  const {
-    categories,
-    loading,
-    refreshCategories,
-  } = useCategories();
+  const { categories, loading, refreshCategories } = useCategories();
 
   const handleEdit = (category) => {
+    console.log({ category });
+
     openModal(
       "Edit Category",
       <CategoryForm
         editData={category}
         onClose={closeModal}
         refreshCategories={refreshCategories}
-      />
+      />,
     );
   };
 
@@ -41,9 +39,7 @@ export default function CategoryPage() {
   };
 
   const handleDelete = async (category) => {
-    const confirmDelete = window.confirm(
-      `Delete ${category.name}?`
-    );
+    const confirmDelete = window.confirm(`Delete ${category.name}?`);
 
     if (!confirmDelete) return;
 
@@ -65,11 +61,7 @@ export default function CategoryPage() {
   });
 
   if (loading) {
-    return (
-      <div className="p-8">
-        Loading Categories...
-      </div>
-    );
+    return <div className="p-8">Loading Categories...</div>;
   }
 
   return (
@@ -86,10 +78,10 @@ export default function CategoryPage() {
             openModal(
               "Create Category",
               <CategoryForm
-              editData={editData}
+                editData={null}
                 onClose={closeModal}
                 refreshCategories={refreshCategories}
-              />
+              />,
             )
           }
           className="bg-[#5C4033] text-white px-5 py-2 rounded-lg"
@@ -100,18 +92,11 @@ export default function CategoryPage() {
 
       {/* Table */}
 
-      <Table
-        columns={columns}
-        data={categories}
-      />
+      <Table columns={columns} data={categories} />
 
       {/* Modal */}
 
-      <Modal
-        isOpen={modal.isOpen}
-        title={modal.title}
-        onClose={closeModal}
-      >
+      <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}
       </Modal>
     </div>

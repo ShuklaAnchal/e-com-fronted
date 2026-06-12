@@ -102,6 +102,18 @@ const sidenavbar = () => {
             </h1>
           </div>
         </Link>
+
+         <Link href="/admin/dashboard/subcategory">
+          <div
+            className={`h-10 px-2 w-full flex flex-row gap-5 justify-start items-center cursor-pointer ${active === "/Routes/vmpage" ? "bg-red-500" : ""}`}
+            onClick={() => handleClick("vm")}
+          >
+            <AiFillRead className="icons" />
+            <h1 className="textColor font-semibold	text-[15px] hidden sm:flex">
+              Subcategory
+            </h1>
+          </div>
+        </Link>
         <Link href="/admin/dashboard/product">
           <div
             className={`h-10 px-2 w-full flex flex-row gap-5 justify-start items-center cursor-pointer ${active === "/Routes/vmpage" ? "bg-red-500" : ""}`}
@@ -187,8 +199,8 @@ const sidenavbar = () => {
       <div className="w-full flex flex-row gap-5 px-4">
         <FaUserCircle className="icons" />
         <div className="flex flex-col gap-3">
-            <h3>{adminName || "Loading..."}</h3>
-    <h4>{userType || "User Role"}</h4>
+          <h3>{adminName || "Loading..."}</h3>
+          <h4>{userType || "User Role"}</h4>
         </div>
       </div>
     </div>
