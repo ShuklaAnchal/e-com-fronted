@@ -44,7 +44,7 @@ export default function Modal({
 
           <button
             onClick={onClose}
-            className="text-2xl font-bold hover:text-red-500"
+            className="text-2xl font-bold hover:text-red-500 cursor-pointer"
           >
             ×
           </button>

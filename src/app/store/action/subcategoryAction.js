@@ -48,7 +48,30 @@ export const fetchSubcategorybyID = (id) => async (dispatch, getState) => {
   }
 };
 
-export const createCategory = (formData) => async (dispatch, getState) => {
+//fetch all subcategory by the category id
+export const fetchSubcategorybyCategoryID = (id) => async (dispatch, getState) => {
+  try {
+    const token = getToken(); // get token from localStorage
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`, // attach token in headers
+      },
+    };
+
+    const { data } = await axios.get(`/subcategory/fetch-allsubcategory-by-category/${id}`, config);
+     console.log({data});
+     
+    dispatch(fetchSubCategory(data.subcategories));
+    return data;
+  } catch (error) {
+    console.error("Error in fetcing subcategory detailes:", error.message);
+    dispatch(iserror(error.message));
+  }
+};
+
+//create subcategory
+export const createSubCategory = (formData) => async (dispatch, getState) => {
   console.log({formData});
   
   try {
@@ -59,7 +82,7 @@ export const createCategory = (formData) => async (dispatch, getState) => {
         "Content-Type": "multipart/form-data",
       },
     };
-    const { data } = await axios.post("/subcategory/create-category", formData, config);
+    const { data } = await axios.post("/subcategory/create-subcategory", formData, config);
 
     dispatch(createnewSubCategory(data));
 
@@ -77,7 +100,7 @@ export const createCategory = (formData) => async (dispatch, getState) => {
 
 
 //edit products detailes
-export const editCategorydetailes =
+export const editSubCategorydetailes =
   (id, formData) => async (dispatch, getState) => {
     try {
       const token = getToken(); // get token from localStorage
@@ -108,7 +131,7 @@ export const editCategorydetailes =
   };
 
 //delete product detailes
-export const deleteCategory = (id) => async (dispatch, getState) => {
+export const deleteSubCategory = (id) => async (dispatch, getState) => {
 
   try {
     const token = getToken(); // get token from localStorage
@@ -117,7 +140,7 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
         Authorization: `Bearer ${token}`, // attach token in headers
       },
     };
-    const response = await axios.delete(`/subcategory/delete-category/${id}`, config);
+    const response = await axios.delete(`/subcategory/delete-subcategory/${id}`, config);
     dispatch(removeSubCategory(response.data));
     return { success: true, payload: response.data };
   } catch (error) {

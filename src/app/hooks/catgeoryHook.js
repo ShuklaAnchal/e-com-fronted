@@ -13,8 +13,7 @@ export function useCategories() {
   const refreshCategories = async () => {
     setLoading(true);
 
-    const result =
-      await dispatch(asyncfetchcategory());
+    const result = await dispatch(asyncfetchcategory());
 
     if (result?.categories) {
       setCategories(result.categories);

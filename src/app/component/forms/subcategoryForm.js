@@ -1,16 +1,21 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  createCategory,
-  editCategorydetailes,
-} from "@/app/store/action/categoryAction";
 import { useDispatch } from "react-redux";
+import {
+  createSubCategory,
+  editSubCategorydetailes,
+} from "@/app/store/action/subcategoryAction";
+import { useCategories } from "@/app/hooks/catgeoryHook";
 
-const CategoryForm = ({ editData, onClose,   }) => {
+const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
   const dispatch = useDispatch();
 
-  const [category, setCategory] = useState({
+  const { categories, refreshCategories } = useCategories();
+
+
+  const [subCategory, setSubCategory] = useState({
+    categoryId: "",
     name: "",
     slug: "",
     description: "",
@@ -20,14 +25,19 @@ const CategoryForm = ({ editData, onClose,   }) => {
     metaDescription: "",
     keywords: "",
     sortOrder: 0,
-    active: true,
+    isActive: true,
   });
 
   const [image, setImage] = useState(null);
 
   useEffect(() => {
+    refreshCategories?.();
+  }, []);
+
+  useEffect(() => {
     if (editData) {
-      setCategory({
+      setSubCategory({
+        categoryId: editData?.categoryId?._id || editData?.categoryId || "",
         name: editData?.name || "",
         slug: editData?.slug || "",
         description: editData?.description || "",
@@ -35,17 +45,18 @@ const CategoryForm = ({ editData, onClose,   }) => {
         image: editData?.image || "",
         metaTitle: editData?.seo?.metaTitle || "",
         metaDescription: editData?.seo?.metaDescription || "",
-        keywords: editData?.seo?.keywords || "",
+        keywords: Array.isArray(editData?.seo?.keywords)
+          ? editData.seo.keywords.join(", ")
+          : "",
         sortOrder: editData?.sortOrder || 0,
-        active: editData?.active ?? true,
+        isActive: editData?.isActive ?? true,
       });
     }
   }, [editData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    setCategory((prev) => ({
+    setSubCategory((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
@@ -63,91 +74,122 @@ const CategoryForm = ({ editData, onClose,   }) => {
     try {
       const formData = new FormData();
 
-      formData.append("name", category.name);
-      formData.append("slug", category.slug);
-      formData.append("description", category.description);
-      formData.append("icon", category.icon);
+      formData.append("categoryId", subCategory.categoryId);
+      formData.append("name", subCategory.name);
+      formData.append("slug", subCategory.slug);
+      formData.append("description", subCategory.description);
+      formData.append("icon", subCategory.icon);
 
-      formData.append("metaTitle", category.metaTitle);
-      formData.append("metaDescription", category.metaDescription);
-      formData.append("keywords", category.keywords);
+      formData.append("metaTitle", subCategory.metaTitle);
+      formData.append("metaDescription", subCategory.metaDescription);
+      formData.append("keywords", subCategory.keywords);
 
-      formData.append("sortOrder", String(category.sortOrder));
-
-      formData.append("active", String(category.active));
+      formData.append("sortOrder", String(subCategory.sortOrder));
+      formData.append("isActive", String(subCategory.isActive));
 
       if (image) {
         formData.append("image", image);
       }
 
+      let response;
+
       if (editData?._id) {
-        await dispatch(editCategorydetailes(editData._id, formData));
+        response = await dispatch(
+          editSubCategorydetailes(editData._id, formData),
+        );
       } else {
-        await dispatch(createCategory(formData));
+        response = await dispatch(createSubCategory(formData));
       }
 
-      if (refreshCategories) {
-        await refreshCategories();
+      // Refresh list immediately
+      if (refreshSubCategories) {
+        await refreshSubCategories();
       }
 
-      if (onClose) {
-        onClose();
-      }
+      // Reset form
+      setSubCategory({
+        categoryId: "",
+        name: "",
+        slug: "",
+        description: "",
+        icon: "",
+        image: "",
+        metaTitle: "",
+        metaDescription: "",
+        keywords: "",
+        sortOrder: 0,
+        isActive: true,
+      });
+
+      setImage(null);
+
+      // Close form/modal
+      onClose?.();
     } catch (error) {
-      console.error("Category save failed:", error);
+      console.error("SubCategory save failed:", error);
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <h2 className="text-2xl font-bold mb-6">
-          {editData ? "Edit Category" : "Create Category"}
-        </h2>
+      {" "}
+      <div className="bg-white rounded-xl shadow-sm p-6">
 
-        <form className="space-y-8" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              Basic Information
-            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <select
+                name="categoryId"
+                value={subCategory.categoryId}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-4 py-2"
+                required
+              >
+                <option value="">Select Category</option>
 
-            <div className="grid md:grid-cols-2 gap-4">
+                {categories?.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
               <input
                 type="text"
                 name="name"
-                value={category.name}
+                value={subCategory.name}
                 onChange={handleChange}
-                placeholder="Electronics"
+                placeholder="Subcategory Name"
                 className="w-full border rounded-lg px-4 py-2"
                 required
               />
 
-              <input
+                       <input
                 type="text"
                 name="slug"
-                value={category.slug}
+                value={subCategory.slug}
                 onChange={handleChange}
-                placeholder="electronics"
+                placeholder="Slug"
                 className="w-full border rounded-lg px-4 py-2"
                 required
               />
+
             </div>
+
 
             <textarea
               name="description"
-              rows={4}
-              value={category.description}
+              rows={2}
+              value={subCategory.description}
               onChange={handleChange}
-              placeholder="Category description..."
+              placeholder="Sub category description..."
               className="w-full border rounded-lg px-4 py-2 mt-4"
             />
           </div>
 
           {/* Media */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">Media</h3>
-
             <input
               type="file"
               accept="image/*"
@@ -158,19 +200,10 @@ const CategoryForm = ({ editData, onClose,   }) => {
             {editData?.image && (
               <img
                 src={editData.image}
-                alt="category"
+                alt="subcategory"
                 className="w-24 h-24 object-cover mt-3 rounded"
               />
             )}
-
-            <input
-              type="text"
-              name="icon"
-              value={category.icon}
-              onChange={handleChange}
-              placeholder="fa-mobile-screen"
-              className="w-full border rounded-lg px-4 py-2 mt-4"
-            />
           </div>
 
           {/* SEO */}
@@ -183,7 +216,7 @@ const CategoryForm = ({ editData, onClose,   }) => {
               <input
                 type="text"
                 name="metaTitle"
-                value={category.metaTitle}
+                value={subCategory.metaTitle}
                 onChange={handleChange}
                 placeholder="Meta Title"
                 className="w-full border rounded-lg px-4 py-2"
@@ -192,7 +225,7 @@ const CategoryForm = ({ editData, onClose,   }) => {
               <textarea
                 name="metaDescription"
                 rows={3}
-                value={category.metaDescription}
+                value={subCategory.metaDescription}
                 onChange={handleChange}
                 placeholder="Meta Description"
                 className="w-full border rounded-lg px-4 py-2"
@@ -201,9 +234,9 @@ const CategoryForm = ({ editData, onClose,   }) => {
               <input
                 type="text"
                 name="keywords"
-                value={category.keywords}
+                value={subCategory.keywords}
                 onChange={handleChange}
-                placeholder="electronics,mobile,laptop"
+                placeholder="Keywords, keywords,...."
                 className="w-full border rounded-lg px-4 py-2"
               />
             </div>
@@ -219,7 +252,7 @@ const CategoryForm = ({ editData, onClose,   }) => {
               <input
                 type="number"
                 name="sortOrder"
-                value={category.sortOrder}
+                value={subCategory.sortOrder}
                 onChange={handleChange}
                 className="w-full border rounded-lg px-4 py-2"
               />
@@ -227,27 +260,28 @@ const CategoryForm = ({ editData, onClose,   }) => {
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
-                  name="active"
-                  checked={category.active}
+                  name="isActive"
+                  checked={subCategory.isActive}
                   onChange={handleChange}
                 />
 
-                <label>Active Category</label>
+                <label>Active Sub Category</label>
               </div>
             </div>
           </div>
 
-          <button
+  <div className="flex justify-end text-end">
+            <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hoverColor"
           >
-            {editData ? "Update Category" : "Create Category"}
+            {editData ? "Update Sub Category" : "Create Sub Category"}
           </button>
+  </div>
         </form>
       </div>
     </div>
   );
 };
 
-export default CategoryForm;
-
+export default SubCategoryForm;

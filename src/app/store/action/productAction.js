@@ -55,24 +55,33 @@ export const createProduct = (formData) => async (dispatch, getState) => {
     const token = getToken();
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
-        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
       },
     };
-    const { data } = await axios.post("/products/create", formData, config);
 
+    console.log({formData});
+    
+    const { data } = await axios.post("/products/create", formData, config);
+ console.log({data});
+ 
     dispatch(createnewProduct(data));
 
     return { success: true, payload: data };
   } catch (error) {
-    const message =
-      error?.response?.data?.error || "Failed to create product";
-    dispatch(iserror(message));
-    return {
-      success: false,
-      message,
-    };
-  }
+  console.log("FULL ERROR", error);
+  console.log("RESPONSE", error.response);
+  console.log("DATA", error.response?.data);
+
+  const message =
+    error?.response?.data?.error || "Failed to create product";
+
+  dispatch(iserror(message));
+
+  return {
+    success: false,
+    message,
+  };
+}
 };
 
 
@@ -83,8 +92,7 @@ export const editProductDetails =
       const token = getToken(); // get token from localStorage
       const config = {
         headers: {
-          Authorization: `Bearer ${token}`, // attach token in headers
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, 
         },
       };
 

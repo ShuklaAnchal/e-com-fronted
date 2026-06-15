@@ -4,13 +4,13 @@ import { useDispatch } from "react-redux";
 
 import Modal from "@/app/component/resuable/model";
 import Table from "@/app/component/table/table";
-import SubcategoryForm from "@/app/component/forms//subcategoryForm";
+import SubcategoryForm from "@/app/component/forms/subcategoryForm";
 import useModal from "@/app/hooks/useModalHook";
 import { useSubcategories } from "@/app/hooks/subcategoryHook";
 
 import { subcategoryColumns } from "@/app/colums/subcategoryColumns";
 
-import { deleteCategory } from "@/app/store/action/categoryAction";
+import { deleteSubCategory } from "@/app/store/action/subcategoryAction";
 
 export default function SubcatgoryPage() {
   const dispatch = useDispatch();
@@ -19,36 +19,35 @@ export default function SubcatgoryPage() {
 
   const { Subcategories, loading, refreshSubcategories } = useSubcategories();
 
-  const handleEdit = (category) => {
-    console.log({ category });
-
+  const handleEdit = (subcategory) => {
     openModal(
-      "Edit Category",
+      "Edit Subcategory",
       <SubcategoryForm
-        editData={category}
+        editData={subcategory}
         onClose={closeModal}
-        refreshSubcategories={refreshSubcategories}
+        refreshSubCategories={refreshSubcategories}
       />,
     );
   };
 
-  const handleView = (category) => {
-    console.log("View Category:", category);
+  const handleView = (subcategory) => {
+    console.log("View Subcategory:", subcategory);
   };
 
-  const handleDelete = async (category) => {
-    const confirmDelete = window.confirm(`Delete ${category.name}?`);
+  const handleDelete = async (subcategory) => {
+    const confirmDelete = window.confirm(`Delete ${subcategory.name}?`);
 
     if (!confirmDelete) return;
 
     try {
-      await dispatch(deleteCategory(category._id));
+      await dispatch(deleteSubCategory(subcategory._id));
 
-      await refreshCategories();
+      // Correct refresh function
+      await refreshSubcategories();
 
-      alert("Category deleted successfully");
+      alert("Subcategory deleted successfully");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -59,12 +58,11 @@ export default function SubcatgoryPage() {
   });
 
   if (loading) {
-    return <div className="p-8">Loading Categories...</div>;
+    return <div className="p-8">Loading Subcategories...</div>;
   }
 
   return (
     <div className="p-8 bg-[#F8F4F1] h-full">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-[#5C4033]">
           Subcategory Management
@@ -77,21 +75,17 @@ export default function SubcatgoryPage() {
               <SubcategoryForm
                 editData={null}
                 onClose={closeModal}
-                refreshSubcategories={refreshSubcategories}
+                refreshSubCategories={refreshSubcategories}
               />,
             )
           }
-          className="bg-[#5C4033] text-white px-5 py-2 rounded-lg"
+          className="bg-[#5C4033] text-white px-5 py-2 rounded-lg cursor-pointer"
         >
           + New Subcategory
         </button>
       </div>
 
-      {/* Table */}
-
-      <Table columns={columns} data={Subcategories} />
-
-      {/* Modal */}
+      <Table columns={columns} data={Subcategories || []} />
 
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}

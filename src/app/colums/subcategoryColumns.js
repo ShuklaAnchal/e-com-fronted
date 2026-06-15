@@ -32,6 +32,9 @@ export const subcategoryColumns = ({
       </div>
     ),
   }),
+   columnHelper.accessor("categoryId.name", {
+    header: "Category",
+  }),
 
   columnHelper.accessor("slug", {
     header: "Slug",

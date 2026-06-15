@@ -19,7 +19,6 @@ export function useSubcategories() {
     if (result?.subcategories) {
       SetSubcategories(result.subcategories);
     }
-
     setLoading(false);
   };
 

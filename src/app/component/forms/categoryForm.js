@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+
 import {
   createCategory,
   editCategorydetailes,
 } from "@/app/store/action/categoryAction";
-import { useDispatch } from "react-redux";
 
-const CategoryForm = ({ editData, onClose,   }) => {
+const CategoryForm = ({ editData, onClose, refreshCategories }) => {
   const dispatch = useDispatch();
+
+  const [submitting, setSubmitting] = useState(false);
 
   const [category, setCategory] = useState({
     name: "",
@@ -35,7 +38,7 @@ const CategoryForm = ({ editData, onClose,   }) => {
         image: editData?.image || "",
         metaTitle: editData?.seo?.metaTitle || "",
         metaDescription: editData?.seo?.metaDescription || "",
-        keywords: editData?.seo?.keywords || "",
+        keywords: editData?.seo?.keywords?.join(", ") || "",
         sortOrder: editData?.sortOrder || 0,
         active: editData?.active ?? true,
       });
@@ -61,6 +64,8 @@ const CategoryForm = ({ editData, onClose,   }) => {
     e.preventDefault();
 
     try {
+      setSubmitting(true);
+
       const formData = new FormData();
 
       formData.append("name", category.name);
@@ -73,7 +78,6 @@ const CategoryForm = ({ editData, onClose,   }) => {
       formData.append("keywords", category.keywords);
 
       formData.append("sortOrder", String(category.sortOrder));
-
       formData.append("active", String(category.active));
 
       if (image) {
@@ -86,40 +90,33 @@ const CategoryForm = ({ editData, onClose,   }) => {
         await dispatch(createCategory(formData));
       }
 
-      if (refreshCategories) {
-        await refreshCategories();
-      }
+      await refreshCategories?.();
 
-      if (onClose) {
-        onClose();
-      }
+      onClose?.();
     } catch (error) {
       console.error("Category save failed:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const inputClass =
+    "w-full rounded-xl text-[20px] font-normal border border-gray-300 px-4 py-1.5 outline-none transition-all duration-200 focus:border-[#5C4033] focus:ring-4 focus:ring-[#5C4033]/10";
+
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <h2 className="text-2xl font-bold mb-6">
-          {editData ? "Edit Category" : "Create Category"}
-        </h2>
-
-        <form className="space-y-8" onSubmit={handleSubmit}>
+      <div className="bg-white rounded-xl shadow-sm p-6">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              Basic Information
-            </h3>
-
             <div className="grid md:grid-cols-2 gap-4">
               <input
                 type="text"
                 name="name"
                 value={category.name}
                 onChange={handleChange}
-                placeholder="Electronics"
-                className="w-full border rounded-lg px-4 py-2"
+                placeholder="Category Name"
+                className={inputClass}
                 required
               />
 
@@ -128,121 +125,150 @@ const CategoryForm = ({ editData, onClose,   }) => {
                 name="slug"
                 value={category.slug}
                 onChange={handleChange}
-                placeholder="electronics"
-                className="w-full border rounded-lg px-4 py-2"
+                placeholder="category-slug"
+                className={inputClass}
                 required
               />
             </div>
 
             <textarea
               name="description"
-              rows={4}
+              rows={2}
               value={category.description}
               onChange={handleChange}
-              placeholder="Category description..."
-              className="w-full border rounded-lg px-4 py-2 mt-4"
+              placeholder="Category Description"
+              className={`${inputClass} mt-4`}
             />
           </div>
 
           {/* Media */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">Media</h3>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full border rounded-lg p-2"
-            />
-
-            {editData?.image && (
-              <img
-                src={editData.image}
-                alt="category"
-                className="w-24 h-24 object-cover mt-3 rounded"
+            <div className="border-2 border-dashed border-gray-300 rounded-xl p-5">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full"
               />
+            </div>
+
+            {(image || editData?.image) && (
+              <div className="mt-2">
+                <img
+                  src={image ? URL.createObjectURL(image) : editData?.image}
+                  alt="preview"
+                  className="w-32 h-28 object-cover rounded-xl border"
+                />
+              </div>
             )}
 
-            <input
+            {/* <input
               type="text"
               name="icon"
               value={category.icon}
               onChange={handleChange}
-              placeholder="fa-mobile-screen"
-              className="w-full border rounded-lg px-4 py-2 mt-4"
-            />
+              placeholder="Icon Class"
+              className={`${inputClass} mt-4`}
+            /> */}
           </div>
 
           {/* SEO */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              SEO Information
-            </h3>
+            <div className="border-b border-gray-200 pb-3 mb-5 ">
+              <h3 className="text-lg font-semibold text-gray-800">
+                SEO Information
+              </h3>
+            </div>
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                name="metaTitle"
-                value={category.metaTitle}
-                onChange={handleChange}
-                placeholder="Meta Title"
-                className="w-full border rounded-lg px-4 py-2"
-              />
+            <div className="space-y-3">
+              <div className="grid md:grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  name="metaTitle"
+                  value={category.metaTitle}
+                  onChange={handleChange}
+                  placeholder="Meta Title"
+                  className={inputClass}
+                />
 
-              <textarea
-                name="metaDescription"
-                rows={3}
-                value={category.metaDescription}
-                onChange={handleChange}
-                placeholder="Meta Description"
-                className="w-full border rounded-lg px-4 py-2"
-              />
+                <input
+                  type="text"
+                  name="metaDescription"
+                  value={category.metaDescription}
+                  onChange={handleChange}
+                  placeholder="Meta Description"
+                  className={inputClass}
+                />
+              </div>
 
               <input
                 type="text"
                 name="keywords"
                 value={category.keywords}
                 onChange={handleChange}
-                placeholder="electronics,mobile,laptop"
-                className="w-full border rounded-lg px-4 py-2"
+                placeholder="keyword1, keyword2, keyword3"
+                className={inputClass}
               />
             </div>
           </div>
 
           {/* Settings */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              Settings
-            </h3>
+            <div className="border-b border-gray-200 pb-3 mb-5">
+              <h3 className="text-lg font-semibold text-gray-800">Settings</h3>
+            </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-6 items-center">
               <input
                 type="number"
                 name="sortOrder"
                 value={category.sortOrder}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-4 py-2"
+                className={inputClass}
               />
 
-              <div className="flex items-center gap-3">
+              <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   name="active"
                   checked={category.active}
                   onChange={handleChange}
+                  className="h-5 w-5"
                 />
 
-                <label>Active Category</label>
-              </div>
+                <span className="font-medium text-gray-700">
+                  Active Category
+                </span>
+              </label>
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
-          >
-            {editData ? "Update Category" : "Create Category"}
-          </button>
+          {/* Submit */}
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={submitting}
+              className=" cursor-pointer
+                px-8 py-3
+                rounded-xl
+                bg-[#5C4033]
+                text-white
+                font-semibold
+                shadow-md
+                hover:bg-[#4A3227]
+                transition-all
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+              "
+            >
+              {submitting
+                ? "Saving..."
+                : editData
+                  ? "Update Category"
+                  : "Create Category"}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -250,4 +276,3 @@ const CategoryForm = ({ editData, onClose,   }) => {
 };
 
 export default CategoryForm;
-
