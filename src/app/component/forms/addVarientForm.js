@@ -1,118 +1,9 @@
-"use client";
+import React from 'react'
 
-import React, { useEffect, useState } from "react";
-import {
-  createProduct,
-  editProductDetails,
-} from "@/app/store/action/productAction";
-import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryAction";
-import { useCategories } from "@/app/hooks/catgeoryHook";
-import { useSubcategories } from "@/app/hooks/subcategoryHook";
-import { useDispatch } from "react-redux";
-
-const ProductForm = ({ editData, onClose, refreshProducts }) => {
-  const dispatch = useDispatch();
-
-  const { categories, loading } = useCategories();
-  const { Subcategories } = useSubcategories();
-
-  const [product, setProduct] = useState({
-    name: "",
-    slug: "",
-    shortDescription: "",
-    fullDescription: "",
-    categoryId: "",
-    subCategoryId: "",
-    brand: "",
-    tags: "",
-    highlights: "",
-  });
-
-  useEffect(() => {
-    if (editData) {
-      setProduct({
-        name: editData?.name || "",
-        slug: editData?.slug || "",
-        shortDescription: editData?.shortDescription || "",
-        fullDescription: editData?.fullDescription || "",
-
-        categoryId: editData?.categoryId?._id || editData?.categoryId || "",
-
-        subCategoryId:
-          editData?.subCategoryId?._id || editData?.subCategoryId || "",
-
-        brand: editData?.brand || "",
-
-        tags: editData?.tags?.join(",") || "",
-
-        highlights: editData?.highlights?.join(",") || "",
-      });
-    }
-  }, [editData]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setProduct((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  useEffect(() => {
-    const categoryId = editData?.categoryId?._id || editData?.categoryId;
-
-    if (categoryId) {
-      dispatch(fetchSubcategorybyCategoryID(categoryId));
-    }
-  }, [editData, dispatch]);
-
-  const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-
-    setProduct((prev) => ({
-      ...prev,
-      categoryId,
-      subCategoryId: "",
-    }));
-
-    if (categoryId) {
-      dispatch(fetchSubcategorybyCategoryID(categoryId));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("SUBMIT CLICKED");
-    try {
-      const payload = {
-        name: product.name,
-        slug: product.slug,
-        shortDescription: product.shortDescription,
-        fullDescription: product.fullDescription,
-        categoryId: product.categoryId,
-        subCategoryId: product.subCategoryId,
-        brand: product.brand,
-        tags: product.tags,
-        highlights: product.highlights,
-      };
-
-      if (editData?._id) {
-        await dispatch(editProductDetails(editData._id, payload));
-      } else {
-        await dispatch(createProduct(payload));
-      }
-
-      refreshProducts?.();
-      onClose?.();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+const addVarientForm = () => {
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <input
             type="text"
@@ -229,7 +120,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default ProductForm;
+export default addVarientForm

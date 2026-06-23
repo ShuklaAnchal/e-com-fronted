@@ -60,7 +60,7 @@ export default function CatgoryPage() {
   });
 
   if (loading) {
-    return <div className="p-8">Loading Subcategories...</div>;
+    return <div className="p-8">Loading Categories...</div>;
   }
 
   return (

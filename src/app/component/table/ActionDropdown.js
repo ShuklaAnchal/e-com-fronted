@@ -3,11 +3,7 @@
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { useState, useRef, useEffect } from "react";
 
-export default function ActionDropdown({
-  onEdit,
-  onView,
-  onDelete,
-}) {
+export default function ActionDropdown({ onEdit, onView, onDelete }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
@@ -49,7 +45,6 @@ export default function ActionDropdown({
           >
             View
           </button>
-
           <button
             onClick={onDelete}
             className="block w-full px-4 py-2 text-left text-red-500"

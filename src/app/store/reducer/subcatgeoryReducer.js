@@ -1,29 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  distributor: null,
+  subcatgeory: null,
   error: [],
   isAuthenticated: true,
 };
 
 export const SubcategoryReducer = createSlice({
-  name: "distributor",
+  name: "subcatgeory",
   initialState,
   reducers: {
     fetchSubCategory: (state, action) => {
-      state.distributor = action.payload;
+      state.subcatgeory = action.payload;
       state.isAuthenticated = true;
     },
     createnewSubCategory: (state, action) => {
-      state.distributor = action.payload;
+      state.subcatgeory = action.payload;
       state.isAuthenticated = true;
     },
     editSubCategory: (state, action) => {
-      state.distributor = action.payload;
+      state.subcatgeory = action.payload;
       state.isAuthenticated = true;
     },
     removeSubCategory: (state, action) => {
-      state.distributor = action.payload;
+      state.subcatgeory = action.payload;
       state.isAuthenticated = true;
     },
     iserror: (state, action) => {

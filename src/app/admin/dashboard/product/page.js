@@ -20,7 +20,7 @@ export default function ProductPage() {
   const handleEdit = (category) => {
     console.log({ category });
 
-    openModal(  
+    openModal(
       "Edit Category",
       <ProductForm
         editData={category}

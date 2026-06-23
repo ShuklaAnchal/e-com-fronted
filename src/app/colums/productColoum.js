@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import ActionDropdown from "../component/table/ActionDropdown";
 
@@ -26,9 +27,12 @@ export const productColumns = ({
           className="w-10 h-10 rounded-md object-cover border"
         />
 
-        <span className="font-medium text-[#5C4033]">
+        <Link
+          href={`/admin/dashboard/product/${row.original._id}`}
+          className="font-medium text-[#5C4033] hover:underline cursor-pointer"
+        >
           {getValue()}
-        </span>
+        </Link>
       </div>
     ),
   }),
@@ -37,19 +41,17 @@ export const productColumns = ({
     header: "Slug",
   }),
 
-  columnHelper.accessor("description", {
+  columnHelper.accessor("shortDescription", {
     header: "Description",
   }),
 
   columnHelper.display({
     id: "actions",
-
     header: () => (
       <div className="flex justify-center">
         Action
       </div>
     ),
-
     cell: ({ row }) => (
       <div className="flex justify-center">
         <ActionDropdown

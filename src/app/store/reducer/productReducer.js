@@ -11,19 +11,19 @@ export const productReducer = createSlice({
   initialState,
   reducers: {
     fetchProduct: (state, action) => {
-      state.distributor = action.payload;
+      state.product = action.payload;
       state.isAuthenticated = true;
     },
     createnewProduct: (state, action) => {
-      state.distributor = action.payload;
+      state.product = action.payload;
       state.isAuthenticated = true;
     },
     editProduct: (state, action) => {
-      state.distributor = action.payload;
+      state.product = action.payload;
       state.isAuthenticated = true;
     },
     removeProduct: (state, action) => {
-      state.distributor = action.payload;
+      state.product = action.payload;
       state.isAuthenticated = true;
     },
     iserror: (state, action) => {
