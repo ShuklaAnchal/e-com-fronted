@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { asyncfetchUsers } from "@/app/store/action/customerAction"
+import { asyncfetchUsers } from "@/app/store/action/customerAction";
+
 export function useUsers() {
   const dispatch = useDispatch();
 
@@ -25,6 +26,8 @@ export function useUsers() {
     refreshUsers();
   }, []);
 
+  console.log({Users});
+  
   return {
     Users,
     loading,

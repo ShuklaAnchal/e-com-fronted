@@ -17,7 +17,7 @@ const getToken = () => {
 export const asyncfetchUsers = () => async (dispatch, getState) => {
   try {
     const { data } = await axios.get("/user/getall-user");
-    // console.log("Fetched products:", data.products);
+    console.log("Fetched products:", data.user);
     dispatch(fetchCustomer(data.user));
     return data;
   } catch (error) {

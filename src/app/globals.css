@@ -1,22 +1,57 @@
 @import "tailwindcss";
 
+
+@theme {
+  --font-serif: var(--font-serif), Georgia, serif;
+  --font-sans: var(--font-sans), sans-serif;
+  
+  --color-luxury-cream: #FAF7F2;
+  --color-luxury-cream-dark: #F4EFEA;
+  --color-luxury-dark: #121212;
+  --color-luxury-gold: #C5A880;
+  --color-luxury-gold-dark: #A68A5E;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAF7F2;
+  --foreground: #121212;
 }
 
 .primaryColor{
-  background-color: #F8F4F1;
+  background-color: #FAF7F2;
 }
 
 .secondrycolor{
-  background-color: #4E342E;
+  background-color: #121212;
 }
 
 .hoverColor{
-  background-color: #a87458;
+  background-color: #C5A880;
 }
 
 .text{
-  color: #2D2D2D;
+  color: #2C2C2C;
+}
+
+/* Custom styles for luxury feels */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
 }

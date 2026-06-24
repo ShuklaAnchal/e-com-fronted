@@ -1,14 +1,15 @@
 import React from 'react'
-import Navbar from "@/app/component/navbar";
-
 
 const index = () => {
   return (
-    <div className='h-screen w-screen flex '>
-      <Navbar />
-<div className='h-full w-full primaryColor'>
-  dfkh
-</div>
+  <div className="p-8 bg-[#F8F4F1] h-full">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-semibold text-[#5C4033]">
+          Staff Management
+                  </h1>
+      </div>
+
+
     </div>
   )
 }
