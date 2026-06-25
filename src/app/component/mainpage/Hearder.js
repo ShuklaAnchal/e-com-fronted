@@ -94,19 +94,18 @@ const Header = () => {
   return (
     <>
       <header
-        className={`fixed left-0 w-full transition-all duration-300 backdrop-blur-xl ${
+        className={`fixed left-0 w-full transition-all duration-500 backdrop-blur-xl ${
           isScrolled
-            ? "top-0 shadow-sm z-50"
-            : "top-12 bg-transparent z-40"
+            ? "top-0 bg-[#FAF7F2]/95 border-b border-[#C5A880]/15 shadow-[0_4px_30px_rgba(0,0,0,0.02)] z-50 py-4"
+            : "top-12 bg-transparent z-40 py-6"
         }`}
-        style={isScrolled ? { backgroundColor: COLORS.white } : {}}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 flex items-center justify-between relative">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between relative">
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`md:hidden absolute left-0 px-2 transition-colors ${
-              isScrolled ? "text-black" : "text-white"
+            className={`md:hidden absolute left-4 px-2 transition-colors ${
+              isScrolled ? "text-[#121212] hover:text-[#C5A880]" : "text-white hover:text-[#C5A880]"
             }`}
           >
             <svg
@@ -118,22 +117,22 @@ const Header = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-10 mr-auto">
+          <nav className="hidden md:flex items-center gap-8 mr-auto">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                className={`text-sm font-light tracking-widest transition-all cursor-pointer ${
+                className={`text-xs uppercase tracking-[0.25em] font-light transition-all duration-300 luxury-hover-underline cursor-pointer ${
                   isScrolled
-                    ? "text-black hover:text-gray-600"
-                    : "text-white/80 hover:text-white"
+                    ? "text-[#121212] hover:text-[#C5A880]"
+                    : "text-white/90 hover:text-white"
                 }`}
               >
                 {item.name}
@@ -148,27 +147,27 @@ const Header = () => {
               <button
                 onMouseEnter={() => setShowMore(true)}
                 onClick={() => setShowMore(!showMore)}
-                className={`text-sm font-light tracking-widest transition-all cursor-pointer ${
+                className={`text-xs uppercase tracking-[0.25em] font-light transition-all duration-300 luxury-hover-underline cursor-pointer ${
                   isScrolled
-                    ? "text-black hover:text-gray-600"
-                    : "text-white/80 hover:text-white"
+                    ? "text-[#121212] hover:text-[#C5A880]"
+                    : "text-white/90 hover:text-white"
                 }`}
               >
                 More ▾
               </button>
 
               {showMore && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg py-2 z-50">
+                <div className="absolute right-0 mt-3 w-52 bg-[#FAF7F2] border border-[#C5A880]/15 shadow-xl py-3 z-50 rounded-none animate-fade-in">
                   <Link
                     href="/faqs"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-[#121212]/80 hover:text-[#C5A880] hover:bg-[#F4EFEA] transition-all duration-300 font-light"
                   >
                     FAQ's
                   </Link>
 
                   <Link
                     href="/policys/cancellationRefund"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-[#121212]/80 hover:text-[#C5A880] hover:bg-[#F4EFEA] transition-all duration-300 font-light"
                   >
                     Refund Policy
                   </Link>
@@ -179,7 +178,7 @@ const Header = () => {
 
           {/* Logo */}
           <div
-            className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
+            className="absolute left-1/2 -translate-x-1/2 cursor-pointer transition-transform duration-500 hover:scale-105"
             onClick={() => router.push("/")}
           >
             <Image
@@ -196,10 +195,10 @@ const Header = () => {
           <div className="flex items-center gap-6 ml-auto">
             {/* Search Icon */}
             <button
-              className={`transition-colors ${
+              className={`transition-colors duration-300 cursor-pointer ${
                 isScrolled
-                  ? "text-black hover:text-gray-600"
-                  : "text-white hover:text-gray-200"
+                  ? "text-[#121212] hover:text-[#C5A880]"
+                  : "text-white hover:text-[#C5A880]"
               }`}
             >
               <svg
@@ -207,19 +206,19 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
               >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
 
-            {/* User Icon (Frontend Only) */}
+            {/* User Icon */}
             <button
-              className={`transition-colors ${
+              className={`transition-colors duration-300 cursor-pointer ${
                 isScrolled
-                  ? "text-black hover:text-gray-600"
-                  : "text-white hover:text-gray-200"
+                  ? "text-[#121212] hover:text-[#C5A880]"
+                  : "text-white hover:text-[#C5A880]"
               }`}
             >
               <svg
@@ -227,7 +226,7 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
               >
                 <circle cx="12" cy="7" r="4" />
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -237,10 +236,10 @@ const Header = () => {
             {/* Cart Icon */}
             <button
               onClick={() => router.push("/cart")}
-              className={`relative transition-colors ${
+              className={`relative transition-colors duration-300 cursor-pointer ${
                 isScrolled
-                  ? "text-black hover:text-gray-600"
-                  : "text-white hover:text-gray-200"
+                  ? "text-[#121212] hover:text-[#C5A880]"
+                  : "text-white hover:text-[#C5A880]"
               }`}
             >
               <svg
@@ -248,7 +247,7 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
               >
                 <circle cx="9" cy="21" r="1" />
                 <circle cx="20" cy="21" r="1" />
@@ -256,7 +255,7 @@ const Header = () => {
               </svg>
 
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                <span className="absolute -top-1.5 -right-2 bg-[#C5A880] text-[#121212] text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center shadow-sm animate-scale-in">
                   {cartCount}
                 </span>
               )}

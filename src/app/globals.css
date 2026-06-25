@@ -55,3 +55,137 @@
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
+
+/* Premium Luxury Transitions & Animations */
+@theme {
+  --transition-timing-function-premium: cubic-bezier(0.25, 1, 0.5, 1);
+  --animate-fade-up: fade-up 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  --animate-fade-in: fade-in 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  --animate-gold-glow: gold-glow 2s infinite ease-in-out;
+  --animate-text-reveal: text-reveal 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gold-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(197, 168, 128, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(197, 168, 128, 0.3);
+  }
+}
+
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Luxury Interactive Hover Utilities */
+.luxury-hover-underline {
+  position: relative;
+}
+
+.luxury-hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -4px;
+  left: 0;
+  background-color: #C5A880;
+  transform-origin: bottom right;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Smooth Parallax & Image Zoom */
+.luxury-image-zoom {
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.luxury-image-zoom:hover {
+  transform: scale(1.06);
+}
+
+/* Glassmorphism for Luxury Panels */
+.luxury-glass {
+  background: rgba(250, 247, 242, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 168, 128, 0.15);
+}
+
+.luxury-glass-dark {
+  background: rgba(18, 18, 18, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 168, 128, 0.1);
+}
+
+/* Gold Drawing Border Animation */
+.draw-border {
+  position: relative;
+  transition: color 0.4s ease;
+}
+
+.draw-border::before, .draw-border::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.draw-border::before {
+  top: 0;
+  left: 0;
+}
+
+.draw-border::after {
+  bottom: 0;
+  right: 0;
+}
+
+.draw-border:hover::before {
+  width: 100%;
+  height: 100%;
+  border-top-color: #C5A880;
+  border-right-color: #C5A880;
+  transition: width 0.3s ease-out, height 0.3s ease-out 0.3s;
+}
+
+.draw-border:hover::after {
+  width: 100%;
+  height: 100%;
+  border-bottom-color: #C5A880;
+  border-left-color: #C5A880;
+  transition: width 0.3s ease-out 0.6s, height 0.3s ease-out 0.9s;
+}

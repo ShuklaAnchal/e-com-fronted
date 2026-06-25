@@ -103,16 +103,16 @@ const ReelProducts = () => {
             {/* Left Arrow */}
             <button
               onClick={() => swiperRef.current?.slidePrev()}
-              className="absolute -left-6 md:-left-6 top-1/2 -translate-y-1/2 z-20
-                         w-12 h-12 rounded-full bg-white text-black
-                         shadow-lg border border-gray-200
-                         flex items-center justify-center"
+              className="absolute -left-6 md:-left-8 top-1/2 -translate-y-1/2 z-20
+                         w-12 h-12 rounded-full bg-[#FAF7F2]/90 text-black
+                         shadow-md border border-[#C5A880]/20 hover:border-[#C5A880] hover:bg-[#C5A880] hover:text-black
+                         transition-all duration-300 flex items-center justify-center cursor-pointer"
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 viewBox="0 0 24 24"
               >
                 <path
@@ -144,41 +144,45 @@ const ReelProducts = () => {
             >
               {products.map((item) => (
                 <SwiperSlide key={item._id}>
-                  <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+                  <div className="bg-[#FAF7F2] border border-[#C5A880]/15 overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_45px_rgba(197,168,128,0.06)] hover:-translate-y-2">
                     {/* Video */}
-                    <video
-                      src={item.video.url}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="w-full h-[420px] object-cover cursor-pointer"
-                      onClick={() =>
-                        setActiveVideo({
-                          url: item.video.url,
-                        })
-                      }
-                    />
+                    <div className="relative overflow-hidden aspect-[3/4]">
+                      <video
+                        src={item.video.url}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover cursor-pointer transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] hover:scale-103"
+                        onClick={() =>
+                          setActiveVideo({
+                            url: item.video.url,
+                          })
+                        }
+                      />
+                      <div className="absolute top-4 right-4 bg-[#121212]/60 backdrop-blur-md px-3 py-1 text-[9px] uppercase tracking-[0.2em] text-[#C5A880]">
+                        Play Reel
+                      </div>
+                    </div>
 
                     {/* Product Content */}
-                    <div className="p-4">
-                      <h3 className="text-sm font-medium text-black">
+                    <div className="p-5 border-t border-[#C5A880]/10">
+                      <h3 className="text-xs font-serif tracking-[0.15em] uppercase text-black font-light truncate">
                         {item.name}
                       </h3>
 
-                      <p className="mt-2 text-[#a67c52] font-semibold">
-                        ₹{item.price}
+                      <p className="mt-2 text-[#C5A880] text-xs font-light font-sans tracking-wide">
+                        Rs. {item.price}
                       </p>
 
                       <button
                         onClick={() =>
                           router.push(`/products/${item._id}`)
                         }
-                        className="mt-4 w-full py-3 border border-[#c5a880]
-                                   text-[#c5a880]
-                                   hover:bg-[#c5a880]
-                                   hover:text-black
-                                   transition-all duration-300 rounded-md"
+                        className="mt-5 w-full py-3 border border-[#C5A880]/50
+                                   text-[#C5A880] text-[10px] uppercase tracking-[0.2em] font-light
+                                   hover:bg-[#C5A880] hover:text-[#121212]
+                                   transition-all duration-500 rounded-none cursor-pointer"
                       >
                         Buy Now
                       </button>
@@ -191,16 +195,16 @@ const ReelProducts = () => {
             {/* Right Arrow */}
             <button
               onClick={() => swiperRef.current?.slideNext()}
-              className="absolute right-0 md:-right-6 top-1/2 -translate-y-1/2 z-20
-                         w-12 h-12 rounded-full bg-white text-black
-                         shadow-lg border border-gray-200
-                         flex items-center justify-center"
+              className="absolute -right-6 md:-right-8 top-1/2 -translate-y-1/2 z-20
+                         w-12 h-12 rounded-full bg-[#FAF7F2]/90 text-black
+                         shadow-md border border-[#C5A880]/20 hover:border-[#C5A880] hover:bg-[#C5A880] hover:text-black
+                         transition-all duration-300 flex items-center justify-center cursor-pointer"
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 viewBox="0 0 24 24"
               >
                 <path

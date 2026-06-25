@@ -39,115 +39,125 @@ const Collection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
           {categories.map((item) => (
-        <div
-  key={item.title}
-  onClick={() =>
-    router.push(`/categories/${item.title.toLowerCase()}`)
-  }
-  className="
-    group
-    cursor-pointer
-    bg-white
-    overflow-hidden
-    border border-[#D9C7A7]/20
-    hover:border-[#C5A880]
-    transition-all duration-700
-    hover:-translate-y-2
-    hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)]
-  "
->
-  {/* Media */}
-  <div className="relative h-[500px] overflow-hidden">
-    <video
-      src={item.youtube}
-      autoPlay
-      muted
-      loop
-      playsInline
-      className="
-        absolute inset-0
-        w-full
-        h-full
-        object-cover
-        transition-transform
-        duration-1000
-        group-hover:scale-110
-      "
-    />
+            <div
+              key={item.title}
+              onClick={() =>
+                router.push(`/categories/${item.title.toLowerCase()}`)
+              }
+              className="
+                group
+                cursor-pointer
+                bg-[#FAF7F2]
+                overflow-hidden
+                border border-[#C5A880]/10
+                transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]
+                hover:-translate-y-2.5
+                hover:border-[#C5A880]/40
+                hover:shadow-[0_20px_50px_rgba(197,168,128,0.08)]
+              "
+            >
+              {/* Media */}
+              <div className="relative h-[480px] overflow-hidden">
+                <video
+                  src={item.youtube}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="
+                    absolute inset-0
+                    w-full
+                    h-full
+                    object-cover
+                    transition-transform
+                    duration-[1.5s]
+                    ease-[cubic-bezier(0.25,1,0.5,1)]
+                    group-hover:scale-105
+                  "
+                />
 
-    {/* Luxury Gradient Overlay */}
-    <div
-      className="
-        absolute inset-0
-        bg-gradient-to-t
-        from-black/60
-        via-black/10
-        to-transparent
-      "
-    />
+                {/* Luxury Gradient Overlay */}
+                <div
+                  className="
+                    absolute inset-0
+                    bg-gradient-to-t
+                    from-black/75
+                    via-black/20
+                    to-transparent
+                    transition-opacity
+                    duration-500
+                    group-hover:opacity-90
+                  "
+                />
 
-    {/* Category Name Overlay */}
-    <div className="absolute bottom-8 left-8 z-10">
-      <p className="text-[#C5A880] uppercase tracking-[0.3em] text-xs mb-3">
-        Collection
-      </p>
+                {/* Category Name Overlay */}
+                <div className="absolute bottom-8 left-8 z-10 transition-transform duration-500 group-hover:translate-y-[-4px]">
+                  <p className="text-[#C5A880] uppercase tracking-[0.3em] text-[10px] mb-2 font-light">
+                    Collection
+                  </p>
 
-      <h3
-        className="
-          text-white
-          text-2xl
-          md:text-3xl
-          font-serif
-          tracking-[0.15em]
-          uppercase
-          font-light
-        "
-      >
-        {item.title}
-      </h3>
-    </div>
-  </div>
+                  <h3
+                    className="
+                      text-white
+                      text-2xl
+                      md:text-3xl
+                      font-serif
+                      tracking-[0.15em]
+                      uppercase
+                      font-light
+                    "
+                  >
+                    {item.title}
+                  </h3>
+                </div>
+              </div>
 
-  {/* Content */}
-  <div className="p-8">
-    <p
-      className="
-        text-[#6C6C6C]
-        text-sm
-        leading-relaxed
-        tracking-wide
-        font-light
-      "
-    >
-      {item.subtitle}
-    </p>
+              {/* Content */}
+              <div className="p-8 bg-[#FAF7F2] transition-colors duration-500 group-hover:bg-[#F4EFEA]">
+                <p
+                  className="
+                    text-[#6C6C6C]
+                    text-xs
+                    leading-relaxed
+                    tracking-wider
+                    font-light
+                    h-12
+                    line-clamp-2
+                  "
+                >
+                  {item.subtitle}
+                </p>
 
-    <div className="flex items-center justify-between mt-8">
-      <span
-        className="
-          text-[11px]
-          uppercase
-          tracking-[0.3em]
-          text-[#C5A880]
-        "
-      >
-        Explore Collection
-      </span>
+                <div className="flex items-center justify-between mt-8 border-t border-[#C5A880]/10 pt-6">
+                  <span
+                    className="
+                      text-[10px]
+                      uppercase
+                      tracking-[0.3em]
+                      text-[#C5A880]
+                      font-light
+                      relative
+                      after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-px after:bg-[#C5A880] after:scale-x-0 after:origin-right after:transition-transform after:duration-500 group-hover:after:scale-x-100 group-hover:after:origin-left
+                    "
+                  >
+                    Explore Collection
+                  </span>
 
-      <span
-        className="
-          text-[#C5A880]
-          text-xl
-          transition-transform
-          duration-500
-          group-hover:translate-x-2
-        "
-      >
-        →
-      </span>
-    </div>
-  </div>
-</div>
+                  <span
+                    className="
+                      text-[#C5A880]
+                      text-lg
+                      transition-transform
+                      duration-500
+                      ease-[cubic-bezier(0.25,1,0.5,1)]
+                      group-hover:translate-x-2
+                    "
+                  >
+                    →
+                  </span>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
