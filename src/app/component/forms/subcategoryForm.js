@@ -13,7 +13,6 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
 
   const { categories, refreshCategories } = useCategories();
 
-
   const [subCategory, setSubCategory] = useState({
     categoryId: "",
     name: "",
@@ -133,8 +132,7 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       {" "}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-
+      <div className="bg-white rounded-xl p-3">
         <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div>
@@ -165,7 +163,7 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
                 required
               />
 
-                       <input
+              <input
                 type="text"
                 name="slug"
                 value={subCategory.slug}
@@ -174,10 +172,25 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
                 className="w-full border rounded-lg px-4 py-2"
                 required
               />
-
             </div>
 
+            {/* Media */}
+            <div className="mt-5">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full border rounded-lg p-2"
+              />
 
+              {editData?.image && (
+                <img
+                  src={editData.image}
+                  alt="subcategory"
+                  className="w-24 h-24 object-cover mt-3 rounded"
+                />
+              )}
+            </div>
             <textarea
               name="description"
               rows={2}
@@ -188,31 +201,13 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
             />
           </div>
 
-          {/* Media */}
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full border rounded-lg p-2"
-            />
-
-            {editData?.image && (
-              <img
-                src={editData.image}
-                alt="subcategory"
-                className="w-24 h-24 object-cover mt-3 rounded"
-              />
-            )}
-          </div>
-
           {/* SEO */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
+            <h3 className="text-md font-semibold mb-4 border-b pb-2">
               SEO Information
             </h3>
 
-            <div className="space-y-4">
+            <div className=" grid grid-cols-3 gap-2">
               <input
                 type="text"
                 name="metaTitle"
@@ -222,9 +217,9 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
                 className="w-full border rounded-lg px-4 py-2"
               />
 
-              <textarea
+              <input
                 name="metaDescription"
-                rows={3}
+                rows={1}
                 value={subCategory.metaDescription}
                 onChange={handleChange}
                 placeholder="Meta Description"
@@ -244,7 +239,7 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
 
           {/* Settings */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
+            <h3 className="text-md font-semibold mb-4 border-b pb-2">
               Settings
             </h3>
 
@@ -270,14 +265,24 @@ const SubCategoryForm = ({ editData, onClose, refreshSubCategories }) => {
             </div>
           </div>
 
-  <div className="flex justify-end text-end">
+          <div className="flex justify-end text-end">
             <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hoverColor"
-          >
-            {editData ? "Update Sub Category" : "Create Sub Category"}
-          </button>
-  </div>
+              type="submit" className=" cursor-pointer
+                px-8 py-1.5
+                rounded-xl
+                adminpanel
+                text-white
+                font-semibold
+                shadow-md
+                hover:bg-[#4A3227]
+                transition-all
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+              "
+            >
+              {editData ? "Update Sub Category" : "Create Sub Category"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

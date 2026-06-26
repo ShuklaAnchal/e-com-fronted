@@ -18,6 +18,10 @@ export const productReducer = createSlice({
       state.product = action.payload;
       state.isAuthenticated = true;
     },
+    createProductvarient: (state, action) => {
+      state.product = action.payload;
+      state.isAuthenticated = true;
+    },
     editProduct: (state, action) => {
       state.product = action.payload;
       state.isAuthenticated = true;
@@ -36,6 +40,7 @@ export const productReducer = createSlice({
 export const {
   fetchProduct,
   createnewProduct,
+  createProductvarient,
   editProduct,
   removeProduct,
   iserror,

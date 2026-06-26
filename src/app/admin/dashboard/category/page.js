@@ -23,7 +23,7 @@ export default function CatgoryPage() {
 
   const handleEdit = (category) => {
     openModal(
-      "Edit Subcategory",
+      "Edit Category",
       <CategoryForm
         editData={category}
         onClose={closeModal}
@@ -73,7 +73,7 @@ export default function CatgoryPage() {
         <button
           onClick={() =>
             openModal(
-              "Create Subcategory",
+              "Create Category",
               <CategoryForm
                 editData={null}
                 onClose={closeModal}

@@ -112,8 +112,8 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="space-y-4 p-4  ">
+        <div className="grid grid-cols-3 gap-3">
           <input
             type="text"
             name="name"
@@ -132,26 +132,17 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             className="w-full border rounded-lg px-4 py-2"
             required
           />
+          <input
+            type="text"
+            name="brand"
+            value={product.brand}
+            onChange={handleChange}
+            placeholder="Brand Name"
+            className="w-full border rounded-lg px-4 py-2"
+          />
         </div>
-        <textarea
-          name="shortDescription"
-          value={product.shortDescription}
-          onChange={handleChange}
-          placeholder="Short Descripition"
-          className="w-full border rounded-lg px-4 py-2"
-          required
-        />
 
-        <textarea
-          name="fullDescription"
-          value={product.fullDescription}
-          onChange={handleChange}
-          placeholder="Full Description"
-          className="w-full border rounded-lg px-4 py-2"
-          required
-        />
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <select
             name="categoryId"
             value={product.categoryId}
@@ -189,16 +180,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               </option>
             ))}
           </select>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="brand"
-            value={product.brand}
-            onChange={handleChange}
-            placeholder="Brand Name"
-            className="w-full border rounded-lg px-4 py-2"
-          />
 
           <input
             type="text"
@@ -209,20 +190,50 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             className="w-full border rounded-lg px-4 py-2"
           />
         </div>
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            name="shortDescription"
+            value={product.shortDescription}
+            onChange={handleChange}
+            placeholder="Short Descripition"
+            className="w-full border rounded-lg px-4 py-2"
+            required
+          />
 
-        <input
-          type="text"
-          name="highlights"
-          value={product.highlights}
+          <input
+            type="text"
+            name="highlights"
+            value={product.highlights}
+            onChange={handleChange}
+            placeholder="Highlights"
+            className="w-full border rounded-lg px-4 py-2"
+          />
+        </div>
+
+        <textarea
+          name="fullDescription"
+          value={product.fullDescription}
           onChange={handleChange}
-          placeholder="Highlights"
+          placeholder="Full Description"
           className="w-full border rounded-lg px-4 py-2"
+          required
         />
 
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2 hoverColor text-white rounded-lg cursor-pointer"
+              className=" cursor-pointer
+                px-8 py-1.5
+                rounded-xl
+                bg-[#5C4033]
+                text-white
+                font-semibold
+                shadow-md
+                hover:bg-[#4A3227]
+                transition-all
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+              "
           >
             {editData ? "Update Product" : "Create Product"}
           </button>

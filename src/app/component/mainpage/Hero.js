@@ -19,7 +19,7 @@ const Hero = () => {
             frameBorder="0"
             allow="autoplay; loop; fullscreen"
             allowFullScreen
-            title="Hero Background Video"
+            title="Hero Background Video" 
           />
         </div>
       </div>

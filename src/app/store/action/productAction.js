@@ -2,6 +2,7 @@ import axios from "@/app/utils/axios";
 import {
   fetchProduct,
   createnewProduct,
+  createProductvarient,
   editProduct,
   removeProduct,
   iserror,
@@ -137,4 +138,41 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
       message: error?.response?.data?.message || "Error",
     };
   }
+};
+
+
+export const createProductVarient = (productId, formData) => async (dispatch, getState) => {
+  console.log({formData});
+  
+  try {
+    const token = getToken();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    console.log({formData});
+    
+    const { data } = await axios.post(`/product-variant/create-variant/${productId}`, formData, config);
+ console.log({data});
+ 
+    dispatch(createProductvarient(data));
+
+    return { success: true, payload: data };
+  } catch (error) {
+  console.log("FULL ERROR", error);
+  console.log("RESPONSE", error.response);
+  console.log("DATA", error.response?.data);
+
+  const message =
+    error?.response?.data?.error || "Failed to create product";
+
+  dispatch(iserror(message));
+
+  return {
+    success: false,
+    message,
+  };
+}
 };

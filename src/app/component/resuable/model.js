@@ -9,7 +9,7 @@ export default function Modal({
   onClose,
   title,
   children,
-  maxWidth = "max-w-4xl",
+  maxWidth = "max-w-3xl",
 }) {
   useEffect(() => {
     const handleEscape = (e) => {
@@ -29,15 +29,15 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 "
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-xl shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto`}
+        className={`bg-white rounded-xl shadow-xl w-[70%] ${maxWidth} max-h-[80vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b p-5 flex justify-between items-center">
+        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-[#5C4033]">
             {title}
           </h2>
@@ -51,7 +51,7 @@ export default function Modal({
         </div>
 
         {/* Body */}
-        <div className="p-6">{children}</div>
+        <div className="py-2">{children}</div>
       </div>
     </div>
   );

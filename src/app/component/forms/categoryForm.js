@@ -101,15 +101,15 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
   };
 
   const inputClass =
-    "w-full rounded-xl text-[20px] font-normal border border-gray-300 px-4 py-1.5 outline-none transition-all duration-200 focus:border-[#5C4033] focus:ring-4 focus:ring-[#5C4033]/10";
+    "w-full rounded-xl text-[15px] font-normal border border-gray-300 px-4 py-1.5 outline-none transition-all duration-200 focus:border-[#5C4033] focus:ring-4 focus:ring-[#5C4033]/10";
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm p-6">
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-white rounded-xl p-4">
         <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <input
                 type="text"
                 name="name"
@@ -129,6 +129,37 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
                 className={inputClass}
                 required
               />
+
+              {/* Media */}
+              <div>
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full"
+                  />
+                </div>
+
+                {(image || editData?.image) && (
+                  <div className="mt-2">
+                    <img
+                      src={image ? URL.createObjectURL(image) : editData?.image}
+                      alt="preview"
+                      className="w-32 h-10 object-cover rounded-xl border"
+                    />
+                  </div>
+                )}
+
+                {/* <input
+              type="text"
+              name="icon"
+              value={category.icon}
+              onChange={handleChange}
+              placeholder="Icon Class"
+              className={`${inputClass} mt-4`}
+            /> */}
+              </div>
             </div>
 
             <textarea
@@ -141,47 +172,16 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
             />
           </div>
 
-          {/* Media */}
-          <div>
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-5">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full"
-              />
-            </div>
-
-            {(image || editData?.image) && (
-              <div className="mt-2">
-                <img
-                  src={image ? URL.createObjectURL(image) : editData?.image}
-                  alt="preview"
-                  className="w-32 h-28 object-cover rounded-xl border"
-                />
-              </div>
-            )}
-
-            {/* <input
-              type="text"
-              name="icon"
-              value={category.icon}
-              onChange={handleChange}
-              placeholder="Icon Class"
-              className={`${inputClass} mt-4`}
-            /> */}
-          </div>
-
           {/* SEO */}
           <div>
             <div className="border-b border-gray-200 pb-3 mb-5 ">
-              <h3 className="text-lg font-semibold text-gray-800">
+              <h3 className="text-md font-semibold text-gray-800">
                 SEO Information
               </h3>
             </div>
 
             <div className="space-y-3">
-              <div className="grid md:grid-cols-2 gap-2">
+              <div className="grid md:grid-cols-3 gap-2">
                 <input
                   type="text"
                   name="metaTitle"
@@ -199,9 +199,7 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
                   placeholder="Meta Description"
                   className={inputClass}
                 />
-              </div>
-
-              <input
+                   <input
                 type="text"
                 name="keywords"
                 value={category.keywords}
@@ -209,13 +207,16 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
                 placeholder="keyword1, keyword2, keyword3"
                 className={inputClass}
               />
+              </div>
+
+        
             </div>
           </div>
 
           {/* Settings */}
           <div>
             <div className="border-b border-gray-200 pb-3 mb-5">
-              <h3 className="text-lg font-semibold text-gray-800">Settings</h3>
+              <h3 className="text-md font-semibold text-gray-800">Settings</h3>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 items-center">
@@ -250,9 +251,9 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
               type="submit"
               disabled={submitting}
               className=" cursor-pointer
-                px-8 py-3
+                px-8 py-1.5
                 rounded-xl
-                bg-[#5C4033]
+                adminpanel
                 text-white
                 font-semibold
                 shadow-md

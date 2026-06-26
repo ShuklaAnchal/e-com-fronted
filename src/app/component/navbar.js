@@ -76,7 +76,7 @@ const sidenavbar = () => {
   ];
 
   return (
-    <div className=" rounded-br-3xl h-screen w-[12vw] py-6 flex flex-col justify-between secondrycolor text-white">
+    <div className=" rounded-br-3xl h-screen w-[12vw] py-6 flex flex-col justify-between bg-[#5C4033] text-white">
       <div className="flex flex-col gap-1 justify-center px-4">
         <div className="h-28">logo</div>
         <Link href="/admin/dashboard">

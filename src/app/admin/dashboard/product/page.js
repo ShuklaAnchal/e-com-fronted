@@ -2,6 +2,7 @@
 
 import Modal from "@/app/component/resuable/model";
 import ProductForm from "@/app/component/forms/productForm";
+import VariantForm from "@/app/component/forms/addVarientForm";
 import Table from "@/app/component/table/table";
 
 import useModal from "@/app/hooks/useModalHook";
@@ -16,6 +17,19 @@ export default function ProductPage() {
   const { modal, openModal, closeModal } = useModal();
 
   const { products, loading, refreshProducts } = useProducts();
+
+
+const handleAddVariant = (product) => {
+  openModal(
+    `Add Variant - ${product.name}`,
+    <VariantForm
+      product={product}
+      onClose={closeModal}
+      refreshProducts={refreshProducts}
+    />
+  );
+};
+
 
   const handleEdit = (category) => {
     console.log({ category });
@@ -54,6 +68,7 @@ export default function ProductPage() {
     onEdit: handleEdit,
     onView: handleView,
     onDelete: handleDelete,
+    onAddVariant: handleAddVariant,
   });
 
   return (

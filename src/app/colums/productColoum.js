@@ -8,6 +8,7 @@ export const productColumns = ({
   onEdit,
   onView,
   onDelete,
+  onAddVariant
 }) => [
   columnHelper.display({
     id: "srNo",
@@ -58,6 +59,7 @@ export const productColumns = ({
           onEdit={() => onEdit(row.original)}
           onView={() => onView(row.original)}
           onDelete={() => onDelete(row.original)}
+          onAddVariant={() => onAddVariant(row.original)}
         />
       </div>
     ),
