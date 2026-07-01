@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { HiOutlineTrash, HiOutlinePlus } from "react-icons/hi";
-import { createProductVarient } from "@/app/store/action/productAction";
 import { useDispatch } from "react-redux";
+import { createProductVarient } from "@/app/store/action/productAction";
 
-export default function VariantForm({ product, onClose, onSubmit }) {
+export default function VariantForm({ product, onClose }) {
   const [variants, setVariants] = useState([
     {
       color: "",
@@ -14,23 +14,42 @@ export default function VariantForm({ product, onClose, onSubmit }) {
       price: "",
       stock: "",
       images: [],
+      videos: [],
     },
   ]);
 
   const dispatch = useDispatch();
 
+  // ======================
+  // HANDLE INPUT CHANGE
+  // ======================
   const handleChange = (index, field, value) => {
     const updated = [...variants];
     updated[index][field] = value;
     setVariants(updated);
   };
 
+  // ======================
+  // IMAGES
+  // ======================
   const handleImageChange = (index, files) => {
     const updated = [...variants];
     updated[index].images = Array.from(files);
     setVariants(updated);
   };
 
+  // ======================
+  // VIDEOS
+  // ======================
+  const handleVideoChange = (index, files) => {
+    const updated = [...variants];
+    updated[index].videos = Array.from(files);
+    setVariants(updated);
+  };
+
+  // ======================
+  // ADD VARIANT
+  // ======================
   const addVariant = () => {
     setVariants([
       ...variants,
@@ -41,16 +60,22 @@ export default function VariantForm({ product, onClose, onSubmit }) {
         price: "",
         stock: "",
         images: [],
+        videos: [],
       },
     ]);
   };
 
+  // ======================
+  // REMOVE VARIANT
+  // ======================
   const removeVariant = (index) => {
     if (variants.length === 1) return;
-
     setVariants(variants.filter((_, i) => i !== index));
   };
 
+  // ======================
+  // SUBMIT
+  // ======================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -59,14 +84,8 @@ export default function VariantForm({ product, onClose, onSubmit }) {
 
       const payload = variants.map((variant) => ({
         attributes: [
-          {
-            name: "Color",
-            value: variant.color,
-          },
-          {
-            name: "Size",
-            value: variant.size,
-          },
+          { name: "Color", value: variant.color },
+          { name: "Size", value: variant.size },
         ],
 
         sku: variant.sku,
@@ -80,22 +99,43 @@ export default function VariantForm({ product, onClose, onSubmit }) {
           stockQuantity: Number(variant.stock),
         },
 
-        imageCount: variant.images.length,
-
         barcode: "",
-
         shippingWeight: 0,
-
         isDefault: false,
-
         isActive: true,
+
+        // IMPORTANT: MEDIA STRUCTURE
+        media: [
+          ...variant.images.map(() => ({
+            type: "image",
+            sectionType: "front_view",
+          })),
+
+          ...variant.videos.map(() => ({
+            type: "video",
+            sectionType: "reel",
+          })),
+        ],
       }));
 
+      // JSON payload
       formData.append("variants", JSON.stringify(payload));
 
+      // ======================
+      // APPEND IMAGES FIRST
+      // ======================
       variants.forEach((variant) => {
-        variant.images.forEach((image) => {
-          formData.append("images", image);
+        variant.images.forEach((img) => {
+          formData.append("media", img);
+        });
+      });
+
+      // ======================
+      // THEN VIDEOS
+      // ======================
+      variants.forEach((variant) => {
+        variant.videos.forEach((vid) => {
+          formData.append("media", vid);
         });
       });
 
@@ -107,144 +147,118 @@ export default function VariantForm({ product, onClose, onSubmit }) {
     }
   };
 
+  // ======================
+  // UI
+  // ======================
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4">
-      {/* {product && (
-        <div className="bg-gray-50 border rounded-lg p-2">
-          <p className="text-sm text-gray-500">
-            Product
-          </p>
-
-          <h2 className="font-semibold text-lg">
-            {product.name}
-          </h2>
-        </div>
-      )} */}
-
       {variants.map((variant, index) => (
-        <div
-          key={index}
-          className="border rounded-xl p-5 bg-white shadow-sm space-y-4"
-        >
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-md">Variant {index + 1}</h3>
+        <div key={index} className="border p-5 rounded-xl space-y-4">
+          {/* HEADER */}
+          <div className="flex justify-between">
+            <h3>Variant {index + 1}</h3>
 
-            {variants.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeVariant(index)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <HiOutlineTrash size={20} />
-              </button>
-            )}
+            <button type="button" onClick={() => removeVariant(index)}>
+              <HiOutlineTrash />
+            </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-sm mb-1">Color</label>
-
+          <div>
+            {/* INPUT GRID */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* COLOR */}
               <input
-                type="text"
+                placeholder="Color"
                 value={variant.color}
                 onChange={(e) => handleChange(index, "color", e.target.value)}
-                className="w-full border rounded-lg px-3 py-1.5"
-                placeholder="Black"
+                className="border p-2 rounded-[10px]"
               />
-            </div>
 
-            <div>
-              <label className="block text-sm mb-1">Size</label>
-
+              {/* SIZE */}
               <input
-                type="text"
+                placeholder="Size"
                 value={variant.size}
                 onChange={(e) => handleChange(index, "size", e.target.value)}
-                className="w-full border rounded-lg px-3 py-1.5"
-                placeholder="XL"
+                className="border p-2"
               />
-            </div>
 
-            <div>
-              <label className="block text-sm mb-1">SKU</label>
-
+              {/* SKU */}
               <input
-                type="text"
+                placeholder="SKU"
                 value={variant.sku}
                 onChange={(e) => handleChange(index, "sku", e.target.value)}
-                className="w-full border rounded-lg px-3 py-1.5"
-                placeholder="SKU001"
+                className="border p-2"
               />
             </div>
 
-            <div>
-              <label className="block text-sm mb-1">Price</label>
-
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {/* PRICE */}
               <input
                 type="number"
+                placeholder="Price"
                 value={variant.price}
                 onChange={(e) => handleChange(index, "price", e.target.value)}
-                className="w-full border rounded-lg px-3 py-1.5"
-                placeholder="1000"
+                className="border p-2 rounded-[10px]"
               />
-            </div>
 
-            <div>
-              <label className="block text-sm mb-1">Stock</label>
-
+              {/* STOCK */}
               <input
                 type="number"
+                placeholder="Stock"
                 value={variant.stock}
                 onChange={(e) => handleChange(index, "stock", e.target.value)}
-                className="w-full border rounded-lg px-3 py-1.5"
-                placeholder="25"
+                className="border p-2"
               />
             </div>
 
-            <div>
-              <label className="block text-sm mb-1">Images</label>
-
-              <input
-                type="file"
-                multiple
-                onChange={(e) => handleImageChange(index, e.target.files)}
-                className="w-full"
-              />
-
-              {variant.images.length > 0 && (
-                <p className="text-xs mt-1 text-gray-500">
-                  {variant.images.length} image(s) selected
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {/* IMAGES */}
+              <div>
+                <label className="text-sm">Images</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(index, e.target.files)}
+                />
+                <p className="text-xs">
+                  {variant.images.length} images selected
                 </p>
-              )}
+              </div>
+              {/* VIDEOS */}
+              <div>
+                <label className="text-sm">Videos</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="video/*"
+                  onChange={(e) => handleVideoChange(index, e.target.files)}
+                />
+                <p className="text-xs">
+                  {variant.videos.length} videos selected
+                </p>
+              </div>
             </div>
           </div>
         </div>
       ))}
 
+      {/* ADD VARIANT */}
       <button
+        className="adminpanel px-2 py-1.5 text-white font-semibold hover:bg-[#4A3227] disabled:opacity-50 flex items-center  gap-2"
         type="button"
         onClick={addVariant}
-        className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-dashed border-[#5C4033] text-[#5C4033] hover:bg-[#5C4033] hover:text-white transition"
       >
-        <HiOutlinePlus />
-        Add Another Variant
+        <HiOutlinePlus /> Add Variant
       </button>
 
-      <div className="flex justify-end gap-3 pt-4 border-t">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-5 py-2 rounded-lg border"
-        >
+      {/* ACTIONS */}
+      <div className="flex justify-end gap-3">
+        <button type="button" onClick={onClose}>
           Cancel
         </button>
 
-        <button
-          type="submit"
-          className="px-5 py-2 rounded-lg bg-[#5C4033] text-white"
-        >
-          Save Variants
-        </button>
+        <button type="submit">Save Variants</button>
       </div>
     </form>
   );

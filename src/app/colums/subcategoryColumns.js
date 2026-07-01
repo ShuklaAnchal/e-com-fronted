@@ -21,7 +21,7 @@ export const subcategoryColumns = ({
     cell: ({ row, getValue }) => (
       <div className="flex items-center gap-3">
         <img
-          src={`${process.env.NEXT_PUBLIC_API_URL}/${row.original.image}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}${row.original.image}`}
           alt={getValue()}
           className="w-10 h-10 rounded-md object-cover border"
         />

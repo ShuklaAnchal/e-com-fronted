@@ -18,7 +18,6 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
     slug: "",
     description: "",
     icon: "",
-    image: "",
     metaTitle: "",
     metaDescription: "",
     keywords: "",
@@ -27,7 +26,13 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
   });
 
   const [image, setImage] = useState(null);
+  const [video, setVideo] = useState(null);
 
+  const [videoURL, setVideoURL] = useState(null);
+
+  // -------------------------
+  // EDIT MODE SET DATA
+  // -------------------------
   useEffect(() => {
     if (editData) {
       setCategory({
@@ -35,7 +40,6 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
         slug: editData?.slug || "",
         description: editData?.description || "",
         icon: editData?.icon || "",
-        image: editData?.image || "",
         metaTitle: editData?.seo?.metaTitle || "",
         metaDescription: editData?.seo?.metaDescription || "",
         keywords: editData?.seo?.keywords?.join(", ") || "",
@@ -45,6 +49,24 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
     }
   }, [editData]);
 
+  // -------------------------
+  // VIDEO PREVIEW SAFE HANDLING
+  // -------------------------
+  useEffect(() => {
+    if (!video) {
+      setVideoURL(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(video);
+    setVideoURL(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [video]);
+
+  // -------------------------
+  // INPUT CHANGE
+  // -------------------------
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -54,12 +76,24 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
     }));
   };
 
+  // -------------------------
+  // FILE HANDLERS
+  // -------------------------
   const handleImageChange = (e) => {
     if (e.target.files?.length > 0) {
       setImage(e.target.files[0]);
     }
   };
 
+  const handleVideoChange = (e) => {
+    if (e.target.files?.length > 0) {
+      setVideo(e.target.files[0]);
+    }
+  };
+
+  // -------------------------
+  // SUBMIT
+  // -------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,13 +109,24 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
 
       formData.append("metaTitle", category.metaTitle);
       formData.append("metaDescription", category.metaDescription);
-      formData.append("keywords", category.keywords);
+
+      formData.append(
+        "keywords",
+        category.keywords
+          .split(",")
+          .map((k) => k.trim())
+          .join(","),
+      );
 
       formData.append("sortOrder", String(category.sortOrder));
       formData.append("active", String(category.active));
 
       if (image) {
         formData.append("image", image);
+      }
+
+      if (video) {
+        formData.append("video", video);
       }
 
       if (editData?._id) {
@@ -91,7 +136,6 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
       }
 
       await refreshCategories?.();
-
       onClose?.();
     } catch (error) {
       console.error("Category save failed:", error);
@@ -107,161 +151,153 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-xl p-4">
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Basic Information */}
-          <div>
-            <div className="grid md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                name="name"
-                value={category.name}
-                onChange={handleChange}
-                placeholder="Category Name"
-                className={inputClass}
-                required
-              />
-
-              <input
-                type="text"
-                name="slug"
-                value={category.slug}
-                onChange={handleChange}
-                placeholder="category-slug"
-                className={inputClass}
-                required
-              />
-
-              {/* Media */}
-              <div>
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full"
-                  />
-                </div>
-
-                {(image || editData?.image) && (
-                  <div className="mt-2">
-                    <img
-                      src={image ? URL.createObjectURL(image) : editData?.image}
-                      alt="preview"
-                      className="w-32 h-10 object-cover rounded-xl border"
-                    />
-                  </div>
-                )}
-
-                {/* <input
+          {/* NAME + SLUG */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <input
               type="text"
-              name="icon"
-              value={category.icon}
+              name="name"
+              value={category.name}
               onChange={handleChange}
-              placeholder="Icon Class"
-              className={`${inputClass} mt-4`}
-            /> */}
-              </div>
-            </div>
+              placeholder="Category Name"
+              className={inputClass}
+              required
+            />
 
-            <textarea
-              name="description"
-              rows={2}
-              value={category.description}
+            <input
+              type="text"
+              name="slug"
+              value={category.slug}
               onChange={handleChange}
-              placeholder="Category Description"
-              className={`${inputClass} mt-4`}
+              placeholder="category-slug"
+              className={inputClass}
+              required
             />
           </div>
 
-          {/* SEO */}
-          <div>
-            <div className="border-b border-gray-200 pb-3 mb-5 ">
-              <h3 className="text-md font-semibold text-gray-800">
-                SEO Information
-              </h3>
+          {/* IMAGE + VIDEO */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* IMAGE */}
+            <div>
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-[#5C4033] transition cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full"
+                />
+
+                <p className="mt-2 font-medium text-gray-700">
+                  Upload Category Image
+                </p>
+
+                <p className="text-xs text-gray-500">JPG, PNG, WEBP</p>
+              </div>
+
+              {(image || editData?.image) && (
+                <img
+                  src={image ? URL.createObjectURL(image) : editData?.image}
+                  className="mt-2 w-40 rounded-lg border"
+                />
+              )}
             </div>
 
-            <div className="space-y-3">
-              <div className="grid md:grid-cols-3 gap-2">
+            {/* VIDEO */}
+            <div>
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-[#5C4033] transition cursor-pointer">
                 <input
-                  type="text"
-                  name="metaTitle"
-                  value={category.metaTitle}
-                  onChange={handleChange}
-                  placeholder="Meta Title"
-                  className={inputClass}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                  className="w-full"
                 />
 
-                <input
-                  type="text"
-                  name="metaDescription"
-                  value={category.metaDescription}
-                  onChange={handleChange}
-                  placeholder="Meta Description"
-                  className={inputClass}
-                />
-                   <input
+                <p className="mt-2 font-medium text-gray-700">
+                  Upload Category Video
+                </p>
+
+                <p className="text-xs text-gray-500">MP4, WebM, MOV</p>
+              </div>
+
+              {(videoURL || editData?.video) && (
+                <video controls className="mt-2 w-40 rounded-lg border">
+                  <source src={videoURL || editData?.video} type="video/mp4" />
+                </video>
+              )}
+            </div>
+          </div>
+
+          {/* DESCRIPTION */}
+          <textarea
+            name="description"
+            rows={2}
+            value={category.description}
+            onChange={handleChange}
+            placeholder="Category Description"
+            className={`${inputClass} mt-2`}
+          />
+
+          {/* SEO */}
+          <div>
+            <h3 className="text-md font-semibold mb-3">SEO Information</h3>
+
+            <div className="grid md:grid-cols-3 gap-2">
+              <input
+                type="text"
+                name="metaTitle"
+                value={category.metaTitle}
+                onChange={handleChange}
+                placeholder="Meta Title"
+                className={inputClass}
+              />
+
+              <input
+                type="text"
+                name="metaDescription"
+                value={category.metaDescription}
+                onChange={handleChange}
+                placeholder="Meta Description"
+                className={inputClass}
+              />
+
+              <input
                 type="text"
                 name="keywords"
                 value={category.keywords}
                 onChange={handleChange}
-                placeholder="keyword1, keyword2, keyword3"
+                placeholder="keyword1, keyword2"
                 className={inputClass}
               />
-              </div>
-
-        
             </div>
           </div>
 
-          {/* Settings */}
-          <div>
-            <div className="border-b border-gray-200 pb-3 mb-5">
-              <h3 className="text-md font-semibold text-gray-800">Settings</h3>
-            </div>
+          {/* SETTINGS */}
+          <div className="grid md:grid-cols-2 gap-6 items-center">
+            <input
+              type="number"
+              name="sortOrder"
+              value={category.sortOrder}
+              onChange={handleChange}
+              className={inputClass}
+            />
 
-            <div className="grid md:grid-cols-2 gap-6 items-center">
+            <label className="flex items-center gap-3 cursor-pointer">
               <input
-                type="number"
-                name="sortOrder"
-                value={category.sortOrder}
+                type="checkbox"
+                name="active"
+                checked={category.active}
                 onChange={handleChange}
-                className={inputClass}
+                className="h-5 w-5"
               />
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="active"
-                  checked={category.active}
-                  onChange={handleChange}
-                  className="h-5 w-5"
-                />
-
-                <span className="font-medium text-gray-700">
-                  Active Category
-                </span>
-              </label>
-            </div>
+              <span className="font-medium">Active Category</span>
+            </label>
           </div>
 
-          {/* Submit */}
-
+          {/* SUBMIT */}
           <div className="flex justify-end">
             <button
               type="submit"
               disabled={submitting}
-              className=" cursor-pointer
-                px-8 py-1.5
-                rounded-xl
-                adminpanel
-                text-white
-                font-semibold
-                shadow-md
-                hover:bg-[#4A3227]
-                transition-all
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-              "
+              className="px-8 py-1.5 rounded-xl adminpanel text-white font-semibold hover:bg-[#4A3227] disabled:opacity-50"
             >
               {submitting
                 ? "Saving..."

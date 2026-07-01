@@ -4,12 +4,7 @@ import ActionDropdown from "../component/table/ActionDropdown";
 
 const columnHelper = createColumnHelper();
 
-export const productColumns = ({
-  onEdit,
-  onView,
-  onDelete,
-  onAddVariant
-}) => [
+export const productColumns = ({ onEdit, onView, onDelete, onAddVariant }) => [
   columnHelper.display({
     id: "srNo",
     header: "Sr No",
@@ -23,7 +18,7 @@ export const productColumns = ({
     cell: ({ row, getValue }) => (
       <div className="flex items-center gap-3">
         <img
-          src={`${process.env.NEXT_PUBLIC_API_URL}/${row.original.image}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}${row.original.image}`}
           alt={getValue()}
           className="w-10 h-10 rounded-md object-cover border"
         />
@@ -48,11 +43,7 @@ export const productColumns = ({
 
   columnHelper.display({
     id: "actions",
-    header: () => (
-      <div className="flex justify-center">
-        Action
-      </div>
-    ),
+    header: () => <div className="flex justify-center">Action</div>,
     cell: ({ row }) => (
       <div className="flex justify-center">
         <ActionDropdown
