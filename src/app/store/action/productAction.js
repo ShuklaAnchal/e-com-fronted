@@ -5,6 +5,7 @@ import {
   createProductvarient,
   editProduct,
   removeProduct,
+  productByid,
   iserror,
 } from "../reducer/productReducer";
 
@@ -29,20 +30,15 @@ export const asyncfetchproduct = () => async (dispatch, getState) => {
 };
 
 //fetch the product by the id
-export const fetchCategorybyID = (id) => async (dispatch, getState) => {
+export const fetchProductbyID = (id) => async (dispatch, getState) => {
   try {
-    const token = getToken(); // get token from localStorage
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
-      },
-    };
-
-    const { data } = await axios.get(`/products/fetch-productby-id/${id}`, config);
-
-    dispatch(fetchProduct(data));
-    return data;
+    console.log({id});
+    
+  const { data } = await axios.get(`/products/fetch-productby-id/${id}`);
+  console.log({data});
+  
+    dispatch(productByid(data.product));
+    return data.product;
   } catch (error) {
     console.error("Error in fetcing product detailes:", error.message);
     dispatch(iserror(error.message));

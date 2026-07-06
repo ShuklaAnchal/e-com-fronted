@@ -62,7 +62,7 @@ export const fetchSubcategorybyCategoryID = (id) => async (dispatch, getState) =
     const { data } = await axios.get(`/subcategory/fetch-allsubcategory-by-category/${id}`, config);
      console.log({data});
      
-    dispatch(fetchSubCategory(data.subcategories));
+    dispatch(fetchSubCategory(data));
     return data;
   } catch (error) {
     console.error("Error in fetcing subcategory detailes:", error.message);

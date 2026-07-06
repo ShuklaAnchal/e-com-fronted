@@ -14,7 +14,7 @@ export const productReducer = createSlice({
       state.product = action.payload;
       state.isAuthenticated = true;
     },
-    createnewProduct: (state, action) => {
+    productByid:(state, action) => {
       state.product = action.payload;
       state.isAuthenticated = true;
     },
@@ -43,6 +43,7 @@ export const {
   createProductvarient,
   editProduct,
   removeProduct,
+  productByid,
   iserror,
 } = productReducer.actions;
 

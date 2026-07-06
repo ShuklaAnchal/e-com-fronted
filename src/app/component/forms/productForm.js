@@ -1,21 +1,29 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+
 import {
   createProduct,
   editProductDetails,
 } from "@/app/store/action/productAction";
-import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryAction";
+
+
+import {fetchSubcategorybyCategoryID
+} from "@/app/store/action/subcategoryAction";
+
 import { useCategories } from "@/app/hooks/catgeoryHook";
-import { useSubcategories } from "@/app/hooks/subcategoryHook";
-import { useDispatch } from "react-redux";
 
 const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const dispatch = useDispatch();
-
   const { categories, loading } = useCategories();
-  const { Subcategories } = useSubcategories();
 
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+
+  // ----------------------
+  // LOCAL STATE
+  // ----------------------
   const [product, setProduct] = useState({
     name: "",
     slug: "",
@@ -26,8 +34,20 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     brand: "",
     tags: "",
     highlights: "",
+
+    images: [],
+    videos: [],
+
+    imagePreviews: [],
+    videoPreviews: [],
   });
 
+  const [subcategories, setSubcategories] = useState([]);
+  const [loadingSubs, setLoadingSubs] = useState(false);
+
+  // ----------------------
+  // EDIT MODE
+  // ----------------------
   useEffect(() => {
     if (editData) {
       setProduct({
@@ -35,21 +55,22 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         slug: editData?.slug || "",
         shortDescription: editData?.shortDescription || "",
         fullDescription: editData?.fullDescription || "",
-
-        categoryId: editData?.categoryId?._id || editData?.categoryId || "",
-
-        subCategoryId:
-          editData?.subCategoryId?._id || editData?.subCategoryId || "",
-
+        categoryId: editData?.categoryId?._id || "",
+        subCategoryId: editData?.subCategoryId?._id || "",
         brand: editData?.brand || "",
-
         tags: editData?.tags?.join(",") || "",
-
         highlights: editData?.highlights?.join(",") || "",
+        images: [],
+        videos: [],
+        imagePreviews: [],
+        videoPreviews: [],
       });
     }
   }, [editData]);
 
+  // ----------------------
+  // HANDLE INPUT
+  // ----------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -59,15 +80,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     }));
   };
 
-  useEffect(() => {
-    const categoryId = editData?.categoryId?._id || editData?.categoryId;
-
-    if (categoryId) {
-      dispatch(fetchSubcategorybyCategoryID(categoryId));
-    }
-  }, [editData, dispatch]);
-
-  const handleCategoryChange = (e) => {
+  // ----------------------
+  // CATEGORY CHANGE + API CALL
+  // ----------------------
+  const handleCategoryChange = async (e) => {
     const categoryId = e.target.value;
 
     setProduct((prev) => ({
@@ -76,170 +92,248 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       subCategoryId: "",
     }));
 
-    if (categoryId) {
-      dispatch(fetchSubcategorybyCategoryID(categoryId));
-    }
-  };
+    if (!categoryId) return;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("SUBMIT CLICKED");
     try {
-      const payload = {
-        name: product.name,
-        slug: product.slug,
-        shortDescription: product.shortDescription,
-        fullDescription: product.fullDescription,
-        categoryId: product.categoryId,
-        subCategoryId: product.subCategoryId,
-        brand: product.brand,
-        tags: product.tags,
-        highlights: product.highlights,
-      };
+      setLoadingSubs(true);
 
-      if (editData?._id) {
-        await dispatch(editProductDetails(editData._id, payload));
-      } else {
-        await dispatch(createProduct(payload));
-      }
-
-      refreshProducts?.();
-      onClose?.();
+      const res = await dispatch(
+        fetchSubcategorybyCategoryID(categoryId)
+      );
+     console.log({res});
+     
+      setSubcategories(res?.subcategories || []);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoadingSubs(false);
     }
   };
 
+  // ----------------------
+  // IMAGE UPLOAD
+  // ----------------------
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    setProduct((prev) => ({
+      ...prev,
+      images: files,
+      imagePreviews: files.map((file) => URL.createObjectURL(file)),
+    }));
+  };
+
+  // ----------------------
+  // VIDEO UPLOAD
+  // ----------------------
+  const handleVideoChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    setProduct((prev) => ({
+      ...prev,
+      videos: files,
+      videoPreviews: files.map((file) => URL.createObjectURL(file)),
+    }));
+  };
+
+  // ----------------------
+  // CLICK TRIGGERS
+  // ----------------------
+  const handleImageClick = () => imageInputRef.current?.click();
+  const handleVideoClick = () => videoInputRef.current?.click();
+
+  // ----------------------
+  // CLEANUP URLS
+  // ----------------------
+  useEffect(() => {
+    return () => {
+      product.imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+      product.videoPreviews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [product.imagePreviews, product.videoPreviews]);
+
+  // ----------------------
+  // SUBMIT
+  // ----------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+    formData.append("name", product.name);
+    formData.append("slug", product.slug);
+    formData.append("shortDescription", product.shortDescription);
+    formData.append("fullDescription", product.fullDescription);
+    formData.append("categoryId", product.categoryId);
+    formData.append("subCategoryId", product.subCategoryId);
+    formData.append("brand", product.brand);
+    formData.append("tags", product.tags);
+    formData.append("highlights", product.highlights);
+
+    product.images.forEach((img) => formData.append("images", img));
+    product.videos.forEach((vid) => formData.append("videos", vid));
+
+    if (editData?._id) {
+      await dispatch(editProductDetails(editData._id, formData));
+    } else {
+      await dispatch(createProduct(formData));
+    }
+
+    refreshProducts?.();
+    onClose?.();
+  };
+
+  // ----------------------
+  // UI
+  // ----------------------
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="space-y-4 p-4  ">
-        <div className="grid grid-cols-3 gap-3">
-          <input
-            type="text"
-            name="name"
-            value={product.name}
-            onChange={handleChange}
-            placeholder="Product Name"
-            className="w-full border rounded-lg px-4 py-2"
-            required
-          />
-          <input
-            type="text"
-            name="slug"
-            value={product.slug}
-            onChange={handleChange}
-            placeholder="Slug"
-            className="w-full border rounded-lg px-4 py-2"
-            required
-          />
-          <input
-            type="text"
-            name="brand"
-            value={product.brand}
-            onChange={handleChange}
-            placeholder="Brand Name"
-            className="w-full border rounded-lg px-4 py-2"
-          />
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4 p-4">
 
-        <div className="grid grid-cols-3 gap-3">
-          <select
-            name="categoryId"
-            value={product.categoryId}
-            onChange={handleCategoryChange}
-            className="w-full border rounded-lg px-4 py-2"
-            required
-          >
-            <option value="">
-              {loading ? "Loading Categories..." : "Select Category"}
-            </option>
-
-            {categories?.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <select
-            name="subCategoryId"
-            value={product.subCategoryId}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2"
-            required
-            disabled={!product.categoryId}
-          >
-            <option value="">
-              {product.categoryId
-                ? "Select Subcategory"
-                : "Select Category First"}
-            </option>
-
-            {Subcategories?.map((subcategory) => (
-              <option key={subcategory._id} value={subcategory._id}>
-                {subcategory.name}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            name="tags"
-            value={product.tags}
-            onChange={handleChange}
-            placeholder="Tags..."
-            className="w-full border rounded-lg px-4 py-2"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            name="shortDescription"
-            value={product.shortDescription}
-            onChange={handleChange}
-            placeholder="Short Descripition"
-            className="w-full border rounded-lg px-4 py-2"
-            required
-          />
-
-          <input
-            type="text"
-            name="highlights"
-            value={product.highlights}
-            onChange={handleChange}
-            placeholder="Highlights"
-            className="w-full border rounded-lg px-4 py-2"
-          />
-        </div>
-
-        <textarea
-          name="fullDescription"
-          value={product.fullDescription}
+      {/* BASIC */}
+      <div className="grid grid-cols-3 gap-3">
+        <input
+          name="name"
+          value={product.name}
           onChange={handleChange}
-          placeholder="Full Description"
-          className="w-full border rounded-lg px-4 py-2"
-          required
+          placeholder="Product Name"
+          className="border p-2 rounded"
         />
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-              className=" cursor-pointer
-                px-8 py-1.5
-                rounded-xl
-                bg-[#5C4033]
-                text-white
-                font-semibold
-                shadow-md
-                hover:bg-[#4A3227]
-                transition-all
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-              "
-          >
-            {editData ? "Update Product" : "Create Product"}
-          </button>
+        <input
+          name="slug"
+          value={product.slug}
+          onChange={handleChange}
+          placeholder="Slug"
+          className="border p-2 rounded"
+        />
+
+        <input
+          name="brand"
+          value={product.brand}
+          onChange={handleChange}
+          placeholder="Brand"
+          className="border p-2 rounded"
+        />
+      </div>
+
+      {/* CATEGORY */}
+      <div className="grid grid-cols-2 gap-3">
+        <select
+          value={product.categoryId}
+          onChange={handleCategoryChange}
+          className="border p-2 rounded"
+        >
+          <option value="">
+            {loading ? "Loading..." : "Select Category"}
+          </option>
+
+          {categories?.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="subCategoryId"
+          value={product.subCategoryId}
+          onChange={handleChange}
+          className="border p-2 rounded"
+        >
+          <option value="">
+            {loadingSubs ? "Loading..." : "Select Subcategory"}
+          </option>
+
+          {subcategories?.map((s) => (
+            <option key={s._id} value={s._id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* UPLOAD */}
+      <div className="grid grid-cols-2 gap-6">
+
+        {/* IMAGES */}
+        <div
+          onClick={handleImageClick}
+          className="border-2 border-dashed p-4 text-center cursor-pointer"
+        >
+          🖼️ Upload Images
+          <input
+            ref={imageInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+
+          <div className="flex gap-2 mt-2 flex-wrap">
+            {product.imagePreviews.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                className="w-20 h-20 object-cover rounded"
+              />
+            ))}
+          </div>
         </div>
-      </form>
-    </div>
+
+        {/* VIDEOS */}
+        <div
+          onClick={handleVideoClick}
+          className="border-2 border-dashed p-4 text-center cursor-pointer"
+        >
+          🎥 Upload Videos
+          <input
+            ref={videoInputRef}
+            type="file"
+            multiple
+            accept="video/*"
+            onChange={handleVideoChange}
+            className="hidden"
+          />
+
+          <div className="flex gap-2 mt-2 flex-wrap">
+            {product.videoPreviews.map((vid, i) => (
+              <video
+                key={i}
+                src={vid}
+                controls
+                className="w-32 h-24 rounded"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* DESCRIPTION */}
+      <input
+        name="shortDescription"
+        value={product.shortDescription}
+        onChange={handleChange}
+        placeholder="Short Description"
+        className="border p-2 w-full rounded"
+      />
+
+      <textarea
+        name="fullDescription"
+        value={product.fullDescription}
+        onChange={handleChange}
+        placeholder="Full Description"
+        className="border p-2 w-full rounded"
+      />
+
+      {/* SUBMIT */}
+      <button
+        type="submit"
+        className="bg-[#5C4033] text-white px-6 py-2 rounded"
+      >
+        {editData ? "Update Product" : "Create Product"}
+      </button>
+    </form>
   );
 };
 
