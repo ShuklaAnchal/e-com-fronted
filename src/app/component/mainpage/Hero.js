@@ -3,7 +3,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 
 const Hero = () => {
-    const router = useRouter();
+  const router = useRouter();
 
   return (
     <section
@@ -14,12 +14,11 @@ const Hero = () => {
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2">
           <iframe
-            className="w-full h-full opacity-65 scale-105"
-            src="https://www.youtube.com/embed/3i3Iv0ULVs0?autoplay=1&loop=1&mute=1&controls=0&playlist=3i3Iv0ULVs0&showinfo=0&rel=0&enablejsapi=1"
+            className="w-full h-full opacity-65 scale-105 pointer-events-none"
+            src="https://www.youtube.com/embed/3i3Iv0ULVs0?autoplay=1&mute=1&loop=1&playlist=3i3Iv0ULVs0&controls=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3"
             frameBorder="0"
-            allow="autoplay; loop; fullscreen"
-            allowFullScreen
-            title="Hero Background Video" 
+            allow="autoplay; encrypted-media"
+            title="Hero Background Video"
           />
         </div>
       </div>
@@ -42,9 +41,9 @@ const Hero = () => {
           Luxury scents designed to elevate your mood & space
         </p>
 
-        <button 
-         onClick={() => router.push("/products")}
-         className="draw-border border border-luxury-gold/40 text-luxury-cream px-12 py-4 rounded-none text-xs uppercase tracking-[0.25em] font-light transition-all duration-700 ease-out bg-transparent hover:bg-luxury-gold hover:text-luxury-dark shadow-2xl cursor-pointer hover:scale-105 animate-fade-up opacity-0 [animation-fill-mode:forwards] [animation-delay:600ms]"
+        <button
+          onClick={() => router.push("/products")}
+          className="draw-border border border-luxury-gold/40 text-luxury-cream px-12 py-4 rounded-none text-xs uppercase tracking-[0.25em] font-light transition-all duration-700 ease-out bg-transparent hover:bg-luxury-gold hover:text-luxury-dark shadow-2xl cursor-pointer hover:scale-105 animate-fade-up opacity-0 [animation-fill-mode:forwards] [animation-delay:600ms]"
         >
           Explore Collection
         </button>

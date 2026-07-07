@@ -54,7 +54,7 @@ const handleAddVariant = (product) => {
     if (!confirmDelete) return;
 
     try {
-      await dispatch(deleteCategory(product._id));
+      await dispatch( (product._id));
 
       await refreshProducts();
 

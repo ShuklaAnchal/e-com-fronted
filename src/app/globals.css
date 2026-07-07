@@ -29,10 +29,15 @@
 
 .adminpanel {
   background-color: #5c4033;
+  
 }
 
 .text {
   color: #2c2c2c;
+}
+
+.newcoo{
+  color: #d8b98eec;
 }
 
 /* Custom styles for luxury feels */

@@ -34,7 +34,7 @@ const Header = () => {
 
       const count = cart.reduce(
         (total, item) => total + (item.quantity || 1),
-        0
+        0,
       );
 
       setCartCount(count);
@@ -96,7 +96,7 @@ const Header = () => {
       <header
         className={`fixed left-0 w-full transition-all duration-500 backdrop-blur-xl ${
           isScrolled
-            ? "top-0 bg-[#FAF7F2]/95 border-b border-[#C5A880]/15 shadow-[0_4px_30px_rgba(0,0,0,0.02)] z-50 py-4"
+            ? "top-0 bg-[#FAF7F2]/95 border-b border-[#C5A880]/15 shadow-[0_4px_30px_rgba(0,0,0,0.02)] z-50 py-6"
             : "top-12 bg-transparent z-40 py-6"
         }`}
       >
@@ -105,7 +105,9 @@ const Header = () => {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`md:hidden absolute left-4 px-2 transition-colors ${
-              isScrolled ? "text-[#121212] hover:text-[#C5A880]" : "text-white hover:text-[#C5A880]"
+              isScrolled
+                ? "text-[#121212] hover:text-[#C5A880]"
+                : "text-white hover:text-[#C5A880]"
             }`}
           >
             <svg
@@ -140,10 +142,7 @@ const Header = () => {
             ))}
 
             {/* More Dropdown */}
-            <div
-              className="relative"
-              onMouseLeave={() => setShowMore(false)}
-            >
+            <div className="relative" onMouseLeave={() => setShowMore(false)}>
               <button
                 onMouseEnter={() => setShowMore(true)}
                 onClick={() => setShowMore(!showMore)}

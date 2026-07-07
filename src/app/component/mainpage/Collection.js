@@ -1,27 +1,40 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useCategories } from "@/app/hooks/catgeoryHook";
+
+
 
 const categories = [
   {
-    title: "Candles",
-    subtitle: "Pure soy wax & crackling wood wicks",
-    youtube: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+    _id:"1",
+    name: "Candles",
+    description: "Pure soy wax & crackling wood wicks",
+    video: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
   {
-    title: "Diffusers",
-    subtitle: "Delicate botanicals & continuous throw",
-    youtube: "https://v1.pinimg.com/videos/mc/720p/fa/24/0d/fa240df0d8ded9098812e770dc99f587.mp4",
+     _id:"2",
+    name: "Diffusers",
+    description: "Delicate botanicals & continuous throw",
+    video: "https://v1.pinimg.com/videos/mc/720p/fa/24/0d/fa240df0d8ded9098812e770dc99f587.mp4",
   },
   {
-    title: "Wooden Crafts",
-    subtitle: "Meticulously carved heritage mandalas",
-     youtube: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+     _id:"3",
+    name: "Wooden Crafts",
+    description: "Meticulously carved heritage mandalas",
+     video: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
 ];
 
 const Collection = () => {
   const router = useRouter();
+
+    // const {  categories,
+    // loading,
+    // refreshCategories, } = useCategories();
+
+    // console.log({categories});
+    
 
   return (
     <section className="w-full py-24 bg-luxury-cream border-b border-luxury-gold/10">
@@ -40,9 +53,9 @@ const Collection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
           {categories.map((item) => (
             <div
-              key={item.title}
+              key={item._id}
               onClick={() =>
-                router.push(`/categories/${item.title.toLowerCase()}`)
+                router.push(`/categories/${item.name.toLowerCase()}`)
               }
               className="
                 group
@@ -59,7 +72,7 @@ const Collection = () => {
               {/* Media */}
               <div className="relative h-[480px] overflow-hidden">
                 <video
-                  src={item.youtube}
+                  src={item.video}
                   autoPlay
                   muted
                   loop
@@ -107,7 +120,7 @@ const Collection = () => {
                       font-light
                     "
                   >
-                    {item.title}
+                    {item.name}
                   </h3>
                 </div>
               </div>
@@ -117,7 +130,7 @@ const Collection = () => {
                 <p
                   className="
                     text-[#6C6C6C]
-                    text-xs
+                    text-[15px]
                     leading-relaxed
                     tracking-wider
                     font-light
@@ -125,7 +138,7 @@ const Collection = () => {
                     line-clamp-2
                   "
                 >
-                  {item.subtitle}
+                  {item.description}
                 </p>
 
                 <div className="flex items-center justify-between mt-8 border-t border-[#C5A880]/10 pt-6">
@@ -135,7 +148,7 @@ const Collection = () => {
                       uppercase
                       tracking-[0.3em]
                       text-[#C5A880]
-                      font-light
+                      font-medium
                       relative
                       after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-px after:bg-[#C5A880] after:scale-x-0 after:origin-right after:transition-transform after:duration-500 group-hover:after:scale-x-100 group-hover:after:origin-left
                     "

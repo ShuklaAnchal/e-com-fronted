@@ -85,7 +85,7 @@ const ReelProducts = () => {
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {/* Heading */}
           <div className="mb-12">
-            <p className="text-xs tracking-[0.4em] uppercase text-[#c5a880] mb-3">
+            <p className="text-xs tracking-[0.4em] uppercase newcoo mb-3">
               Editorial Journal
             </p>
 
@@ -160,18 +160,18 @@ const ReelProducts = () => {
                           })
                         }
                       />
-                      <div className="absolute top-4 right-4 bg-[#121212]/60 backdrop-blur-md px-3 py-1 text-[9px] uppercase tracking-[0.2em] text-[#C5A880]">
+                      <div className="absolute top-4 right-4 bg-[#121212]/60 backdrop-blur-md px-3 py-1 text-[9px] uppercase tracking-[0.2em] newcoo">
                         Play Reel
                       </div>
                     </div>
 
                     {/* Product Content */}
                     <div className="p-5 border-t border-[#C5A880]/10">
-                      <h3 className="text-xs font-serif tracking-[0.15em] uppercase text-black font-light truncate">
+                      <h3 className="text-[15px] font-serif tracking-[0.15em] uppercase text-black font-medium truncate">
                         {item.name}
                       </h3>
 
-                      <p className="mt-2 text-[#C5A880] text-xs font-light font-sans tracking-wide">
+                      <p className="mt-2 newcoo text-[15px] font-light font-sans tracking-wide">
                         Rs. {item.price}
                       </p>
 
@@ -180,7 +180,7 @@ const ReelProducts = () => {
                           router.push(`/products/${item._id}`)
                         }
                         className="mt-5 w-full py-3 border border-[#C5A880]/50
-                                   text-[#C5A880] text-[10px] uppercase tracking-[0.2em] font-light
+                                   newcoo text-[10px] uppercase tracking-[0.2em] font-medium
                                    hover:bg-[#C5A880] hover:text-[#121212]
                                    transition-all duration-500 rounded-none cursor-pointer"
                       >

@@ -29,19 +29,19 @@ export const asyncfetchproduct = () => async (dispatch, getState) => {
   }
 };
 
-//fetch the product by the id
-export const fetchProductbyID = (id) => async (dispatch, getState) => {
+export const fetchProductbyID = (id) => async (dispatch) => {
   try {
-    console.log({id});
-    
-  const { data } = await axios.get(`/products/fetch-productby-id/${id}`);
-  console.log({data});
-  
-    dispatch(productByid(data.product));
-    return data.product;
+    const { data } = await axios.get(
+      `/products/fetch-productby-id/${id}`
+    );
+
+    dispatch(productByid(data));
+
+    return data; // Return the whole response
   } catch (error) {
-    console.error("Error in fetcing product detailes:", error.message);
+    console.error(error);
     dispatch(iserror(error.message));
+    throw error;
   }
 };
 
