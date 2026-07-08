@@ -16,11 +16,17 @@ export function useOrders() {
     setLoading(true);
 
     const allOrdersResult = await dispatch(asyncfetchAllOrders());
-    const userOrdersResult = await dispatch(asyncfetchUserwiseOrders());
-
     if (allOrdersResult?.orders) {
       setAllOrders(allOrdersResult.orders);
     }
+
+    setLoading(false);
+  };
+
+  const refreshuserOrders = async () => {
+    setLoading(true);
+
+    const userOrdersResult = await dispatch(asyncfetchUserwiseOrders());
 
     if (userOrdersResult?.orders) {
       setUserOrders(userOrdersResult.orders);
@@ -38,5 +44,6 @@ export function useOrders() {
     userOrders,
     loading,
     refreshOrders,
+    refreshuserOrders,
   };
 }

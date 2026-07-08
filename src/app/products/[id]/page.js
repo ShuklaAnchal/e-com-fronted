@@ -61,9 +61,9 @@ export default function ProductDetailsPage() {
 
       <Header />
 
-      <main className="pt-32 bg-luxury-cream flex-1">
+      <main className="pt-32 bg-luxury-cream flex-1 mt-32 mb-20">
         <section className="py-16 px-6">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div className="max-w-7xl mx-auto flex flex-row gap-16 items-start">
             {/* Product Images */}
 
             <ProductGallery product={dummyProduct} />

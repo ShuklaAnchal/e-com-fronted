@@ -165,7 +165,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     formData.append("shortDescription", product.shortDescription);
     formData.append("fullDescription", product.fullDescription);
     formData.append("categoryId", product.categoryId);
-    formData.append("subCategoryId", product.subCategoryId);
+    // formData.append("subCategoryId", product.subCategoryId);
     formData.append("brand", product.brand);
     formData.append("tags", product.tags);
     formData.append("highlights", product.highlights);
@@ -234,7 +234,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           ))}
         </select>
 
-        <select
+        {/* <select
           name="subCategoryId"
           value={product.subCategoryId}
           onChange={handleChange}
@@ -249,7 +249,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               {s.name}
             </option>
           ))}
-        </select>
+        </select> */}
       </div>
 
       {/* UPLOAD */}

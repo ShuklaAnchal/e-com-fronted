@@ -18,6 +18,10 @@ export const orderReducer = createSlice({
       state.order = action.payload;
       state.isAuthenticated = true;
     },
+    fetchOrderDetailes:(state, action)=>{
+      state.order = action.payload;
+      state.isAuthenticated = true;
+    },
     createneworder: (state, action) => {
       state.order = action.payload;
       state.isAuthenticated = true;
@@ -41,6 +45,7 @@ export const {
   createneworder,
   fetchorder,
   fetchorderAdmin,
+  fetchOrderDetailes,
   editorder,
   removeorder,
   iserror,

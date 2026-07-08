@@ -3,6 +3,7 @@ import {
   createneworder,
   fetchorder,
   fetchorderAdmin,
+  fetchOrderDetailes,
   editorder,
   removeorder,
   iserror,
@@ -26,7 +27,7 @@ export const asyncfetchAllOrders = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get("/orders/Admin-Allordersview", config);
+    const { data } = await axios.get("/order/Admin-Allordersview", config);
     // console.log("Fetched products:", data.products);
     dispatch(fetchorderAdmin(data));
     return data;
@@ -47,7 +48,7 @@ export const asyncfetchUserwiseOrders = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get("/orders/user-allOrders", config);
+    const { data } = await axios.get("/order/user-allOrders", config);
     // console.log("Fetched products:", data.products);
     dispatch(fetchorder(data));
     return data;
@@ -60,20 +61,27 @@ export const asyncfetchUserwiseOrders = () => async (dispatch, getState) => {
 //fetch the product by the id
 export const fetchOrderbyID = (id) => async (dispatch, getState) => {
   try {
-    const token = getToken(); // get token from localStorage
+    const token = getToken();
 
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
+        Authorization: `Bearer ${token}`,
       },
     };
 
-    const { data } = await axios.get(`/orders/user-orderdetiles/${id}`, config);
+    const { data } = await axios.get(
+      `/order/user-orderdetiles/${id}`,
+      config
+    );
 
-    dispatch(fetchorder(data));
-    return data;
+    console.log(data);
+
+    // Store only the order object
+    dispatch(fetchOrderDetailes(data.order));
+
+    return data.order;
   } catch (error) {
-    console.error("Error in fetcing product detailes:", error.message);
+    console.error("Error in fetching order details:", error.message);
     dispatch(iserror(error.message));
   }
 };
