@@ -9,7 +9,10 @@ import {
 
 const getToken = () => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    if (token && token !== "undefined" && token !== "null") {
+      return token;
+    }
   }
   return null;
 };

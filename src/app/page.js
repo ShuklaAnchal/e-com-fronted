@@ -5,7 +5,7 @@ import About from '@/app/component/mainpage/About'
 import MarqueeBarBottom from '@/app/component/mainpage/MarqueeBarBottom'
 import TestimonialSlider from '@/app/component/mainpage/TestimonialSlider'
 import ReelProducts from '@/app/component/mainpage/ReelProducts'
-import Header from '@/app/component/mainpage/Hearder'
+import Header from '@/app/component/mainpage/Header'
 import Footer from '@/app/component/resuable/Footer'
 import MarqueeBar from '@/app/component/mainpage/MarqueeBar'
 import Banner from "@/app/component/mainpage/Banner";

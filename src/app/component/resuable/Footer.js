@@ -60,7 +60,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <img
-              src="/siyaas-removebg-preview.png"
+              src="/siyassLogowhite.png"
               alt="Siyaas"
               className="w-32 mb-6"
             />

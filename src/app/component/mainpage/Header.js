@@ -3,16 +3,23 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
-import { CiSearch } from "react-icons/ci";
-import { SlUser } from "react-icons/sl";
-import { GiShoppingCart } from "react-icons/gi";
+import { FiMenu } from "react-icons/fi";
+import { fetchCurrentUser } from "@/app/store/action/loginAction";
 
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
 
   const isHomePage = pathname === "/";
+  const loginState = useSelector((state) => state.login);
+
+  console.log("Login State:", loginState);
+
+  const dispatch = useDispatch();
+
+  const admin = loginState?.admin || null;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,6 +48,16 @@ const Header = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [isHomePage]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log({token});
+    
+
+    if (token && !admin) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, admin]);
 
   // Cart count
   useEffect(() => {
@@ -129,8 +146,17 @@ const Header = () => {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-          {/* Navigation */}
+          {/* Mobile Menu Button */}
+          <button
+            className={`md:hidden transition-colors duration-300 ${
+              isScrolled ? "text-[#121212]" : "text-white"
+            }`}
+            onClick={() => setIsOpen(true)}
+          >
+            <FiMenu className="w-6 h-6" />
+          </button>
 
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <button
@@ -178,7 +204,6 @@ const Header = () => {
           </nav>
 
           {/* Logo */}
-
           <div
             className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
             onClick={() => router.push("/")}
@@ -221,6 +246,7 @@ const Header = () => {
 
             {/* User Icon */}
             <button
+              onClick={() => router.push(admin ? "/user" : "/login")}
               className={`transition-colors duration-300 cursor-pointer ${
                 isScrolled
                   ? "text-[#121212] hover:text-[#C5A880]"
@@ -269,6 +295,70 @@ const Header = () => {
           </div>
         </div>
       </header>
+
+      {/* Mobile Side Panel */}
+      <div
+        style={{ zIndex: 999 }}
+        className={`fixed inset-0 bg-black/50 transition-opacity duration-300 md:hidden ${
+          isOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsOpen(false)}
+      />
+      <div
+        style={{ zIndex: 1000 }}
+        className={`fixed top-0 left-0 h-full w-64 bg-[#FAF7F2] transform transition-all duration-300 md:hidden flex flex-col p-6 ${
+          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full shadow-none"
+        }`}
+      >
+        <div className="flex justify-between items-center mb-10">
+          <Image
+            src="/siyaas-removebg-preview.png"
+            alt="Siyaas Logo"
+            width={80}
+            height={40}
+            className="object-contain"
+          />
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-3xl text-[#121212] leading-none"
+          >
+            &times;
+          </button>
+        </div>
+
+        <nav className="flex flex-col gap-6">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavClick(item)}
+              className="text-left text-sm uppercase tracking-[0.2em] text-[#121212] hover:text-[#C5A880]"
+            >
+              {item.name}
+            </button>
+          ))}
+          <div className="flex flex-col gap-4 mt-2 border-t border-[#C5A880]/20 pt-6">
+            <span className="text-sm uppercase tracking-[0.2em] text-[#121212]">
+              More ▾
+            </span>
+            <Link
+              href="/faqs"
+              onClick={() => setIsOpen(false)}
+              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
+            >
+              FAQ's
+            </Link>
+            <Link
+              href="/policys/cancellationRefund"
+              onClick={() => setIsOpen(false)}
+              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
+            >
+              Refund Policy
+            </Link>
+          </div>
+        </nav>
+      </div>
 
       {showTopBtn && (
         <button

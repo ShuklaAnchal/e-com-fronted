@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Header from "@/app/component/mainpage/Hearder";
+import Header from "@/app/component/mainpage/Header";
 import Footer from "@/app/component/resuable/Footer";
 
 const categories = [

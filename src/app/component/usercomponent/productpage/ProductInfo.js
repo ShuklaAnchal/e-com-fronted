@@ -1,22 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addToCartAction } from "@/app/store/action/cartAction";
 import QuantitySelector from "./QuantitySelector";
 import ProductActions from "./ProductActions";
 
 export default function ProductInfo({ product }) {
   const [quantity, setQuantity] = useState(1);
+  const dispatch = useDispatch();
 
-  const handleAddToCart = (qty) => {
+  const handleAddToCart = async (qty) => {
     console.log("Added to cart:", product.name, "Quantity:", qty);
-
-    // Later connect your cart API here
+    const result = await dispatch(addToCartAction(product, qty));
+    if (result.success) {
+      alert("Product added to cart successfully!");
+    } else {
+      alert("Failed to add product to cart: " + result.message);
+    }
   };
 
-  const handleBuyNow = (qty) => {
+  const handleBuyNow = async (qty) => {
     console.log("Buy now:", product.name, "Quantity:", qty);
-
-    // Later redirect to checkout page
+    const result = await dispatch(addToCartAction(product, qty));
+    if (result.success) {
+      // Later redirect to checkout page
+      alert("Proceeding to checkout");
+    } else {
+      alert("Failed to add product to cart: " + result.message);
+    }
   };
 
   return (

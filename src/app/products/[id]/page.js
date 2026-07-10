@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/app/component/mainpage/Hearder";
+import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Footer from "@/app/component/resuable/Footer";
 

@@ -1,44 +1,51 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  category: null,
-  error: [],
-  isAuthenticated: true,
+// Helper function to safely get items from localStorage (for initial state)
+const getCartFromLocalStorage = () => {
+  if (typeof window !== "undefined") {
+    const cart = localStorage.getItem("cartItems");
+    return cart ? JSON.parse(cart) : [];
+  }
+  return [];
 };
 
-export const categoryReducer = createSlice({
-  name: "category",
+const initialState = {
+  cartItems: getCartFromLocalStorage(),
+  loading: false,
+  error: null,
+};
+
+export const cartReducerSlice = createSlice({
+  name: "cart",
   initialState,
   reducers: {
-    fetchCategory: (state, action) => {
-      state.category = action.payload;
-      state.isAuthenticated = true;
+    setCartRequest: (state) => {
+      state.loading = true;
+      state.error = null;
     },
-    createnewCategory: (state, action) => {
-      state.category = action.payload;
-      state.isAuthenticated = true;
+    setCartSuccess: (state, action) => {
+      state.loading = false;
+      state.cartItems = action.payload;
     },
-    editCategory: (state, action) => {
-      state.category = action.payload;
-      state.isAuthenticated = true;
+    setCartFail: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
     },
-    removeCategory: (state, action) => {
-      state.category = action.payload;
-      state.isAuthenticated = true;
-    },
-    iserror: (state, action) => {
-      state.error.push(action.payload);
+    // Useful for local storage immediate update without thunk side-effects
+    updateLocalCart: (state, action) => {
+      state.cartItems = action.payload;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cartItems", JSON.stringify(action.payload));
+      }
     },
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
-  createnewCategory,
-  fetchCategory,
-  editCategory,
-  removeCategory,
-  iserror,
-} = categoryReducer.actions;
+  setCartRequest,
+  setCartSuccess,
+  setCartFail,
+  updateLocalCart,
+} = cartReducerSlice.actions;
 
-export default categoryReducer.reducer;
+export default cartReducerSlice.reducer;

@@ -15,7 +15,7 @@ export const loginReducer = createSlice({
       state.isAuthenticated = true;
     },
     logoutuser: (state, action) => {
-      state.admin = null;
+      state.admin = null; 
       state.isAuthenticated = false;
     },
     currentuser: (state, action) => {

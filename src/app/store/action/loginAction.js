@@ -19,7 +19,8 @@ export const asyncfetchlogin = (formData) => async (dispatch, getState) => {
     if (data.token) {
       localStorage.setItem("token", data.token);
     }
-
+  console.log({data});
+  
     // store only user details in redux
     dispatch(loginuser(data.user));
 
