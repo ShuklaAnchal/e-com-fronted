@@ -6,7 +6,7 @@ export default function ProductActions({
   onBuyNow,
 }) {
   return (
-    <div className="space-y-4 mt-8">
+    <div className="space-y-4">
 
       {/* Add to Cart */}
       <button

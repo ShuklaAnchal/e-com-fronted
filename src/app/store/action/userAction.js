@@ -6,7 +6,7 @@ import {
   removeerror,
   currentuser,
   editUser,
-} from "../reducer/loginReducer";
+} from "../reducer/customerReducer";
 
 // SEND OTP
 export const sendOtp = (mobileNumber) => async (dispatch) => {
@@ -44,13 +44,22 @@ export const verifyOtp =
         mobileNumber,
         otp,
       });
-   
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      console.log({data});
-      
-      dispatch(loginuser(data));
+
+    if (data.token) {
+  localStorage.setItem("userToken", data.token);
+}
+ console.log({data});
+
+ console.log({user: data.admin});
+ 
+ 
+dispatch(
+  loginuser({
+    user: data.admin,
+    token: data.token,
+  })
+);
+console.log("Login Action Dispatched");
 
       return {
         success: true,

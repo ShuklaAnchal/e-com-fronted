@@ -15,7 +15,7 @@ const Header = () => {
   const isHomePage = pathname === "/";
   const loginState = useSelector((state) => state.login);
 
-  console.log("Login State:", loginState);
+  // console.log("Login State:", loginState);
 
   const dispatch = useDispatch();
 
@@ -267,7 +267,7 @@ const Header = () => {
 
             {/* Cart Icon */}
             <button
-              onClick={() => router.push("/cart")}
+              onClick={() => router.push("/user/cart")}
               className={`relative transition-colors duration-300 cursor-pointer ${
                 isScrolled
                   ? "text-[#121212] hover:text-[#C5A880]"

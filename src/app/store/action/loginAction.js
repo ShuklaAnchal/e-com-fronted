@@ -17,12 +17,16 @@ export const asyncfetchlogin = (formData) => async (dispatch, getState) => {
 
     // Save token (if API returns it)
     if (data.token) {
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("adminToken", data.token);
     }
-  console.log({data});
-  
-    // store only user details in redux
-    dispatch(loginuser(data.user));
+    console.log({ data });
+
+    dispatch(
+      loginuser({
+        user: data.user,
+        token: data.token,
+      }),
+    );
 
     return { success: true, payload: data };
   } catch (error) {

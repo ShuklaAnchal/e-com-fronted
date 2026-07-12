@@ -5,9 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCartAction, fetchCart } from "@/app/store/action/cartAction";
-import Header from "@/app/component/mainpage/Header";
-import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
-import Footer from "@/app/component/resuable/Footer";
+
 
 export default function CartPage() {
   const router = useRouter();
@@ -58,9 +56,6 @@ export default function CartPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <MarqueeBar />
-      <Header />
-
       <main className="flex-1 bg-luxury-cream pt-32 mb-20 mt-[100px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12 animate-fade-up">
@@ -193,8 +188,6 @@ export default function CartPage() {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

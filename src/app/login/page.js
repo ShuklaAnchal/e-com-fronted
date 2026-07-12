@@ -61,7 +61,7 @@ export default function LoginPage() {
 
     if (res.success) {
       alert("Login Successful");
-      router.push("/cart");
+      router.push("/user/cart");
     } else {
       alert(res.message);
     }

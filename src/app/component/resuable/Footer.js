@@ -106,7 +106,7 @@ const Footer = () => {
           {/* Shop */}
           <div>
             <h3 className="text-sm tracking-[0.25em] uppercase text-[#C5A880] mb-6">
-              Shop
+              About Siyass
             </h3>
 
             <ul className="space-y-4">
@@ -134,6 +134,20 @@ const Footer = () => {
               <li className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm">
                 Bestsellers
               </li>
+
+              
+              <li
+                onClick={() => router.push("/blogs")}
+                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
+              >
+                Blogs
+              </li>
+                  <li
+                onClick={() => router.push("/blogs")}
+                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
+              >
+                About Us
+              </li>
             </ul>
           </div>
 
@@ -144,7 +158,7 @@ const Footer = () => {
               className="w-full flex justify-between items-center md:cursor-default"
             >
               <h3 className="text-sm tracking-[0.25em] uppercase text-[#C5A880]">
-                Policies
+                Customer Services
               </h3>
 
               <FaChevronDown

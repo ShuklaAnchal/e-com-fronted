@@ -4,8 +4,8 @@ import categoryReducer from "./reducer/categoryReducer"
 import SubcategoryReducer from "./reducer/subcatgeoryReducer";
 import productReducer  from "./reducer/productReducer";
 import customerReducer from "./reducer/customerReducer";
-import orderReducer from "./reducer/orderReducer"
-import cartReducer from "./reducer/cartReducer"
+import orderReducer from "./reducer/orderReducer";
+import cartReducer from "./reducer/cartReducer";
 
 export const store = configureStore({
   reducer: {
@@ -13,8 +13,8 @@ export const store = configureStore({
     catgeory:categoryReducer,
     subcategory:SubcategoryReducer,
     product:productReducer,
-    customer:customerReducer, 
     order:orderReducer,
-    cart:cartReducer
+    cart:cartReducer,
+    user:customerReducer
   },
 });
