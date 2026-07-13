@@ -77,3 +77,16 @@ console.log("Login Action Dispatched");
       };
     }
   };
+
+
+export const asyncfetchUsers = () => async (dispatch, getState) => {
+  try {
+    const { data } = await axios.get("/user/getall-user");
+    console.log("Fetched products:", data.user);
+    dispatch(currentuser(data.user));
+    return data;
+  } catch (error) {
+    console.error("Error in fetcing users:", error.message);
+    dispatch(iserror(error.message));
+  }
+};  
