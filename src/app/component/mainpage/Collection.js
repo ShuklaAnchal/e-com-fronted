@@ -54,7 +54,7 @@ const Collection = () => {
           {categories.map((item) => (
             <div
               key={item._id}
-              onClick={() => router.push(`/category/${item._id}`)}
+              onClick={() => router.push(`/category/${item.name}`)}
               className="
                 group
                 cursor-pointer

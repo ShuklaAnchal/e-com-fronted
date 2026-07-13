@@ -1,19 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useState } from "react";
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from '@/app/component/mainpage/MarqueeBar'
 
 import Footer from "@/app/component/resuable/Footer";
 
-const CategoryProductsPage = ({ params }) => {
+const CategoryProductsPage = () => {
   const router = useRouter();
+    const params = useParams();
+
+  const categoryName = decodeURIComponent(params.id);
+  console.log({categoryName});
+  
+  
   
   // Unwrap params using React.use if needed in React 19, or just use params.id
   // We'll decode the category ID (or name) to display
-  const categoryName = decodeURIComponent(params.id || "Category");
+  // const categoryName = decodeURIComponent(params.id || "Category");
 
   const [products] = useState([
     {
