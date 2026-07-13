@@ -52,7 +52,7 @@ const CategoryPage = () => {
             {categories.map((item, index) => (
               <div
                 key={item._id}
-                onClick={() => router.push(`/category/${item.name.toLowerCase()}`)}
+                onClick={() => router.push(`/category/${id}`)}
                 className="group cursor-pointer bg-[#FAF7F2] overflow-hidden border border-[#C5A880]/10 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2.5 hover:border-[#C5A880]/40 hover:shadow-[0_20px_50px_rgba(197,168,128,0.08)] animate-fade-in"
                 style={{ animationDelay: `${index * 150}ms` }}
               >

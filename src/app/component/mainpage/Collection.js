@@ -3,38 +3,38 @@
 import { useRouter } from "next/navigation";
 import { useCategories } from "@/app/hooks/catgeoryHook";
 
-
-
 const categories = [
   {
-    _id:"1",
+    _id: "1",
     name: "Candles",
     description: "Pure soy wax & crackling wood wicks",
-    video: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+    video:
+      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
   {
-     _id:"2",
+    _id: "2",
     name: "Diffusers",
     description: "Delicate botanicals & continuous throw",
-    video: "https://v1.pinimg.com/videos/mc/720p/fa/24/0d/fa240df0d8ded9098812e770dc99f587.mp4",
+    video:
+      "https://v1.pinimg.com/videos/mc/720p/fa/24/0d/fa240df0d8ded9098812e770dc99f587.mp4",
   },
   {
-     _id:"3",
+    _id: "3",
     name: "Wooden Crafts",
     description: "Meticulously carved heritage mandalas",
-     video: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+    video:
+      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
 ];
 
 const Collection = () => {
   const router = useRouter();
 
-    // const {  categories,
-    // loading,
-    // refreshCategories, } = useCategories();
+  // const {  categories,
+  // loading,
+  // refreshCategories, } = useCategories();
 
-    // console.log({categories});
-    
+  // console.log({categories});
 
   return (
     <section className="w-full py-24 bg-luxury-cream border-b border-luxury-gold/10">
@@ -54,9 +54,7 @@ const Collection = () => {
           {categories.map((item) => (
             <div
               key={item._id}
-              onClick={() =>
-                router.push(`/categories/${item.name.toLowerCase()}`)
-              }
+              onClick={() => router.push(`/category/${item._id}`)}
               className="
                 group
                 cursor-pointer
