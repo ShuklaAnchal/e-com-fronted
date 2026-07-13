@@ -10,7 +10,7 @@ import {
 
 export default function BlogCard({ blog }) {
   return (
-    <article className="group bg-white rounded-3xl overflow-hidden border border-luxury-gold/15 hover:border-luxury-gold/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+    <article className="group bg-white rounded-3xl px-4 py-2 overflow-hidden border border-luxury-gold/15 hover:border-luxury-gold/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
 
       {/* Image */}
 

@@ -14,7 +14,7 @@ export const blogs = [
 
     readTime: "5 min read",
 
-    image: "/blogs/blog1.jpg",
+    image: "/banner2.png",
 
     excerpt:
       "Discover why natural soy wax candles provide a cleaner burn, richer fragrance throw, and a healthier atmosphere for your home.",
@@ -37,7 +37,7 @@ export const blogs = [
 
     readTime: "4 min read",
 
-    image: "/blogs/blog2.jpg",
+    image: "/banner2.png",
 
     excerpt:
       "Every room tells a story. Learn how different fragrance families can elevate your living room, bedroom, workspace and dining area.",
@@ -60,7 +60,7 @@ export const blogs = [
 
     readTime: "6 min read",
 
-    image: "/blogs/blog3.jpg",
+    image: "/banner2.png",
 
     excerpt:
       "Simple candle care rituals that help your handcrafted candles burn beautifully while extending their lifespan.",
@@ -83,7 +83,7 @@ export const blogs = [
 
     readTime: "7 min read",
 
-    image: "/blogs/blog4.jpg",
+    image: "/banner2.png",
 
     excerpt:
       "Transform ordinary evenings into calming rituals using layered fragrance, warm lighting and mindful moments.",
@@ -106,7 +106,7 @@ export const blogs = [
 
     readTime: "5 min read",
 
-    image: "/blogs/blog5.jpg",
+    image: "/banner2.png",
 
     excerpt:
       "Luxury candles are timeless gifts. Explore elegant gifting ideas for birthdays, anniversaries and festive celebrations.",
@@ -129,7 +129,7 @@ export const blogs = [
 
     readTime: "5 min read",
 
-    image: "/blogs/blog6.jpg",
+    image: "/banner2.png",
 
     excerpt:
       "Top, heart and base notes work together to create unforgettable fragrance journeys. Here's how luxury perfumers build scent profiles.",

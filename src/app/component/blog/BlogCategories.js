@@ -48,7 +48,7 @@ export default function BlogCategories({
             <button
               key={category}
               onClick={() => handleCategory(category)}
-              className={`px-7 py-3 rounded-full transition-all duration-300 border text-sm tracking-wide
+              className={`px-8 py-3 rounded-full transition-all duration-300 border text-sm tracking-wide
 
                 ${
                   active

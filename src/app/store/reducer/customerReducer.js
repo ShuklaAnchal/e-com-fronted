@@ -12,16 +12,16 @@ export const customerReducer = createSlice({
   name: "user",
   initialState,
   reducers: {
-   loginuser: (state, action) => {
-  state.user = action.payload.user;
-  state.token = action.payload.token;
-  state.isAuthenticated = true;
-},
-  logoutuser: (state) => {
-  state.user = null;
-  state.token = null;
-  state.isAuthenticated = false;
-},
+    loginuser: (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+    },
+    logoutuser: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+    },
     currentuser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
@@ -40,7 +40,13 @@ export const customerReducer = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { loginuser, logoutuser, iserror, removeerror, currentuser , editUser} =
-  customerReducer.actions;
+export const {
+  loginuser,
+  logoutuser,
+  iserror,
+  removeerror,
+  currentuser,
+  editUser,
+} = customerReducer.actions;
 
 export default customerReducer.reducer;

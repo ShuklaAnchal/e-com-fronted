@@ -2,8 +2,6 @@ import axios from "@/app/utils/axios";
 import {
   createnewCustomer,
   fetchCustomer,
-  editCustomer,
-  removeCustomer,
   iserror,
 } from "../reducer/customerReducer";
 
@@ -78,57 +76,57 @@ export const createUsers = (formData) => async (dispatch, getState) => {
 };
 
 
-//edit products detailes
-export const editCategorydetailes =
-  (id, formData) => async (dispatch, getState) => {
-    try {
-      const token = getToken(); // get token from localStorage
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`, // attach token in headers
-          "Content-Type": "multipart/form-data",
-        },
-      };
+// //edit products detailes
+// export const editCategorydetailes =
+//   (id, formData) => async (dispatch, getState) => {
+//     try {
+//       const token = getToken(); // get token from localStorage
+//       const config = {
+//         headers: {
+//           Authorization: `Bearer ${token}`, // attach token in headers
+//           "Content-Type": "multipart/form-data",
+//         },
+//       };
 
-      const result = await axios.put(
-        `/categorys/update-category/${id}`,
-        formData,
-        config
-      );
+//       const result = await axios.put(
+//         `/categorys/update-category/${id}`,
+//         formData,
+//         config
+//       );
 
-      dispatch(editCategory(result.data));
-      return { success: true, payload: result.data };
-    } catch (error) {
-      dispatch(
-        iserror(error?.response?.data?.message || "Failed to create product")
-      );
-      return {
-        success: false,
-        message: error?.response?.data?.message || "Error",
-      };
-    }
-  };
+//       dispatch(editCategory(result.data));
+//       return { success: true, payload: result.data };
+//     } catch (error) {
+//       dispatch(
+//         iserror(error?.response?.data?.message || "Failed to create product")
+//       );
+//       return {
+//         success: false,
+//         message: error?.response?.data?.message || "Error",
+//       };
+//     }
+//   };
 
-//delete product detailes
-export const deleteCategory = (id) => async (dispatch, getState) => {
+// //delete product detailes
+// export const deleteCategory = (id) => async (dispatch, getState) => {
 
-  try {
-    const token = getToken(); // get token from localStorage
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
-      },
-    };
-    const response = await axios.delete(`/categorys/delete-category/${id}`, config);
-    dispatch(removeCategory(response.data));
-    return { success: true, payload: response.data };
-  } catch (error) {
-    dispatch(
-      iserror(error?.response?.data?.message || "Failed to create product")
-    );
-    return {
-      success: false,
-      message: error?.response?.data?.message || "Error",
-    };
-  }
-};
+//   try {
+//     const token = getToken(); // get token from localStorage
+//     const config = {
+//       headers: {
+//         Authorization: `Bearer ${token}`, // attach token in headers
+//       },
+//     };
+//     const response = await axios.delete(`/categorys/delete-category/${id}`, config);
+//     dispatch(removeCategory(response.data));
+//     return { success: true, payload: response.data };
+//   } catch (error) {
+//     dispatch(
+//       iserror(error?.response?.data?.message || "Failed to create product")
+//     );
+//     return {
+//       success: false,
+//       message: error?.response?.data?.message || "Error",
+//     };
+//   }
+// };
