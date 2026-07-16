@@ -9,7 +9,7 @@ const initialState = {
 };
 
 export const loginReducer = createSlice({
-  name: "login",
+  name: "admin",
   initialState,
   reducers: {
     loginuser: (state, action) => {

@@ -1,46 +1,85 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCurrentUser } from "@/app/store/action/loginAction";
 
 export default function ProtectedRoute({ children, type }) {
   const router = useRouter();
+  const dispatch = useDispatch();
 
+  const [isLoading, setIsLoading] = useState(true);
 
-  const state = useSelector((state) => state);
-
-console.log("Redux State:", state);
-  // Customer Auth
-  const userAuth = useSelector((state) => state.user);
-  // console.log({userAuth});
-  
-
-  // Admin Auth
   const adminAuth = useSelector((state) => state.login);
-  // console.log({adminAuth});
-  
 
+  const adminData = adminAuth?.admin;
+  const currentUser = adminData?.user;
+  const userRole = adminData?.role;
+
+  console.log("Redux Login State:", adminAuth);
+  console.log("Current User:", currentUser);
+  console.log("User Role:", userRole);
+
+  // Fetch current user after refresh
   useEffect(() => {
-    if (type === "user" && !userAuth?.isAuthenticated) {
-      router.replace("/login");
+    const verifyUser = async () => {
+      try {
+        const token = localStorage.getItem("adminToken");
+
+        // No token -> logout
+        if (!token) {
+          router.replace("/adminLogin");
+          return;
+        }
+
+        // Redux empty after refresh -> get current user
+        if (!adminData) {
+          const response = await dispatch(fetchCurrentUser());
+
+          if (!response?.success) {
+            localStorage.removeItem("adminToken");
+            router.replace("/adminLogin");
+            return;
+          }
+        }
+      } catch (error) {
+        console.log("Authentication Error:", error);
+
+        localStorage.removeItem("adminToken");
+        router.replace("/adminLogin");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifyUser();
+  }, [dispatch, router, adminData]);
+
+  // Role based protection
+  useEffect(() => {
+    if (!userRole) return;
+
+    if (type === "admin") {
+      if (userRole !== "admin") {
+        router.replace("/user/dashboard");
+      }
     }
 
-    if (type === "admin" && !adminAuth?.isAuthenticated) {
-      router.replace("/admin/login");
+    if (type === "user") {
+      if (userRole !== "user") {
+        router.replace("/admin/dashboard");
+      }
     }
-  }, [
-    type,
-    userAuth?.isAuthenticated,
-    adminAuth?.isAuthenticated,
-    router,
-  ]);
+  }, [type, userRole, router]);
 
-  if (type === "user" && !userAuth?.isAuthenticated) {
-    return null;
+  // Loading while checking authentication
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  if (type === "admin" && !adminAuth?.isAuthenticated) {
+  // User not authenticated
+  if (!adminAuth?.isAuthenticated) {
     return null;
   }
 

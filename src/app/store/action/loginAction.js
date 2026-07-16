@@ -8,32 +8,30 @@ import {
   editUser,
 } from "../reducer/loginReducer";
 
-export const asyncfetchlogin = (formData) => async (dispatch, getState) => {
+export const asyncfetchlogin = (formData) => async (dispatch) => {
   try {
-    console.log({ formDatas: formData });
+    dispatch(removeerror());
 
-    dispatch(removeerror()); // clear previous errors if any
-    const { data } = await axios.post("/adminlogin", formData); // send formData via POST
-
-    // Save token (if API returns it)
+    const { data } = await axios.post("/adminlogin", formData);
+   console.log({data});
+   
     if (data.token) {
       localStorage.setItem("adminToken", data.token);
     }
-    console.log({ data });
 
+    // Update Redux state
     dispatch(
       loginuser({
-        user: data.user,
+        user: data.user || data.admin,
         token: data.token,
-      }),
+      })
     );
 
-    return { success: true, payload: data };
+    return {
+      success: true,
+      payload: data,
+    };
   } catch (error) {
-    console.log("Full Error:", error);
-    console.log("Response:", error.response);
-    console.log("Response Data:", error.response?.data);
-
     const errorMessage =
       error.response?.data?.message || error.message || "Login failed";
 
@@ -49,9 +47,9 @@ export const asyncfetchlogin = (formData) => async (dispatch, getState) => {
 export const fetchCurrentUser = () => async (dispatch) => {
   try {
     const { data } = await axios.post("/currentadmin"); // your API endpoint
-    dispatch(currentuser(data.admin));
-    console.log({ data });
-
+    console.log({data});
+    
+    dispatch(currentuser(data));
     return { success: true, payload: data.user };
   } catch (error) {
     console.error("Error fetching current user:", error);
