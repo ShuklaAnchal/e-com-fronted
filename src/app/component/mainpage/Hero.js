@@ -12,22 +12,19 @@ const Hero = () => {
     >
       {/* Background video */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2">
-          <iframe
-            className="w-full h-full opacity-65 scale-105 pointer-events-none"
-            src="https://www.youtube.com/embed/3i3Iv0ULVs0?autoplay=1&mute=1&loop=1&playlist=3i3Iv0ULVs0&controls=0&modestbranding=1&rel=0&disablekb=1&iv_load_policy=3"
-            frameBorder="0"
-            allow="autoplay; encrypted-media"
-            title="Hero Background Video"
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <img
+            className="w-full h-full object-cover opacity-65 scale-105"
+            src="/Herebanner.png" // Replace with your actual image path inside the public folder
+            alt="Hero Background Banner"
           />
         </div>
       </div>
 
       {/* Overlay - Luxury Vignette Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-luxury-dark/85 via-black/40 to-luxury-cream/15 z-2" />
+     <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/10 to-luxury-cream/20 z-2" />
       <div className="absolute inset-0 bg-black/40 z-2" />
-
-      {/* Content */}
+      Content
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16 md:mt-24">
         <p className="tracking-[0.45em] text-xs sm:text-sm font-light mb-5 uppercase text-luxury-gold animate-fade-in opacity-0 [animation-fill-mode:forwards]">
           THIS FESTIVE SEASON
