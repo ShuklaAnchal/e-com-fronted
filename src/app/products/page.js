@@ -5,13 +5,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
+import { useProducts } from "@/app/hooks/productHook";
+
 
 import Footer from "@/app/component/resuable/Footer";
 
 const ProductsPage = () => {
   const router = useRouter();
+    const { products, loading, refreshProducts } = useProducts();
 
-  const [products] = useState([
+
+  const [productss] = useState([
     {
       _id: "1",
       name: "Vanilla Soy Candle",
@@ -103,7 +107,7 @@ const ProductsPage = () => {
         <section className="py-20">
           <div className="container mx-auto px-6 max-w-7xl">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-              {products.map((product) => (
+              {productss.map((product) => (
                 <div
                   key={product._id}
                   onClick={() => router.push(`/products/${product._id}`)}

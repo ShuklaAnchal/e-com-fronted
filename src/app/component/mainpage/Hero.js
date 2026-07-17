@@ -14,7 +14,7 @@ const Hero = () => {
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <img
-            className="w-full h-full object-cover opacity-65 scale-105"
+            className="w-full h-full object-cover opacity-65"
             src="/Herebanner.png" // Replace with your actual image path inside the public folder
             alt="Hero Background Banner"
           />
@@ -23,7 +23,7 @@ const Hero = () => {
 
       {/* Overlay - Luxury Vignette Gradient */}
      <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/10 to-luxury-cream/20 z-2" />
-      <div className="absolute inset-0 bg-black/40 z-2" />
+      <div className="absolute inset-0 z-2" />
       Content
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16 md:mt-24">
         <p className="tracking-[0.45em] text-xs sm:text-sm font-light mb-5 uppercase text-luxury-gold animate-fade-in opacity-0 [animation-fill-mode:forwards]">

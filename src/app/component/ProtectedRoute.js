@@ -15,7 +15,7 @@ export default function ProtectedRoute({ children, type }) {
 
   const adminData = adminAuth?.admin;
   const currentUser = adminData?.user;
-  const userRole = adminData?.role;
+  const userRole = adminData?.role || adminData?.userType;
 
   console.log("Redux Login State:", adminAuth);
   console.log("Current User:", currentUser);

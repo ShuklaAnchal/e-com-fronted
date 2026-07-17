@@ -18,11 +18,12 @@ export const asyncfetchlogin = (formData) => async (dispatch) => {
     if (data.token) {
       localStorage.setItem("adminToken", data.token);
     }
+console.log({data:data.admin});
 
     // Update Redux state
     dispatch(
       loginuser({
-        user: data.user || data.admin,
+        user: data.admin,
         token: data.token,
       })
     );
