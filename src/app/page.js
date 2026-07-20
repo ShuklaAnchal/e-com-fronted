@@ -9,24 +9,25 @@ import Header from "@/app/component/mainpage/Header";
 import Footer from "@/app/component/resuable/Footer";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Banner from "@/app/component/mainpage/Banner";
+import Exclusively from "@/app/component/mainpage/exclusively";
 
 export default function Home() {
   return (
-    <main>
+    <main >
       <MarqueeBar />
       <Header />
       <section id="home">
         <Hero />
       </section>
+        <ReelProducts />
       <Collection />
-      <ReelProducts />
       <Banner />
       <section id="products">
         <Products />
       </section>
       <TestimonialSlider />
       <About />
-      {/* <MarqueeBarBottom /> */}
+      <Exclusively /> 
       <Footer />
     </main>
   );

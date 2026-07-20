@@ -15,8 +15,6 @@ const Header = () => {
   const isHomePage = pathname === "/";
   const loginState = useSelector((state) => state.login);
 
-  // console.log("Login State:", loginState);
-
   const dispatch = useDispatch();
 
   const admin = loginState?.admin || null;
@@ -139,9 +137,9 @@ const Header = () => {
   return (
     <>
       <header
-        className={`fixed left-0 w-full transition-all duration-500 backdrop-blur-xl ${
+        className={`fixed left-0 w-full transition-all duration-500  ${
           isScrolled
-            ? "top-0 bg-[#FAF7F2]/95 border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
+            ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
             : "top-12 bg-transparent z-40 py-6"
         }`}
       >
@@ -162,7 +160,7 @@ const Header = () => {
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                className={`text-xs uppercase tracking-[0.25em] transition-colors ${
+                className={`text-xs uppercase tracking-[0.25em] transition-colors font-semibold ${
                   isScrolled
                     ? "text-[#121212] hover:text-[#C5A880]"
                     : "text-white hover:text-[#C5A880]"
@@ -176,7 +174,7 @@ const Header = () => {
               <button
                 onMouseEnter={() => setShowMore(true)}
                 onClick={() => setShowMore(!showMore)}
-                className={`text-xs uppercase tracking-[0.25em] ${
+                className={`text-xs uppercase tracking-[0.25em] font-semibold ${
                   isScrolled ? "text-[#121212]" : "text-white"
                 }`}
               >
@@ -197,6 +195,12 @@ const Header = () => {
                     className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
                   >
                     Refund Policy
+                  </Link>
+                   <Link
+                    href="/policys/cancellationRefund"
+                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                  >
+                   Blogs  
                   </Link>
                 </div>
               )}
@@ -237,7 +241,7 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="2"
               >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -258,7 +262,7 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="2"
               >
                 <circle cx="12" cy="7" r="4" />
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -279,7 +283,7 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="2"
               >
                 <circle cx="9" cy="21" r="1" />
                 <circle cx="20" cy="21" r="1" />

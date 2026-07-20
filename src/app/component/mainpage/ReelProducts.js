@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -9,8 +8,9 @@ import "swiper/css";
 const ReelProducts = () => {
   const router = useRouter();
   const swiperRef = useRef(null);
-
+  const videoRefs = useRef([]);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const products = [
     {
@@ -53,7 +53,7 @@ const ReelProducts = () => {
         url: "https://v1.pinimg.com/videos/mc/720p/2a/c1/6e/2ac16ebbdb7cb8b3d65a3d0cf1e44d42.mp4",
       },
     },
-        {
+    {
       _id: "demo6",
       name: "Luxury Collection",
       price: 1499,
@@ -61,7 +61,7 @@ const ReelProducts = () => {
         url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
       },
     },
-        {
+    {
       _id: "demo7",
       name: "Luxury Collection",
       price: 1499,
@@ -69,7 +69,7 @@ const ReelProducts = () => {
         url: "https://v1.pinimg.com/videos/mc/720p/c0/e5/03/c0e5039f7f97c6669f58fa7eddfa43c9.mp4",
       },
     },
-        {
+    {
       _id: "demo8",
       name: "Luxury Collection",
       price: 1499,
@@ -79,12 +79,28 @@ const ReelProducts = () => {
     },
   ];
 
+  useEffect(() => {
+    const firstVideo = videoRefs.current[0];
+
+    if (firstVideo) {
+      firstVideo.play().catch(() => {});
+    }
+
+    return () => {
+      videoRefs.current.forEach((video) => {
+        if (video) {
+          video.pause();
+        }
+      });
+    };
+  }, []);
+
   return (
     <>
-      <section className="w-full py-20 bg-[#faf7f2]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <section className="w-[100%] py-20 webprimarycolor flex justify-center items-center">
+        <div className="w-[90%] px-4 md:px-6">
           {/* Heading */}
-          <div className="mb-12">
+          {/* <div className="mb-12">
             <p className="text-xs tracking-[0.4em] uppercase newcoo mb-3">
               Editorial Journal
             </p>
@@ -96,14 +112,14 @@ const ReelProducts = () => {
             <p className="mt-4 text-sm italic text-gray-500">
               Experience the sensory warmth of our handcrafted collection.
             </p>
-          </div>
+          </div> */}
 
           {/* Slider Wrapper */}
           <div className="relative">
             {/* Left Arrow */}
             <button
               onClick={() => swiperRef.current?.slidePrev()}
-              className="absolute -left-6 md:-left-8 top-1/2 -translate-y-1/2 z-20
+              className="absolute -left-5 md:-left-8 top-1/2 -translate-y-1/2 z-20
                          w-12 h-12 rounded-full bg-[#FAF7F2]/90 text-black
                          shadow-md border border-[#C5A880]/20 hover:border-[#C5A880] hover:bg-[#C5A880] hover:text-black
                          transition-all duration-300 flex items-center justify-center cursor-pointer"
@@ -128,8 +144,25 @@ const ReelProducts = () => {
               onSwiper={(swiper) => {
                 swiperRef.current = swiper;
               }}
-              spaceBetween={24}
+              onSlideChange={(swiper) => {
+                setActiveIndex(swiper.activeIndex);
+
+                videoRefs.current.forEach((video, i) => {
+                  if (!video) return;
+
+                  if (i === swiper.activeIndex) {
+                    video.currentTime = 0;
+                    video.play().catch(() => {});
+                  } else {
+                    video.pause();
+                    video.currentTime = 0;
+                  }
+                });
+              }}
+              spaceBetween={20}
               slidesPerView={1.2}
+              centeredSlides={false}
+              speed={600}
               breakpoints={{
                 640: {
                   slidesPerView: 2,
@@ -138,22 +171,25 @@ const ReelProducts = () => {
                   slidesPerView: 3,
                 },
                 1024: {
-                  slidesPerView: 4,
+                  slidesPerView: 6,
                 },
               }}
             >
-              {products.map((item) => (
+              {products.map((item, index) => (
                 <SwiperSlide key={item._id}>
-                  <div className="bg-[#FAF7F2] border border-[#C5A880]/15 overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_45px_rgba(197,168,128,0.06)] hover:-translate-y-2">
+                  <div className="bg-border border-[#C5A880]/15 overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_45px_rgba(197,168,128,0.06)] hover:-translate-y-2">
                     {/* Video */}
-                    <div className="relative overflow-hidden aspect-[3/4]">
+                    <div className="relative overflow-hidden aspect-[3/4] rounded-xl">
                       <video
+                        ref={(el) => {
+                          videoRefs.current[index] = el;
+                        }}
                         src={item.video.url}
-                        autoPlay
                         muted
                         loop
                         playsInline
-                        className="w-full h-full object-cover cursor-pointer transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] hover:scale-103"
+                        preload="metadata"
+                        className="w-full h-full object-cover cursor-pointer transition-transform duration-700 hover:scale-105"
                         onClick={() =>
                           setActiveVideo({
                             url: item.video.url,
@@ -176,9 +212,7 @@ const ReelProducts = () => {
                       </p>
 
                       <button
-                        onClick={() =>
-                          router.push(`/products/${item._id}`)
-                        }
+                        onClick={() => router.push(`/products/${item._id}`)}
                         className="mt-5 w-full py-3 border border-[#C5A880]/50
                                    newcoo text-[10px] uppercase tracking-[0.2em] font-medium
                                    hover:bg-[#C5A880] hover:text-[#121212]
@@ -236,9 +270,11 @@ const ReelProducts = () => {
             </button>
 
             <video
+              key={activeVideo.url}
               src={activeVideo.url}
               controls
               autoPlay
+              playsInline
               className="w-full rounded-lg"
             />
           </div>

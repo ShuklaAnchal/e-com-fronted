@@ -4,11 +4,11 @@ import Image from "next/image";
 
 const About = () => {
   return (
-    <section id="about" className="bg-[#FAF7F2] py-32 overflow-hidden border-b border-[#C5A880]/10">
+    <section id="about" className="webprimarycolor py-10 overflow-hidden border-b border-[#C5A880]/10">
       <div className="max-w-7xl mx-auto px-6">
         {/* Top */}
         <div className="text-center max-w-4xl mx-auto">
-          <p className="text-[#C5A880] uppercase tracking-[0.5em] text-xs mb-6 font-light">
+          <p className="text-[#C5A880] uppercase tracking-[0.5em] text-xs mb-5 font-light">
             The Siyaas Philosophy
           </p>
 
@@ -18,7 +18,7 @@ const About = () => {
             Moments Into Rituals
           </h2>
 
-          <div className="w-24 h-px bg-[#C5A880]/30 mx-auto my-10"></div>
+          {/* <div className="w-24 h-px bg-[#C5A880]/30 mx-auto my-10"></div> */}
 
           <p className="text-[#6C6C6C] text-sm leading-8 font-light max-w-3xl mx-auto font-sans tracking-wide">
             Siyaas was born from a simple belief —

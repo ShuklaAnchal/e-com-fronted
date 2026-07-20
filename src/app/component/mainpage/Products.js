@@ -75,8 +75,8 @@ const [products] = useState([
   ]);
 
   return (
-    <section className="py-24 bg-luxury-cream">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <section className="py-24 webprimarycolor w-full">
+      <div className="container mx-auto [90%]">
         <p className="text-center text-xs tracking-[0.4em] text-luxury-gold font-light mb-3 uppercase">
           Latest Releases
         </p>
@@ -89,21 +89,22 @@ const [products] = useState([
           Meticulously formulated. Small-batch poured.
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 lg:gap-8">
           {products.map((product) => (
             <div
               key={product._id}
               onClick={() => router.push(`/products/${product._id}`)}
-              className="text-center cursor-pointer group flex flex-col border border-[#C5A880]/10 p-4 bg-[#FAF7F2] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_50px_rgba(197,168,128,0.06)] hover:-translate-y-1.5"
+              className="text-center cursor-pointer group flex flex-col p-4 webprimarycolor transition-all 
+              duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_50px_rgba(197,168,128,0.06)] hover:-translate-y-1.5"
             >
               {/* Product Image */}
-              <div className="w-full aspect-[4/5] overflow-hidden relative mb-5 border border-[#C5A880]/5 bg-luxury-dark/5">
+              <div className="w-full aspect-[4/5] overflow-hidden relative mb-5 border border-[#C5A880]/5 rounded-xl">
                 <Image
                   src={product.images[0]}
                   alt={product.name}
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-104"
+                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-104 rounded-xl"
                 />
 
                 <Image
@@ -121,7 +122,7 @@ const [products] = useState([
               </h3>
 
               {/* Product Description */}
-              <p className="text-[11px] text-[#6C6C6C] mb-4 font-light leading-relaxed line-clamp-2 min-h-[2.5rem] font-sans tracking-wide">
+              <p className="text-[11px] text-[#6C6C6C] mb-4 font-medium leading-relaxed line-clamp-2 min-h-[2.5rem] font-sans tracking-wide">
                 {product.description}
               </p>
 

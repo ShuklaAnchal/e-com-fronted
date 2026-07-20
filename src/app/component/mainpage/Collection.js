@@ -25,6 +25,13 @@ const categories = [
     video:
       "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
+    {
+    _id: "3",
+    name: "Gift Hampers",
+    description: "Meticulously carved heritage mandalas",
+    video:
+      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+  },
 ];
 
 const Collection = () => {
@@ -37,8 +44,8 @@ const Collection = () => {
   // console.log({categories});
 
   return (
-    <section className="w-full py-24 bg-luxury-cream border-b border-luxury-gold/10">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="w-full py-24 webprimarycolor border-b border-luxury-gold/10">
+      <div className="w-[90%] mx-auto px-6">
         <p className="text-center text-xs tracking-[0.4em] text-luxury-gold font-light mb-3 uppercase">
           CURATED EDITIONS
         </p>
@@ -50,7 +57,7 @@ const Collection = () => {
           Slow-crafted aromatics and artisanal design.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-12">
           {categories.map((item) => (
             <div
               key={item._id}
@@ -58,11 +65,10 @@ const Collection = () => {
               className="
                 group
                 cursor-pointer
-                bg-[#FAF7F2]
+                webprimarycolor
                 overflow-hidden
                 border border-[#C5A880]/10
                 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]
-                hover:-translate-y-2.5
                 hover:border-[#C5A880]/40
                 hover:shadow-[0_20px_50px_rgba(197,168,128,0.08)]
               "
@@ -82,6 +88,7 @@ const Collection = () => {
                     object-cover
                     transition-transform
                     duration-[1.5s]
+                    hover:-translate-y-2.5
                     ease-[cubic-bezier(0.25,1,0.5,1)]
                     group-hover:scale-105
                   "
@@ -124,14 +131,14 @@ const Collection = () => {
               </div>
 
               {/* Content */}
-              <div className="p-8 bg-[#FAF7F2] transition-colors duration-500 group-hover:bg-[#F4EFEA]">
+              <div className="p-8 transition-colors duration-500 group-hover:bg-[#F4EFEA]">
                 <p
                   className="
                     text-[#6C6C6C]
                     text-[15px]
                     leading-relaxed
                     tracking-wider
-                    font-light
+                    font-medium
                     h-12
                     line-clamp-2
                   "
@@ -139,7 +146,7 @@ const Collection = () => {
                   {item.description}
                 </p>
 
-                <div className="flex items-center justify-between mt-8 border-t border-[#C5A880]/10 pt-6">
+                <div className="flex items-center justify-between pt-6">
                   <span
                     className="
                       text-[10px]
