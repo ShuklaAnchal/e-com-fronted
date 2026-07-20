@@ -1,7 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCategories } from "@/app/hooks/catgeoryHook";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/navigation";
 
 const categories = [
   {
@@ -11,6 +15,7 @@ const categories = [
     video:
       "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
+
   {
     _id: "2",
     name: "Diffusers",
@@ -18,6 +23,7 @@ const categories = [
     video:
       "https://v1.pinimg.com/videos/mc/720p/fa/24/0d/fa240df0d8ded9098812e770dc99f587.mp4",
   },
+
   {
     _id: "3",
     name: "Wooden Crafts",
@@ -25,10 +31,11 @@ const categories = [
     video:
       "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
-    {
-    _id: "3",
+
+  {
+    _id: "4",
     name: "Gift Hampers",
-    description: "Meticulously carved heritage mandalas",
+    description: "Luxury gifting experiences crafted with elegance",
     video:
       "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
@@ -37,146 +44,316 @@ const categories = [
 const Collection = () => {
   const router = useRouter();
 
-  // const {  categories,
-  // loading,
-  // refreshCategories, } = useCategories();
-
-  // console.log({categories});
-
   return (
-    <section className="w-full py-24 webprimarycolor border-b border-luxury-gold/10">
-      <div className="w-[90%] mx-auto px-6">
-        <p className="text-center text-xs tracking-[0.4em] text-luxury-gold font-light mb-3 uppercase">
-          CURATED EDITIONS
-        </p>
-        <h2 className="text-center text-3xl sm:text-5xl font-serif font-extralight tracking-[0.1em] mb-4 text-luxury-dark uppercase">
-          Our Collection
-        </h2>
+    <section
+      className="
+      w-full
+      py-14
+      md:py-24
+      webprimarycolor
+      border-b
+      border-[#C5A880]/10
+      flex
+      justify-center
+      "
+    >
+      <div
+        className="
+        w-[94%]
+        md:w-[90%]
+        px-2
+        md:px-6
+        "
+      >
+        {/* HEADER */}
 
-        <p className="text-center font-serif italic text-luxury-gold-dark/70 mb-16 text-base tracking-wider font-light">
-          Slow-crafted aromatics and artisanal design.
-        </p>
+        <div className="text-center mb-12 md:mb-16">
+          <p
+            className="
+            text-[10px]
+            md:text-xs
+            tracking-[0.4em]
+            text-[#C5A880]
+            uppercase
+            mb-3
+            "
+          >
+            CURATED EDITIONS
+          </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-12">
-          {categories.map((item) => (
-            <div
-              key={item._id}
-              onClick={() => router.push(`/category/${item.name}`)}
-              className="
+          <h2
+            className="
+            text-3xl
+            sm:text-5xl
+            font-serif
+            font-extralight
+            tracking-[0.1em]
+            text-[#1A1A1A]
+            uppercase
+            "
+          >
+            Our Collection
+          </h2>
+
+          <p
+            className="
+            mt-4
+            font-serif
+            italic
+            text-[#C5A880]/70
+            text-sm
+            md:text-base
+            "
+          >
+            Slow-crafted aromatics and artisanal design.
+          </p>
+        </div>
+
+        <div className="relative">
+          {/* LEFT ARROW */}
+
+          <button
+            className="
+            collection-prev
+            hidden
+            md:flex
+            absolute
+            -left-7
+            top-1/2
+            -translate-y-1/2
+            z-20
+            w-12
+            h-12
+            rounded-full
+            bg-[#FAF7F2]
+            border
+            border-[#C5A880]/20
+            items-center
+            justify-center
+            shadow-md
+            hover:bg-[#C5A880]
+            transition
+            "
+          >
+            ‹
+          </button>
+
+          <Swiper
+            modules={[Navigation]}
+            navigation={{
+              prevEl: ".collection-prev",
+              nextEl: ".collection-next",
+            }}
+            spaceBetween={14}
+            slidesPerView={2}
+            breakpoints={{
+              320: {
+                slidesPerView: 2,
+                spaceBetween: 12,
+              },
+
+              480: {
+                slidesPerView: 2,
+                spaceBetween: 16,
+              },
+
+              640: {
+                slidesPerView: 2.5,
+                spaceBetween: 20,
+              },
+
+              768: {
+                slidesPerView: 3,
+                spaceBetween: 24,
+              },
+
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 28,
+              },
+            }}
+            speed={700}
+          >
+            {categories.map((item) => (
+              <SwiperSlide key={item._id}>
+                <div
+                  onClick={() => router.push(`/category/${item.name}`)}
+                  className="
                 group
                 cursor-pointer
-                webprimarycolor
                 overflow-hidden
-                border border-[#C5A880]/10
-                transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]
+                border
+                border-[#C5A880]/15
+                webprimarycolor
+                transition-all
+                duration-700
                 hover:border-[#C5A880]/40
+                hover:-translate-y-2
                 hover:shadow-[0_20px_50px_rgba(197,168,128,0.08)]
-              "
-            >
-              {/* Media */}
-              <div className="relative h-[480px] overflow-hidden">
-                <video
-                  src={item.video}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="
-                    absolute inset-0
+                "
+                >
+                  {/* VIDEO */}
+
+                  <div
+                    className="
+                  relative
+                  aspect-[3/4]
+                  overflow-hidden
+                  "
+                  >
+                    <video
+                      src={item.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      className="
+                    absolute
+                    inset-0
                     w-full
                     h-full
                     object-cover
                     transition-transform
-                    duration-[1.5s]
-                    hover:-translate-y-2.5
-                    ease-[cubic-bezier(0.25,1,0.5,1)]
+                    duration-[1500ms]
                     group-hover:scale-105
-                  "
-                />
+                    "
+                    />
 
-                {/* Luxury Gradient Overlay */}
-                <div
-                  className="
-                    absolute inset-0
+                    <div
+                      className="
+                    absolute
+                    inset-0
                     bg-gradient-to-t
-                    from-black/75
+                    from-black/80
                     via-black/20
                     to-transparent
-                    transition-opacity
-                    duration-500
-                    group-hover:opacity-90
-                  "
-                />
+                    "
+                    />
 
-                {/* Category Name Overlay */}
-                <div className="absolute bottom-8 left-8 z-10 transition-transform duration-500 group-hover:translate-y-[-4px]">
-                  <p className="text-[#C5A880] uppercase tracking-[0.3em] text-[10px] mb-2 font-light">
-                    Collection
-                  </p>
+                    <div
+                      className="
+                    absolute
+                    bottom-5
+                    left-5
+                    md:left-8
+                    md:bottom-8
+                    text-white
+                    "
+                    >
+                      <p
+                        className="
+                      text-[9px]
+                      md:text-[10px]
+                      tracking-[0.3em]
+                      uppercase
+                      text-[#C5A880]
+                      "
+                      >
+                        Collection
+                      </p>
 
-                  <h3
-                    className="
-                      text-white
-                      text-2xl
+                      <h3
+                        className="
+                      mt-2
+                      text-xl
                       md:text-3xl
                       font-serif
-                      tracking-[0.15em]
                       uppercase
+                      tracking-[0.12em]
                       font-light
-                    "
-                  >
-                    {item.name}
-                  </h3>
-                </div>
-              </div>
+                      "
+                      >
+                        {item.name}
+                      </h3>
+                    </div>
+                  </div>
 
-              {/* Content */}
-              <div className="p-8 transition-colors duration-500 group-hover:bg-[#F4EFEA]">
-                <p
-                  className="
-                    text-[#6C6C6C]
-                    text-[15px]
-                    leading-relaxed
-                    tracking-wider
-                    font-medium
-                    h-12
-                    line-clamp-2
-                  "
-                >
-                  {item.description}
-                </p>
+                  {/* CONTENT */}
 
-                <div className="flex items-center justify-between pt-6">
-                  <span
+                  <div
                     className="
-                      text-[10px]
+                  p-4
+                  md:p-8
+                  "
+                  >
+                    <p
+                      className="
+                    text-xs
+                    md:text-sm
+                    text-[#6C6C6C]
+                    leading-relaxed
+                    tracking-wide
+                    line-clamp-2
+                    "
+                    >
+                      {item.description}
+                    </p>
+
+                    <div
+                      className="
+                    flex
+                    items-center
+                    justify-between
+                    mt-5
+                    md:mt-7
+                    "
+                    >
+                      <span
+                        className="
+                      text-[9px]
+                      md:text-[10px]
                       uppercase
                       tracking-[0.3em]
                       text-[#C5A880]
-                      font-medium
-                      relative
-                      after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-px after:bg-[#C5A880] after:scale-x-0 after:origin-right after:transition-transform after:duration-500 group-hover:after:scale-x-100 group-hover:after:origin-left
-                    "
-                  >
-                    Explore Collection
-                  </span>
+                      "
+                      >
+                        Explore
+                      </span>
 
-                  <span
-                    className="
+                      <span
+                        className="
                       text-[#C5A880]
-                      text-lg
                       transition-transform
-                      duration-500
-                      ease-[cubic-bezier(0.25,1,0.5,1)]
                       group-hover:translate-x-2
-                    "
-                  >
-                    →
-                  </span>
+                      "
+                      >
+                        →
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+          {/* RIGHT ARROW */}
+
+          <button
+            className="
+          collection-next
+          hidden
+          md:flex
+          absolute
+          -right-7
+          top-1/2
+          -translate-y-1/2
+          z-20
+          w-12
+          h-12
+          rounded-full
+          bg-[#FAF7F2]
+          border
+          border-[#C5A880]/20
+          items-center
+          justify-center
+          shadow-md
+          hover:bg-[#C5A880]
+          transition
+          "
+          >
+            ›
+          </button>
         </div>
       </div>
     </section>
