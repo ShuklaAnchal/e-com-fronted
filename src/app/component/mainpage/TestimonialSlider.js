@@ -133,7 +133,7 @@ export default function MomentsWithSiyaas() {
               <SwiperSlide key={index}>
                 <div
                   className="
-          group
+          group rounded-xl
           relative
           overflow-hidden
           bg-[#FAF7F2]

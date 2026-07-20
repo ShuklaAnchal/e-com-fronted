@@ -179,7 +179,7 @@ const Collection = () => {
                 <div
                   onClick={() => router.push(`/category/${item.name}`)}
                   className="
-                group
+                group rounded-xl
                 cursor-pointer
                 overflow-hidden
                 border
@@ -212,7 +212,7 @@ const Collection = () => {
                     absolute
                     inset-0
                     w-full
-                    h-full
+                    h-full rounded-xl
                     object-cover
                     transition-transform
                     duration-[1500ms]
