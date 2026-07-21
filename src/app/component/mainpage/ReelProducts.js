@@ -63,6 +63,26 @@ const ReelProducts = () => {
       video: {
         url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
       },
+      
+    },
+ {
+      _id: "demo7",
+      name: "Signature Collection",
+      price: 1499,
+      video: {
+        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      },
+      
+    },
+
+    {
+      _id: "demo8",
+      name: "Signature Collection",
+      price: 1499,
+      video: {
+        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      },
+      
     },
   ];
 
@@ -101,7 +121,7 @@ const ReelProducts = () => {
       <section
         className="
       w-full
-      py-12
+      py-20
       md:py-20
       webprimarycolor
       flex
@@ -117,7 +137,7 @@ const ReelProducts = () => {
         "
         >
           <div
-            className="
+            className=" py-4
           relative
           "
           >
@@ -185,7 +205,7 @@ const ReelProducts = () => {
 
                 1280: {
                   slidesPerView: 6,
-                  spaceBetween: 24,
+                  spaceBetween: 20,
                 },
               }}
             >
@@ -193,21 +213,18 @@ const ReelProducts = () => {
                 <SwiperSlide key={item._id}>
                   <div
                     className="
-                    bg-white
+                    bg-white  shadow-[0_0_0_10px_rgba(0,0,0,0.25)]
                     overflow-hidden
-                    border
-                    border-[#C5A880]/15
                     transition-all
-                    duration-700
-                    hover:-translate-y-2
-                    hover:border-[#C5A880]/40
+                      transition-transform
+                    rounded-2xl
+                    duration-700  hover:scale-105
                     "
                   >
                     <div
                       className="
                       relative
                       overflow-hidden
-                      rounded-xl
                       aspect-[4/5]
                       sm:aspect-[3/4]
                       "
@@ -290,7 +307,6 @@ const ReelProducts = () => {
                       <button
                         onClick={() => router.push(`/products/${item._id}`)}
                         className="
-                        mt-3
                         sm:mt-5
                         w-full
                         py-2

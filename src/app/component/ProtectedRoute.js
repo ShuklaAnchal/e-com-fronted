@@ -62,7 +62,7 @@ export default function ProtectedRoute({ children, type }) {
 
     if (type === "admin") {
       if (userRole !== "admin") {
-        router.replace("/user/dashboard");
+        router.replace("/admin/dashboard");
       }
     }
 

@@ -35,7 +35,7 @@ const categories = [
   {
     _id: "4",
     name: "Gift Hampers",
-    description: "Luxury gifting experiences crafted with elegance",
+    description: "Luxury gifting experiences",
     video:
       "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
@@ -75,8 +75,7 @@ const Collection = () => {
             tracking-[0.4em]
             text-[#C5A880]
             uppercase
-            mb-3
-            "
+            mb-3"
           >
             CURATED EDITIONS
           </p>
@@ -186,11 +185,7 @@ const Collection = () => {
                 border-[#C5A880]/15
                 webprimarycolor
                 transition-all
-                duration-700
-                hover:border-[#C5A880]/40
-                hover:-translate-y-2
-                hover:shadow-[0_20px_50px_rgba(197,168,128,0.08)]
-                "
+                duration-700"
                 >
                   {/* VIDEO */}
 
