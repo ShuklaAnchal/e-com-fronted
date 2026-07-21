@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCurrentUser } from "@/app/store/action/loginAction";
+import { fetchCurrentUser } from "@/app/store/action/adminAction";
 
 export default function ProtectedRoute({ children, type }) {
   const router = useRouter();

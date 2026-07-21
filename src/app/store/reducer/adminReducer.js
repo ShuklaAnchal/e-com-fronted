@@ -8,44 +8,57 @@ const initialState = {
   loading: false,
 };
 
-export const loginReducer = createSlice({
+export const adminReducer = createSlice({
   name: "admin",
+
   initialState,
+
   reducers: {
-    loginuser: (state, action) => {
+    adminLogin: (state, action) => {
       state.admin = action.payload.user;
+
       state.token = action.payload.token;
+
       state.isAuthenticated = true;
     },
-    logoutuser: (state, action) => {
+
+    adminLogout: (state) => {
       state.admin = null;
+
+      state.token = null;
+
       state.isAuthenticated = false;
     },
-    currentuser: (state, action) => {
+
+    currentAdmin: (state, action) => {
       state.admin = action.payload;
+
       state.isAuthenticated = true;
     },
-    editUser: (state, action) => {
+
+    editAdmin: (state, action) => {
       state.admin = action.payload;
+
       state.isAuthenticated = true;
     },
-    iserror: (state, action) => {
+
+    adminError: (state, action) => {
       state.error.push(action.payload);
     },
-    removeerror: (state, action) => {
+
+    clearAdminError: (state) => {
       state.error = [];
     },
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
-  loginuser,
-  logoutuser,
-  iserror,
-  removeerror,
-  currentuser,
-  editUser,
-} = loginReducer.actions;
+  adminLogin,
+  adminLogout,
+  currentAdmin,
+  editAdmin,
+  adminError,
+  clearAdminError,
+} = adminReducer.actions;
 
-export default loginReducer.reducer;
+export default adminReducer.reducer;

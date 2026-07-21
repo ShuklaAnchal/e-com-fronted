@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { asyncfetchlogin } from "../store/action/loginAction";
+import { asyncfetchlogin } from "../store/action/adminAction";
 import { useDispatch } from "react-redux";
 
 const Page = () => {

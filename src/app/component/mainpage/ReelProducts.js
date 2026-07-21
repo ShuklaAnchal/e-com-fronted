@@ -63,16 +63,14 @@ const ReelProducts = () => {
       video: {
         url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
       },
-      
     },
- {
+    {
       _id: "demo7",
       name: "Signature Collection",
       price: 1499,
       video: {
         url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
       },
-      
     },
 
     {
@@ -82,7 +80,6 @@ const ReelProducts = () => {
       video: {
         url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
       },
-      
     },
   ];
 

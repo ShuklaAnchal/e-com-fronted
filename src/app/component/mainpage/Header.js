@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
 import { FiMenu } from "react-icons/fi";
-import { fetchCurrentUser } from "@/app/store/action/loginAction";
+import { fetchCurrentUser } from "@/app/store/action/adminAction";
 
 const Header = () => {
   const router = useRouter();

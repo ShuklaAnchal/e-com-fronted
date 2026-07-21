@@ -11,7 +11,7 @@ import Footer from "@/app/component/resuable/Footer";
 import {
   fetchCurrentUser,
   logoutCurrentUser,
-} from "@/app/store/action/loginAction";
+} from "@/app/store/action/adminAction";
 import { asyncfetchUserwiseOrders } from "@/app/store/action/orderAction";
 
 /* ─────────────────────────── helpers ─────────────────────────── */

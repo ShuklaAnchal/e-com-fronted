@@ -9,44 +9,50 @@ const initialState = {
 };
 
 export const customerReducer = createSlice({
-  name: "user",
+  name: "customer",
+
   initialState,
+
   reducers: {
-    loginuser: (state, action) => {
+    customerLogin: (state, action) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
     },
-    logoutuser: (state) => {
+
+    customerLogout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
     },
-    currentuser: (state, action) => {
+
+    currentCustomer: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
     },
-    editUser: (state, action) => {
+
+    editCustomer: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
     },
-    iserror: (state, action) => {
+
+    customerError: (state, action) => {
       state.error.push(action.payload);
     },
-    removeerror: (state, action) => {
+
+    clearCustomerError: (state) => {
       state.error = [];
     },
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
-  loginuser,
-  logoutuser,
-  iserror,
-  removeerror,
-  currentuser,
-  editUser,
+  customerLogin,
+  customerLogout,
+  currentCustomer,
+  editCustomer,
+  customerError,
+  clearCustomerError,
 } = customerReducer.actions;
 
 export default customerReducer.reducer;

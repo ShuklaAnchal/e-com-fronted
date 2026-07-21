@@ -20,7 +20,7 @@ import { BiLogoBlogger } from "react-icons/bi";
 import {
   fetchCurrentUser,
   logoutCurrentUser,
-} from "@/app/store/action/loginAction";
+} from "@/app/store/action/adminAction";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
