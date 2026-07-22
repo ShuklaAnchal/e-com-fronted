@@ -104,7 +104,7 @@ export default function ProductDetailsPage() {
       <MarqueeBar />
 
       <Header />
-      <main className="pt-24 md:pt-32 bg-luxury-cream flex-1 mb-20">
+      <main className="pt-24 md:pt-32 bg-white flex-1 mb-20">
         <section className="py-6 md:py-10 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">

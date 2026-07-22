@@ -7,25 +7,13 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+
 instance.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const userToken = localStorage.getItem("userToken");
-    const adminToken = localStorage.getItem("adminToken");
+  const token = typeof window !== "undefined" && localStorage.getItem("token");
 
-    // Requests to admin APIs
-    if (config.url.startsWith("/admin")) {
-      if (adminToken) {
-        config.headers.Authorization = `Bearer ${adminToken}`;
-      }
-    } else {
-      // Requests to customer APIs
-      if (userToken) {
-        config.headers.Authorization = `Bearer ${userToken}`;
-      }
-    }
-  }
-
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
 
 export default instance;

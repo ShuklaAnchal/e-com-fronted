@@ -22,12 +22,10 @@ import ProductActions from "./ProductActions";
 
 export default function ProductInfo({ product }) {
   const dispatch = useDispatch();
-
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(
     product?.variants?.[0] || null
   );
-
   const [pincode, setPincode] = useState("");
   const [deliveryResult, setDeliveryResult] = useState(null);
 
@@ -73,7 +71,6 @@ export default function ProductInfo({ product }) {
       });
       return;
     }
-
     setDeliveryResult({
       available: true,
       date: "Delivered in 3-5 Business Days",
@@ -82,7 +79,6 @@ export default function ProductInfo({ product }) {
 
   return (
     <div className="flex flex-col animate-fade-up w-full">
-
       {/* Collection */}
       <p className="uppercase tracking-[0.45em] text-xs text-luxury-gold mb-4">
         Signature Fragrance Collection

@@ -37,8 +37,6 @@ const sidenavbar = () => {
   const dropdownRef = useRef();
   const loginState = useSelector((state) => state.login);
 
-  console.log("Login State:", loginState);
-
   // Adjust this based on your reducer structure
   const admin = loginState?.admin || null;
 
@@ -111,6 +109,17 @@ const sidenavbar = () => {
             <AiFillRead className="icons" />
             <h1 className="textColor font-semibold	text-[15px] hidden sm:flex">
               Subcategory
+            </h1>
+          </div>
+        </Link>
+         <Link href="/admin/dashboard/attribute">
+          <div
+            className={`h-10 px-2 w-full flex flex-row gap-5 justify-start items-center cursor-pointer ${active === "/Routes/vmpage" ? "bg-red-500" : ""}`}
+            onClick={() => handleClick("vm")}
+          >
+            <AiFillRead className="icons" />
+            <h1 className="textColor font-semibold	text-[15px] hidden sm:flex">
+              Attribute
             </h1>
           </div>
         </Link>

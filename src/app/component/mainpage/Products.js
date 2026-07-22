@@ -75,7 +75,7 @@ const [products] = useState([
   ]);
 
   return (
-    <section className="py-24 webprimarycolor w-full">
+    <section className="webprimarycolor w-full px-4">
       <div className="container mx-auto [90%]">
         <p className="text-center text-xs tracking-[0.4em] text-luxury-gold font-light mb-3 uppercase">
           Latest Releases
@@ -94,7 +94,7 @@ const [products] = useState([
             <div
               key={product._id}
               onClick={() => router.push(`/products/${product._id}`)}
-              className="text-center cursor-pointer group flex flex-col p-4 webprimarycolor transition-all 
+              className="text-center cursor-pointer group flex flex-col p-4 webprimarycolor transition-all shadow-md rounded-[20px]
               duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_50px_rgba(197,168,128,0.06)] hover:-translate-y-1.5"
             >
               {/* Product Image */}

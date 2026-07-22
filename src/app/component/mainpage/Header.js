@@ -312,7 +312,7 @@ const Header = () => {
       />
       <div
         style={{ zIndex: 1000 }}
-        className={`fixed top-0 left-0 h-full w-64 bg-[#FAF7F2] transform transition-all duration-300 md:hidden flex flex-col p-6 ${
+        className={`fixed top-0 left-0 h-full w-50 bg-white transform transition-all ease-in duration-300 md:hidden flex flex-col p-6 ${
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full shadow-none"
         }`}
       >
@@ -352,6 +352,13 @@ const Header = () => {
               className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
             >
               FAQ's
+            </Link>
+            <Link
+              href="/blogs"
+              onClick={() => setIsOpen(false)}
+              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
+            >
+              Blogs
             </Link>
             <Link
               href="/policys/cancellationRefund"

@@ -13,22 +13,20 @@ import Exclusively from "@/app/component/mainpage/exclusively";
 
 export default function Home() {
   return (
-    <main >
+    <main className="flex flex-col gap-10 webprimarycolor">
       <MarqueeBar />
       <Header />
-      <section id="home">
         <Hero />
-      </section>
         <ReelProducts />
       <Collection />
       <Banner />
-      <section id="products">
         <Products />
-      </section>
       <TestimonialSlider />
       <About />
-      <Exclusively /> 
+   <div>
+       <Exclusively /> 
       <Footer />
+   </div>
     </main>
   );
 }

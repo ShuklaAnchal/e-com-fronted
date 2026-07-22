@@ -86,9 +86,9 @@ const ProductsPage = () => {
     <div className="">
       <MarqueeBar />
       <Header />
-      <main className="h-auto bg-luxury-cream mt-32">
+      <main className="h-auto bg-white mt-5">
         {/* Page Header */}
-        <div className="pt-32 pb-16 px-6 border-b border-luxury-gold/10">
+        <div className="pt-32 pb-16 px-6">
           <div className="max-w-7xl mx-auto text-center animate-fade-up">
             <p className="text-xs tracking-[0.4em] text-luxury-gold font-light mb-3 uppercase">
               Signature Collection
@@ -104,14 +104,14 @@ const ProductsPage = () => {
         </div>
 
         {/* Product Grid */}
-        <section className="py-20">
-          <div className="container mx-auto px-6 max-w-7xl">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+        <section className="py-10">
+          <div className="container mx-auto px-6 max-w-8xl">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
               {productss.map((product) => (
                 <div
                   key={product._id}
                   onClick={() => router.push(`/products/${product._id}`)}
-                  className="text-center cursor-pointer group flex flex-col border border-[#C5A880]/10 p-4 bg-[#FAF7F2] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_50px_rgba(197,168,128,0.06)] hover:-translate-y-1.5 animate-fade-in"
+                  className="text-center cursor-pointer group flex flex-col border border-[#C5A880]/10 p-4 bg-white transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 hover:shadow-[0_20px_50px_rgba(197,168,128,0.06)] hover:-translate-y-1.5 animate-fade-in"
                 >
                   {/* Product Image */}
                   <div className="w-full aspect-[4/5] overflow-hidden relative mb-5 border border-[#C5A880]/5 bg-luxury-dark/5">

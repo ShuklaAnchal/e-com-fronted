@@ -82,7 +82,7 @@ const moments = [
 
 export default function MomentsWithSiyaas() {
   return (
-    <section className="py-10 webprimarycolor overflow-visible w-full flex items-center justify-center">
+    <section className="webprimarycolor overflow-visible w-full flex items-center justify-center">
       <div className="w-[90%] px-6">
         {/* Header */}
         <div className="text-center mb-20">

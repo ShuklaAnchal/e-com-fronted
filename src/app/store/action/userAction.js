@@ -34,6 +34,33 @@ export const sendOtp = (mobileNumber) => async (dispatch) => {
   }
 };
 
+// GET CURRENT LOGGED-IN CUSTOMER (for re-hydrating state after refresh)
+export const fetchCurrentCustomer = () => async (dispatch) => {
+  try {
+    // The axios interceptor attaches userToken for non-/admin URLs
+    const { data } = await axios.get("/user/current-user");
+
+    console.log("Current Customer:", data);
+
+    dispatch(currentCustomer(data.user));
+
+    return {
+      success: true,
+      payload: data.user,
+    };
+  } catch (error) {
+    console.error("Current Customer Error:", error);
+    dispatch(
+      customerError(
+        error.response?.data?.message || "Failed to fetch current user",
+      ),
+    );
+    return {
+      success: false,
+    };
+  }
+};
+
 // VERIFY OTP LOGIN
 
 export const verifyOtp =
@@ -49,7 +76,6 @@ export const verifyOtp =
       if (data.token) {
         localStorage.setItem(
           "userToken",
-
           data.token,
         );
       }
@@ -74,25 +100,6 @@ export const verifyOtp =
     }
   };
 
-// FETCH CURRENT CUSTOMER
-
-export const fetchCurrentCustomer = () => async (dispatch) => {
-  try {
-    const { data } = await axios.get("/user/current-user");
-    console.log("Current Customer:", data);
-    dispatch(currentCustomer(data.user));
-    return {
-      success: true,
-      payload: data.user,
-    };
-  } catch (error) {
-    console.error("Current User Error:", error);
-    dispatch(customerError("Failed to fetch current user"));
-    return {
-      success: false,
-    };
-  }
-};
 
 // GET ALL USERS (ADMIN PURPOSE)
 

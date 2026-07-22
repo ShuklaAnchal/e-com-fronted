@@ -2,51 +2,48 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCurrentUser } from "@/app/store/action/adminAction";
+import { useDispatch } from "react-redux";
+import { fetchCurrentAdmin } from "@/app/store/action/adminAction";
 
 export default function ProtectedRoute({ children, type }) {
   const router = useRouter();
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [admin, setAdmin] = useState(null);
+  const [role, setRole] = useState(null);
 
-  const adminAuth = useSelector((state) => state.login);
-
-  const adminData = adminAuth?.admin;
-  const currentUser = adminData?.user;
-  const userRole = adminData?.role || adminData?.userType;
-
-  console.log("Redux Login State:", adminAuth);
-  console.log("Current User:", currentUser);
-  console.log("User Role:", userRole);
-
-  // Fetch current user after refresh
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = localStorage.getItem("token");
 
-        // No token -> logout
         if (!token) {
           router.replace("/adminLogin");
           return;
         }
 
-        // Redux empty after refresh -> get current user
-        if (!adminData) {
-          const response = await dispatch(fetchCurrentUser());
+        const response = await dispatch(fetchCurrentAdmin());
 
-          if (!response?.success) {
-            localStorage.removeItem("adminToken");
-            router.replace("/adminLogin");
-            return;
-          }
+        console.log("Current User Response:", response);
+
+        const currentAdmin = response?.payload;
+
+        if (!response?.success || !currentAdmin) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("admin");
+          router.replace("/adminLogin");
+          return;
         }
-      } catch (error) {
-        console.log("Authentication Error:", error);
 
-        localStorage.removeItem("adminToken");
+        setAdmin(currentAdmin);
+        setRole(response.role);
+      } catch (error) {
+        console.error("Authentication Error:", error);
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("admin");
+
         router.replace("/adminLogin");
       } finally {
         setIsLoading(false);
@@ -54,32 +51,43 @@ export default function ProtectedRoute({ children, type }) {
     };
 
     verifyUser();
-  }, [dispatch, router, adminData]);
+  }, [dispatch, router]);
 
-  // Role based protection
   useEffect(() => {
-    if (!userRole) return;
+    console.log("Role Check Effect Triggered ->", {
+      isLoading,
+      admin,
+      role,
+      type,
+    });
 
-    if (type === "admin") {
-      if (userRole !== "admin") {
-        router.replace("/admin/dashboard");
-      }
+    if (isLoading || !admin || !role) {
+      console.log("Skipping role check");
+      return;
     }
 
-    if (type === "user") {
-      if (userRole !== "user") {
-        router.replace("/admin/dashboard");
-      }
-    }
-  }, [type, userRole, router]);
+    const currentRole = role.toLowerCase();
+    const requiredRole = type?.toLowerCase();
 
-  // Loading while checking authentication
+    console.log("Checking Role:", {
+      currentRole,
+      requiredRole,
+    });
+
+    if (requiredRole === "admin" && currentRole !== "admin") {
+      router.replace("/adminLogin");
+    }
+
+    if (requiredRole === "user" && currentRole !== "user") {
+      router.replace("/login");
+    }
+  }, [role, admin, type, isLoading, router]);
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  // User not authenticated
-  if (!adminAuth?.isAuthenticated) {
+  if (!admin) {
     return null;
   }
 

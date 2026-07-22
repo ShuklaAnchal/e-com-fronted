@@ -48,11 +48,7 @@ const Collection = () => {
     <section
       className="
       w-full
-      py-14
-      md:py-24
       webprimarycolor
-      border-b
-      border-[#C5A880]/10
       flex
       justify-center
       "
@@ -67,7 +63,7 @@ const Collection = () => {
       >
         {/* HEADER */}
 
-        <div className="text-center mb-12 md:mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <p
             className="
             text-[10px]
@@ -96,7 +92,7 @@ const Collection = () => {
 
           <p
             className="
-            mt-4
+            mt-2
             font-serif
             italic
             text-[#C5A880]/70
@@ -108,248 +104,189 @@ const Collection = () => {
           </p>
         </div>
 
-        <div className="relative">
-          {/* LEFT ARROW */}
+   <div
+  className="
+  grid
+  grid-cols-2
+  md:grid-cols-4
+  gap-4
+  md:gap-8
+  "
+>
+  {categories.map((item) => (
+    <div
+      key={item._id}
+      onClick={() => router.push(`/category/${item.name}`)}
+      className="
+      group shadow-md 
+      rounded-xl
+      cursor-pointer
+      overflow-hidden
+      border
+      border-[#C5A880]/15
+      webprimarycolor
+      transition-all
+      duration-700
+      hover:-translate-y-2
+      "
+    >
 
-          <button
+      {/* VIDEO */}
+
+      <div
+        className="
+        relative
+        aspect-[1/1]
+        overflow-hidden
+        "
+      >
+
+        <video
+          src={item.video}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="
+          absolute
+          inset-0
+          w-full
+          h-full
+          rounded-xl
+          object-cover
+          transition-transform
+          duration-[1500ms]
+          group-hover:scale-105
+          "
+        />
+
+
+        {/* Overlay */}
+
+        <div
+          className="
+          absolute
+          inset-0
+          bg-gradient-to-t
+          from-black/80
+          via-black/20
+          to-transparent
+          "
+        />
+
+
+        {/* Title */}
+
+        <div
+          className="
+          absolute
+          bottom-4
+          left-4
+          md:left-8
+          md:bottom-8
+          text-white
+          "
+        >
+
+          <p
             className="
-            collection-prev
-            hidden
-            md:flex
-            absolute
-            -left-7
-            top-1/2
-            -translate-y-1/2
-            z-20
-            w-12
-            h-12
-            rounded-full
-            bg-[#FAF7F2]
-            border
-            border-[#C5A880]/20
-            items-center
-            justify-center
-            shadow-md
-            hover:bg-[#C5A880]
-            transition
+            text-[8px]
+            md:text-[10px]
+            tracking-[0.3em]
+            uppercase
+            text-[#C5A880]
             "
           >
-            ‹
-          </button>
+            Collection
+          </p>
 
-          <Swiper
-            modules={[Navigation]}
-            navigation={{
-              prevEl: ".collection-prev",
-              nextEl: ".collection-next",
-            }}
-            spaceBetween={14}
-            slidesPerView={2}
-            breakpoints={{
-              320: {
-                slidesPerView: 2,
-                spaceBetween: 12,
-              },
 
-              480: {
-                slidesPerView: 2,
-                spaceBetween: 16,
-              },
-
-              640: {
-                slidesPerView: 2.5,
-                spaceBetween: 20,
-              },
-
-              768: {
-                slidesPerView: 3,
-                spaceBetween: 24,
-              },
-
-              1024: {
-                slidesPerView: 4,
-                spaceBetween: 28,
-              },
-            }}
-            speed={700}
-          >
-            {categories.map((item) => (
-              <SwiperSlide key={item._id}>
-                <div
-                  onClick={() => router.push(`/category/${item.name}`)}
-                  className="
-                group rounded-xl
-                cursor-pointer
-                overflow-hidden
-                border
-                border-[#C5A880]/15
-                webprimarycolor
-                transition-all
-                duration-700"
-                >
-                  {/* VIDEO */}
-
-                  <div
-                    className="
-                  relative
-                  aspect-[3/4]
-                  overflow-hidden
-                  "
-                  >
-                    <video
-                      src={item.video}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      className="
-                    absolute
-                    inset-0
-                    w-full
-                    h-full rounded-xl
-                    object-cover
-                    transition-transform
-                    duration-[1500ms]
-                    group-hover:scale-105
-                    "
-                    />
-
-                    <div
-                      className="
-                    absolute
-                    inset-0
-                    bg-gradient-to-t
-                    from-black/80
-                    via-black/20
-                    to-transparent
-                    "
-                    />
-
-                    <div
-                      className="
-                    absolute
-                    bottom-5
-                    left-5
-                    md:left-8
-                    md:bottom-8
-                    text-white
-                    "
-                    >
-                      <p
-                        className="
-                      text-[9px]
-                      md:text-[10px]
-                      tracking-[0.3em]
-                      uppercase
-                      text-[#C5A880]
-                      "
-                      >
-                        Collection
-                      </p>
-
-                      <h3
-                        className="
-                      mt-2
-                      text-xl
-                      md:text-3xl
-                      font-serif
-                      uppercase
-                      tracking-[0.12em]
-                      font-light
-                      "
-                      >
-                        {item.name}
-                      </h3>
-                    </div>
-                  </div>
-
-                  {/* CONTENT */}
-
-                  <div
-                    className="
-                  p-4
-                  md:p-8
-                  "
-                  >
-                    <p
-                      className="
-                    text-xs
-                    md:text-sm
-                    text-[#6C6C6C]
-                    leading-relaxed
-                    tracking-wide
-                    line-clamp-2
-                    "
-                    >
-                      {item.description}
-                    </p>
-
-                    <div
-                      className="
-                    flex
-                    items-center
-                    justify-between
-                    mt-5
-                    md:mt-7
-                    "
-                    >
-                      <span
-                        className="
-                      text-[9px]
-                      md:text-[10px]
-                      uppercase
-                      tracking-[0.3em]
-                      text-[#C5A880]
-                      "
-                      >
-                        Explore
-                      </span>
-
-                      <span
-                        className="
-                      text-[#C5A880]
-                      transition-transform
-                      group-hover:translate-x-2
-                      "
-                      >
-                        →
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          {/* RIGHT ARROW */}
-
-          <button
+          <h3
             className="
-          collection-next
-          hidden
-          md:flex
-          absolute
-          -right-7
-          top-1/2
-          -translate-y-1/2
-          z-20
-          w-12
-          h-12
-          rounded-full
-          bg-[#FAF7F2]
-          border
-          border-[#C5A880]/20
-          items-center
-          justify-center
-          shadow-md
-          hover:bg-[#C5A880]
-          transition
-          "
+            mt-2
+            text-lg
+            md:text-3xl
+            font-serif
+            uppercase
+            tracking-[0.12em]
+            font-light
+            "
           >
-            ›
-          </button>
+            {item.name}
+          </h3>
+
         </div>
+
+      </div>
+
+
+
+      {/* CONTENT */}
+
+      <div
+        className="
+        p-3
+        md:p-8
+        "
+      >
+
+        <p
+          className="
+          text-[11px]
+          md:text-sm
+          text-[#6C6C6C]
+          leading-relaxed
+          tracking-wide
+          line-clamp-2
+          "
+        >
+          {item.description}
+        </p>
+
+
+
+        <div
+          className="
+          flex
+          items-center
+          justify-between
+          mt-4
+          md:mt-7
+          "
+        >
+
+          <span
+            className="
+            text-[8px]
+            md:text-[10px]
+            uppercase
+            tracking-[0.3em]
+            text-[#C5A880]
+            "
+          >
+            Explore
+          </span>
+
+
+          <span
+            className="
+            text-[#C5A880]
+            transition-transform
+            group-hover:translate-x-2
+            "
+          >
+            →
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+  ))}
+
+</div>
       </div>
     </section>
   );

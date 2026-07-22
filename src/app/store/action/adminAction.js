@@ -9,16 +9,26 @@ import {
   clearAdminError,
 } from "../reducer/adminReducer";
 
+const getToken = () => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("token");
+  }
+  return null;
+};
+
 // Admin Login
 
 export const asyncfetchlogin = (formData) => async (dispatch) => {
   try {
-    dispatch(clearAdminError());
+    // dispatch(clearAdminError());
     const { data } = await axios.post("/adminlogin", formData);
     console.log("Admin Login Response:", data);
     if (data.token) {
       localStorage.setItem("adminToken", data.token);
     }
+
+    console.log({ user: data.admin });
+    console.log({ token: data.token });
 
     dispatch(
       adminLogin({
@@ -41,19 +51,59 @@ export const asyncfetchlogin = (formData) => async (dispatch) => {
   }
 };
 
-// Fetch Current Admin After Refresh
-export const fetchCurrentUser = () => async (dispatch) => {
+export const fetchCurrentAdmin = () => async (dispatch) => {
   try {
+    // URL must start with /admin so the axios interceptor attaches adminToken
     const { data } = await axios.post("/currentadmin");
-    console.log("Current Admin:", data);
-    dispatch(currentAdmin(data.admin || data.user));
+    dispatch(
+      currentAdmin({
+        user: data.admin,
+        role: data.admin ?? data.admin?.role ?? data.admin?.userType,
+      }),
+    );
+
     return {
       success: true,
-      payload: data.admin || data.user,
+      payload: data.admin,
+      role: data.role,
     };
   } catch (error) {
-    console.error("Current Admin Error:", error);
-    dispatch(adminError("Failed to fetch admin"));
+    dispatch(
+      adminError(
+        error.response?.data?.message || "Failed to fetch current user",
+      ),
+    );
+    return {
+      success: false,
+    };
+  }
+};
+
+export const fetchCurrentUser = () => async (dispatch) => {
+  try {
+    // URL must start with /admin so the axios interceptor attaches adminToken
+    const { data } = await axios.post("/currentadmin");
+    console.log("Current User:", data);
+    dispatch(
+      currentAdmin({
+        user: data.user,
+        role: data.user ?? data.user?.role ?? data.user?.userType,
+      }),
+    );
+
+    return {
+      success: true,
+      payload: data.user,
+      role: data.role,
+    };
+  } catch (error) {
+    console.error("Current User Error:", error);
+    dispatch(
+      adminError(
+        error.response?.data?.message || "Failed to fetch current user",
+      ),
+    );
+
     return {
       success: false,
     };
@@ -61,7 +111,6 @@ export const fetchCurrentUser = () => async (dispatch) => {
 };
 
 // Update Admin Profile
-
 export const updateCurrentUser = (id, payload) => async (dispatch) => {
   try {
     const token = localStorage.getItem("adminToken");

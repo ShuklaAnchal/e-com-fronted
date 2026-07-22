@@ -3,8 +3,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
-
 import "swiper/css";
+
+
 
 const ReelProducts = () => {
   const router = useRouter();
@@ -112,32 +113,12 @@ const ReelProducts = () => {
       }
     });
   };
-
+ 
   return (
     <>
-      <section
-        className="
-      w-full
-      py-20
-      md:py-20
-      webprimarycolor
-      flex
-      justify-center
-      "
-      >
-        <div
-          className="
-        w-[94%]
-        md:w-[90%]
-        px-2
-        md:px-6
-        "
-        >
-          <div
-            className=" py-4
-          relative
-          "
-          >
+      <section className=" w-full webprimarycolor flex justify-center">
+        <div className="w-[94%] md:w-[90%] px-2 md:px-6">
+          <div className="py-5 relative bg-[#ffffff]">
             {/* LEFT ARROW */}
 
             <button
@@ -207,25 +188,9 @@ const ReelProducts = () => {
               }}
             >
               {products.map((item, index) => (
-                <SwiperSlide key={item._id}>
-                  <div
-                    className="
-                    bg-white  shadow-[0_0_0_10px_rgba(0,0,0,0.25)]
-                    overflow-hidden
-                    transition-all
-                      transition-transform
-                    rounded-2xl
-                    duration-700  hover:scale-105
-                    "
-                  >
-                    <div
-                      className="
-                      relative
-                      overflow-hidden
-                      aspect-[4/5]
-                      sm:aspect-[3/4]
-                      "
-                    >
+                <SwiperSlide key={item._id} className="py-2">
+                  <div className="bg-white overflow-hidden transition-all border-b-2 border-white shadow-md transition-transform rounded-2xl duration-700">
+                    <div className="relative overflow-hidden h-[220px] sm:h-[250px] lg:h-[290px] ">
                       <video
                         ref={(el) => {
                           videoRefs.current[index] = el;
@@ -235,14 +200,7 @@ const ReelProducts = () => {
                         loop
                         playsInline
                         preload="metadata"
-                        className="
-                        w-full
-                        h-full
-                        object-cover
-                        transition-transform
-                        duration-700
-                        hover:scale-105
-                        "
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 "
                         onClick={() =>
                           setActiveVideo({
                             url: item.video.url,
@@ -250,73 +208,24 @@ const ReelProducts = () => {
                         }
                       />
 
-                      <div
-                        className="
-                        absolute
-                        top-3
-                        right-3
-                        bg-black/50
-                        backdrop-blur-md
-                        px-2
-                        py-1
-                        text-[8px]
-                        uppercase
-                        tracking-[0.2em]
-                        text-white
-                        "
-                      >
+                      <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 text-[8px] uppercase tracking-[0.2em] text-white">
                         Reel
                       </div>
                     </div>
 
-                    <div
-                      className="
-                      p-3
-                      sm:p-5
-                      border-t
-                      border-[#C5A880]/10
-                      "
-                    >
-                      <h3
-                        className="
-                        text-[11px]
-                        sm:text-[15px]
-                        font-serif
-                        uppercase
-                        tracking-[0.12em]
-                        truncate
-                        "
-                      >
+                    <div className=" p-2 m:p-3 border-t border-[#C5A880]/10">
+                      <h3 className="text-[11px] sm:text-[14px] font-serif uppercase tracking-[0.12em] truncate">
                         {item.name}
                       </h3>
 
-                      <p
-                        className="
-                        mt-2
-                        text-[12px]
-                        sm:text-[15px]
-                        font-light
-                        "
-                      >
+                      <p className="-1 text-[12px] sm:text-[14px] font-light">
                         Rs. {item.price}
                       </p>
 
                       <button
                         onClick={() => router.push(`/products/${item._id}`)}
-                        className="
-                        sm:mt-5
-                        w-full
-                        py-2
-                        sm:py-3
-                        border
-                        border-[#C5A880]/50
-                        text-[9px]
-                        sm:text-[10px]
-                        uppercase
-                        tracking-[0.2em]
-                        hover:bg-[#C5A880]
-                        transition-all
-                        "
+                        className=" mt-2 sm:mt-3 rounded-xl w-full py-2 border border-[#C5A880]/50 text-[9px] sm:text-[10px] uppercase
+                        tracking-[0.2em] hover:bg-[#C5A880] transition-all "
                       >
                         Buy Now
                       </button>
@@ -331,25 +240,8 @@ const ReelProducts = () => {
             <button
               onClick={() => swiperRef.current?.slideNext()}
               className="
-              hidden
-              md:flex
-              absolute
-              -right-8
-              top-1/2
-              -translate-y-1/2
-              z-20
-              w-12
-              h-12
-              rounded-full
-              bg-[#FAF7F2]
-              items-center
-              justify-center
-              shadow-md
-              border
-              border-[#C5A880]/20
-              hover:bg-[#C5A880]
-              transition
-              "
+              hidden md:flex absolute -right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full
+              bg-[#FAF7F2] items-center justify-center shadow-md border border-[#C5A880]/20 hover:bg-[#C5A880] transition "
             >
               ›
             </button>
@@ -359,15 +251,7 @@ const ReelProducts = () => {
 
       {activeVideo && (
         <div
-          className="
-          fixed
-          inset-0
-          bg-black/90
-          z-[9999]
-          flex
-          items-center
-          justify-center
-          "
+          className="fixed inset-0 bg-black/90  z-[9999] flex items-center justify-center "
           onClick={() => setActiveVideo(null)}
         >
           <div
@@ -383,10 +267,7 @@ const ReelProducts = () => {
               controls
               autoPlay
               playsInline
-              className="
-              w-full
-              rounded-lg
-              "
+              className="w-full rounded-lg"
             />
           </div>
         </div>

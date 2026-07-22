@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const About = () => {
   return (
-    <section id="about" className="webprimarycolor py-10 overflow-hidden border-b border-[#C5A880]/10">
+    <section id="about" className="webprimarycolor overflow-hidden border-b border-[#C5A880]/10">
       <div className="max-w-7xl mx-auto px-6">
         {/* Top */}
         <div className="text-center max-w-4xl mx-auto">
@@ -32,7 +32,7 @@ const About = () => {
         </div>
 
         {/* Hero Image */}
-        <div className="relative mt-24 border border-[#C5A880]/15 p-2 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 group cursor-pointer">
+        <div className="relative mt-10 border border-[#C5A880]/15 p-2 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/40 group cursor-pointer">
           <div className="aspect-[16/8] overflow-hidden relative w-full h-[280px] md:h-[480px]">
             <Image
               src="/banner2.png"
@@ -45,7 +45,7 @@ const About = () => {
         </div>
 
         {/* Pillars */}
-        <div className="grid md:grid-cols-3 gap-12 mt-24">
+        <div className="grid md:grid-cols-3 gap-5 md:gap-16 mt-16">
           <div className="text-center border-t border-[#C5A880]/20 pt-8 px-4 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/50 hover:-translate-y-1">
             <div className="text-[#C5A880] text-3xl font-light font-sans mb-4">01</div>
 
@@ -90,7 +90,7 @@ const About = () => {
         </div>
 
         {/* Quote */}
-        <div className="max-w-4xl mx-auto text-center mt-32">
+        <div className="max-w-4xl mx-auto text-center mt-10">
           <p className="font-serif italic text-xl md:text-3xl font-extralight text-[#1A1A1A] leading-relaxed max-w-4xl mx-auto">
             “Luxury is not about excess.
             It is about creating beauty

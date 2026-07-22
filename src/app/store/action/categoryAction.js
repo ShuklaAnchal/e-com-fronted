@@ -48,10 +48,12 @@ export const fetchCategorybyID = (id) => async (dispatch, getState) => {
 };
 
 export const createCategory = (formData) => async (dispatch, getState) => {
+
   console.log({formData});
   
   try {
     const token = getToken();
+      console.log({token});
     const config = {
       headers: {
         Authorization: `Bearer ${token}`, // attach token in headers
