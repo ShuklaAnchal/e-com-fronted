@@ -8,9 +8,7 @@ import {
   editProductDetails,
 } from "@/app/store/action/productAction";
 
-
-import {fetchSubcategorybyCategoryID
-} from "@/app/store/action/subcategoryAction";
+import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryAction";
 
 import { useCategories } from "@/app/hooks/catgeoryHook";
 
@@ -97,11 +95,9 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     try {
       setLoadingSubs(true);
 
-      const res = await dispatch(
-        fetchSubcategorybyCategoryID(categoryId)
-      );
-     console.log({res});
-     
+      const res = await dispatch(fetchSubcategorybyCategoryID(categoryId));
+      console.log({ res });
+
       setSubcategories(res?.subcategories || []);
     } catch (error) {
       console.error(error);
@@ -165,7 +161,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     formData.append("shortDescription", product.shortDescription);
     formData.append("fullDescription", product.fullDescription);
     formData.append("categoryId", product.categoryId);
-    // formData.append("subCategoryId", product.subCategoryId);
+    formData.append("subCategoryId", product.subCategoryId);
     formData.append("brand", product.brand);
     formData.append("tags", product.tags);
     formData.append("highlights", product.highlights);
@@ -188,7 +184,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // ----------------------
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4">
-
       {/* BASIC */}
       <div className="grid grid-cols-3 gap-3">
         <input
@@ -223,9 +218,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           onChange={handleCategoryChange}
           className="border p-2 rounded"
         >
-          <option value="">
-            {loading ? "Loading..." : "Select Category"}
-          </option>
+          <option value="">{loading ? "Loading..." : "Select Category"}</option>
 
           {categories?.map((c) => (
             <option key={c._id} value={c._id}>
@@ -234,7 +227,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           ))}
         </select>
 
-        {/* <select
+        <select
           name="subCategoryId"
           value={product.subCategoryId}
           onChange={handleChange}
@@ -249,12 +242,11 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               {s.name}
             </option>
           ))}
-        </select> */}
+        </select>
       </div>
 
       {/* UPLOAD */}
       <div className="grid grid-cols-2 gap-6">
-
         {/* IMAGES */}
         <div
           onClick={handleImageClick}
@@ -269,7 +261,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             onChange={handleImageChange}
             className="hidden"
           />
-
           <div className="flex gap-2 mt-2 flex-wrap">
             {product.imagePreviews.map((img, i) => (
               <img
@@ -295,15 +286,9 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             onChange={handleVideoChange}
             className="hidden"
           />
-
           <div className="flex gap-2 mt-2 flex-wrap">
             {product.videoPreviews.map((vid, i) => (
-              <video
-                key={i}
-                src={vid}
-                controls
-                className="w-32 h-24 rounded"
-              />
+              <video key={i} src={vid} controls className="w-32 h-24 rounded" />
             ))}
           </div>
         </div>
