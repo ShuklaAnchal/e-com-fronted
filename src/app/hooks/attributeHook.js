@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { asyncFetchAttributes } from "@/app/store/action/attributeAction";
+import { fetchAllAttribute } from "@/app/store/action/attributeAction";
 
 export function useAttributes() {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ export function useAttributes() {
   const refreshAttributes = async () => {
     setLoading(true);
 
-    const result = await dispatch(asyncFetchAttributes());
+    const result = await dispatch(fetchAllAttribute());
   console.log({result});
   
     if (result?.attributes) {

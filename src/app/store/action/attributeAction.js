@@ -3,6 +3,8 @@ import axios from "@/app/utils/axios";
 import {
   fetchAttributes,
   fetchSingleAttribute,
+  fetchSubcategoryAttribute,
+  fetchCategoryAttribute,
   createAttribute,
   updateAttribute,
   deleteAttribute,
@@ -19,7 +21,7 @@ const getToken = () => {
 // FETCH ALL ATTRIBUTES
 export const asyncFetchAttributes = () => async (dispatch) => {
   try {
-    const { data } = await axios.get("/attribute/fetchAttributes");
+    const { data } = await axios.get("/attribute/fetch-all");
     console.log({ data });
 
     dispatch(fetchAttributes(data.attributes));
@@ -31,17 +33,41 @@ export const asyncFetchAttributes = () => async (dispatch) => {
 };
 
 // FETCH ATTRIBUTE BY ID
-export const fetchAttributeById = (id) => async (dispatch) => {
+export const fetchAllAttribute = (id) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/attribute/fetchAttributesByID/${id}`);
-
     dispatch(fetchSingleAttribute(data.attribute));
-
     return data;
   } catch (error) {
     dispatch(iserror(error.response?.data?.message || error.message));
   }
 };
+
+
+// FETCH ATTRIBUTE BY ID
+export const fetchAttributeByCatgeoryID = (id) => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/attribute/fetchAttributesByCatgory/${id}`);
+    dispatch(fetchCategoryAttribute(data.attribute));
+    return data;
+  } catch (error) {
+    dispatch(iserror(error.response?.data?.message || error.message));
+  }
+};
+
+
+// FETCH ATTRIBUTE BY ID
+export const fetchAttributeBySubCatgeoryID = (id) => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/attribute/fetchAttributesBySubcategory/${id}`);
+    dispatch(fetchSubcategoryAttribute(data.attribute));
+    return data;
+  } catch (error) {
+    dispatch(iserror(error.response?.data?.message || error.message));
+  }
+};
+
+
 
 // CREATE ATTRIBUTE
 export const createNewAttribute = (attributeData) => async (dispatch) => {
@@ -82,7 +108,6 @@ export const createNewAttribute = (attributeData) => async (dispatch) => {
 
 
 // UPDATE ATTRIBUTE
-
 export const updateAttributeDetails = (id, attributeData) => async (dispatch) => {
     try {
       const token = getToken();

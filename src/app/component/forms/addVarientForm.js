@@ -23,37 +23,7 @@ const createEmptyVariant = () => ({
   },
   inventory: {
     stockQuantity: "",
-  },
-  fragranceDetails: {
-    fragranceName: "",
-    fragranceFamily: "",
-    topNotes: "",
-    middleNotes: "",
-    baseNotes: "",
-    intensity: "",
-  },
-
-  usageDetails: {
-    burnTime: {
-      value: "",
-      unit: "hours",
-    },
-
-    fragranceDuration: {
-      value: "",
-      unit: "days",
-    },
-    waxType: "",
-    wickType: "",
-    diffuserType: "",
-    handmade: false,
-    material: "",
-    artisanTime: "",
-  },
-  capacity: {
-    value: "",
-    unit: "g",
-  },
+  },  
   images: [],
   videos: [],
 });

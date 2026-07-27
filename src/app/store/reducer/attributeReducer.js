@@ -19,6 +19,14 @@ export const attributeReducer = createSlice({
       state.attribute = action.payload;
     },
 
+    fetchCategoryAttribute: (state, action) => {
+      state.attribute = action.payload;
+    },
+
+    fetchSubcategoryAttribute: (state, action) => {
+      state.attribute = action.payload;
+    },
+
     createAttribute: (state, action) => {
       state.attributes.push(action.payload);
     },
@@ -50,6 +58,8 @@ export const attributeReducer = createSlice({
 export const {
   fetchAttributes,
   fetchSingleAttribute,
+  fetchSubcategoryAttribute,
+  fetchCategoryAttribute,
   createAttribute,
   updateAttribute,
   deleteAttribute,
