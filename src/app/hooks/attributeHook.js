@@ -1,8 +1,8 @@
-// hooks/useCategories.js
+// hooks/useAttribute.js
 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { fetchAllAttribute } from "@/app/store/action/attributeAction";
+import { asyncFetchAttributes } from "@/app/store/action/attributeAction";
 
 export function useAttributes() {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ export function useAttributes() {
   const refreshAttributes = async () => {
     setLoading(true);
 
-    const result = await dispatch(fetchAllAttribute());
+    const result = await dispatch(asyncFetchAttributes());
   console.log({result});
   
     if (result?.attributes) {
