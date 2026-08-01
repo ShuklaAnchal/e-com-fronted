@@ -16,7 +16,6 @@ import { useCategories } from "@/app/hooks/catgeoryHook";
 
 const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const dispatch = useDispatch();
-
   const { categories, loading } = useCategories();
 
   /*
@@ -343,7 +342,6 @@ Variants.attributes
     }));
   };
 
-
   const prepareDetails = () => {
     return Object.entries(attributeValues).map(([attributeId, value]) => ({
       attributeId,
@@ -448,7 +446,6 @@ Variants.attributes
  IMAGE UPLOAD
 =================================
 */
-
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
 
@@ -488,103 +485,82 @@ Variants.attributes
 
   //  SUBMIT PRODUCT
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const productData = {
-      name: product.name.trim(),
+    try {
+      const productData = {
+        name: product.name.trim(),
 
-      slug: product.slug.trim(),
+        slug: product.slug.trim(),
 
-      shortDescription: product.shortDescription.trim(),
+        shortDescription: product.shortDescription.trim(),
 
-      fullDescription: product.fullDescription.trim(),
+        fullDescription: product.fullDescription.trim(),
 
-      categoryId: product.categoryId,
+        categoryId: product.categoryId,
 
-      subCategoryId: product.subCategoryId || null,
+        subCategoryId: product.subCategoryId || null,
 
-      brand: product.brand?.trim() || "Siyaas",
+        brand: product.brand?.trim() || "Siyaas",
 
-      tags: product.tags
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
+        tags: product.tags
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
 
-      highlights: product.highlights
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
+        highlights: product.highlights
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
 
-      // status: "active",
-    };
+        // status: "active",
+      };
 
-    // Product Details
-    const productDetails = prepareDetails();
+      // Product Details
+      const productDetails = prepareDetails();
 
-    // FormData
-    const formData = new FormData();
+      // FormData
+      const formData = new FormData();
 
-    formData.append(
-      "productData",
-      JSON.stringify(productData)
-    );
+      formData.append("productData", JSON.stringify(productData));
 
-    formData.append(
-      "variants",
-      JSON.stringify(variants)
-    );
+      formData.append("variants", JSON.stringify(variants));
 
-    formData.append(
-      "details",
-      JSON.stringify(productDetails)
-    );
+      formData.append("details", JSON.stringify(productDetails));
 
-    // Images
-    product.images.forEach((image) => {
-      formData.append("images", image);
-    });
+      // Images
+      product.images.forEach((image) => {
+        formData.append("images", image);
+      });
 
-    // Videos
-    product.videos.forEach((video) => {
-      formData.append("videos", video);
-    });
+      // Videos
+      product.videos.forEach((video) => {
+        formData.append("videos", video);
+      });
 
-    // =========================
-    // EDIT
-    // =========================
+      // =========================
+      // EDIT
+      // =========================
 
-    if (editData?._id) {
-      await dispatch(
-        editProductDetails(
-          editData._id,
-          formData
-        )
-      );
+      if (editData?._id) {
+        await dispatch(editProductDetails(editData._id, formData));
+      }
+
+      // =========================
+      // CREATE
+      // =========================
+      else {
+        await dispatch(createProduct(formData));
+      }
+
+      refreshProducts?.();
+
+      onClose?.();
+    } catch (error) {
+      console.error("Product submit error:", error);
     }
-
-    // =========================
-    // CREATE
-    // =========================
-
-    else {
-      await dispatch(
-        createProduct(formData)
-      );
-    }
-
-    refreshProducts?.();
-
-    onClose?.();
-
-  } catch (error) {
-    console.error(
-      "Product submit error:",
-      error
-    );
-  }
-};
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6">
@@ -712,12 +688,19 @@ const handleSubmit = async (e) => {
 
       {/* TAGS */}
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         <input
           className="border p-2 rounded"
           name="tags"
           placeholder="Tags comma separated"
           value={product.tags}
+          onChange={handleChange}
+        />
+        <input
+          className="border p-2 rounded"
+          name="productcollection"
+          placeholder="Product Collection"
+          value={product.productcollection}
           onChange={handleChange}
         />
 
@@ -731,18 +714,29 @@ const handleSubmit = async (e) => {
       </div>
 
       {/* PRODUCT ATTRIBUTES */}
-      <h3 className="font-bold text-lg">Product Details</h3>
-      {productAttributes.map((attr) => (
-        <div key={attr._id}>
-          <label>{attr.name}</label>
-          <input
-            className="border p-2 rounded w-full"
-            value={attributeValues[attr._id] || ""}
-            onChange={(e) => handleAttributeChange(attr._id, e.target.value)}
-          />
-        </div>
-      ))}
+      <div className="space-y-4">
+        <h3 className="font-bold text-lg">Product Details</h3>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {productAttributes.map((attr) => (
+            <div key={attr._id} className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-700">
+                {attr.name}
+              </label>
+
+              <input
+                type="text"
+                className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={attributeValues[attr._id] || ""}
+                onChange={(e) =>
+                  handleAttributeChange(attr._id, e.target.value)
+                }
+                placeholder={`Enter ${attr.name}`}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
       {/* VARIANTS */}
       <div className="flex justify-between">
         <h3 className="font-bold text-lg">Variants</h3>

@@ -61,11 +61,11 @@ const Page = () => {
 
         <ShippingCard shipping={product.shipping} />
 
-        <PolicyCard policies={product.policies} />
+        {/* <PolicyCard policies={product.policies} /> */}
 
         <ExperienceCard experience={product.experience} />
 
-        <AdvancedFeatureCard features={product.advancedFeatures} />
+        {/* <AdvancedFeatureCard features={product.advancedFeatures} /> */}
 
         <SeoCard seo={product.seo} />
       </div>

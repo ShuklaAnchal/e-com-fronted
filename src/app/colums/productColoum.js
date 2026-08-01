@@ -232,7 +232,6 @@ export const productColumns = ({ onEdit, onView, onDelete, onAddVariant }) => [
   // ==========================================
   // ACTIONS
   // ==========================================
-
   columnHelper.display({
     id: "actions",
 
