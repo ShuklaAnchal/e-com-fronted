@@ -40,7 +40,8 @@ const Hero = () => {
 
         <button
           onClick={() => router.push("/products")}
-          className="draw-border border border-luxury-gold/40 text-luxury-cream px-12 py-4 rounded-none text-xs uppercase tracking-[0.25em] font-light transition-all duration-700 ease-out bg-transparent hover:bg-luxury-gold hover:text-luxury-dark shadow-2xl cursor-pointer hover:scale-105 animate-fade-up opacity-0 [animation-fill-mode:forwards] [animation-delay:600ms]"
+          className="draw-border bg-luxury-gold border border-luxury-gold/40 text-luxury-cream px-12 py-4 rounded-none text-xs uppercase tracking-[0.25em] font-light transition-all duration-700 ease-out
+          hover:bg-luxury-gold hover:text-luxury-dark shadow-2xl cursor-pointer hover:scale-105 animate-fade-up opacity-0 [animation-fill-mode:forwards] [animation-delay:600ms]"
         >
           Explore Collection
         </button>

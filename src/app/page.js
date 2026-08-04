@@ -10,6 +10,7 @@ import Footer from "@/app/component/resuable/Footer";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Banner from "@/app/component/mainpage/Banner";
 import Exclusively from "@/app/component/mainpage/exclusively";
+import HomeBlogSection from "@/app/component/mainpage/HomeBlogSection";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
       <Banner />
         <Products />
       <TestimonialSlider />
+      <HomeBlogSection />
       <About />
    <div>
        <Exclusively /> 

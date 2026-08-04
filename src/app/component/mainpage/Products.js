@@ -13,10 +13,6 @@ const Products = () => {
     refreshProducts,
   } = useProducts();
 
-  // Backend base URL
-  const BACKEND_URL =
-    process.env.NEXT_PUBLIC_Backned_URL?.replace("/api/v1", "") ||
-    "http://localhost:8080";
 
   // Convert API product structure into UI structure
   const mappedProducts = products
@@ -51,11 +47,11 @@ const Products = () => {
 
         image: primaryImage.startsWith("http")
           ? primaryImage
-          : `${BACKEND_URL}${primaryImage}`,
+          : `${process.env.NEXT_PUBLIC_API_URL}${primaryImage}`,
 
         hoverImage: hoverImage.startsWith("http")
           ? hoverImage
-          : `${BACKEND_URL}${hoverImage}`,
+          : `${process.env.NEXT_PUBLIC_API_URL}${hoverImage}`,
 
         description:
           product.shortDescription ||
@@ -147,9 +143,7 @@ const Products = () => {
                     aspect-[4/5]
                     overflow-hidden
                     relative
-                    mb-5
-                    border
-                    border-[#C5A880]/5
+                    mb-2
                     rounded-xl
                   "
                 >
@@ -220,11 +214,10 @@ const Products = () => {
                   className="
                     text-[11px]
                     text-[#6C6C6C]
-                    mb-4
                     font-medium
                     leading-relaxed
                     line-clamp-2
-                    min-h-[2.5rem]
+                    min-h-[1.5rem]
                     font-sans
                     tracking-wide
                   "
@@ -237,7 +230,7 @@ const Products = () => {
                   <div
                     className="
                       mt-auto
-                      pt-4
+                      pt-1
                       border-t
                       border-[#C5A880]/10
                       flex
