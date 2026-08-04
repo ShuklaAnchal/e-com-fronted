@@ -85,8 +85,8 @@ export default function MomentsWithSiyaas() {
     <section className="webprimarycolor overflow-visible w-full flex items-center justify-center">
       <div className="w-[90%] px-6">
         {/* Header */}
-        <div className="text-center mb-20">
-          <p className="text-xs tracking-[0.5em] uppercase text-[#C5A880] mb-5 font-light">
+        <div className="text-center mb-10">
+          <p className="text-xs tracking-[0.5em] uppercase text-[#C5A880] mb-3 font-light">
             Siyaas Community
           </p>
 
@@ -94,9 +94,9 @@ export default function MomentsWithSiyaas() {
             Moments With Siyaas
           </h2>
 
-          <div className="w-24 h-px bg-[#C5A880] mx-auto my-8" />
+          <div className="w-24 h-px bg-[#C5A880] mx-auto my-4" />
 
-          <p className="max-w-2xl mx-auto text-[#6C6C6C] text-sm leading-8 font-light tracking-wide font-sans">
+          <p className="max-w-2xl mx-auto text-[#6C6C6C] text-sm leading-6 font-light tracking-wide font-sans">
             Discover how our handcrafted fragrances become part of daily
             rituals, transforming ordinary spaces into warm and memorable
             experiences.

@@ -33,12 +33,12 @@ export default function HomeBlogSection() {
   }, []);
 
   return (
-    <section className="webprimarycolor w-full py-10 md:py-10 overflow-hidden">
+    <section className="webprimarycolor w-full py-4 md:py-4 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Section Header ── */}
-        <div className="text-center mb-16 md:mb-20">
-          <p className="text-xs tracking-[0.5em] uppercase text-[#C5A880] mb-4 font-light">
+        <div className="text-center mb-8 md:mb-8">
+          <p className="text-xs tracking-[0.5em] uppercase text-[#C5A880] mb-2 font-light">
             From The Journal
           </p>
 
@@ -46,9 +46,9 @@ export default function HomeBlogSection() {
             Stories &amp; Insights
           </h2>
 
-          <div className="w-20 h-px bg-[#C5A880] mx-auto my-6" />
+          <div className="w-20 h-px bg-[#C5A880] mx-auto my-2" />
 
-          <p className="max-w-xl mx-auto text-[#6C6C6C] text-sm leading-8 font-light tracking-wide">
+          <p className="max-w-xl mx-auto text-[#6C6C6C] text-sm leading-6 font-light tracking-wide">
             Explore our world of craftsmanship, fragrance and the rituals that
             make everyday moments extraordinary.
           </p>

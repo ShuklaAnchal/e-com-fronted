@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const About = () => {
   return (
-    <section id="about" className="webprimarycolor overflow-hidden border-b border-[#C5A880]/10">
+    <section id="about" className="webprimarycolor overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         {/* Top */}
         <div className="text-center max-w-4xl mx-auto">
@@ -97,11 +97,6 @@ const About = () => {
             in the moments we live every day.”
           </p>
 
-          <div className="mt-10">
-            <span className="text-[#C5A880] uppercase tracking-[0.4em] text-xs font-light">
-              Siyaas
-            </span>
-          </div>
         </div>
       </div>
     </section>
