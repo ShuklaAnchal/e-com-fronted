@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { mergeLocalCart } from "@/app/store/action/cartAction";
 // import {
 //   fetchnotificationbyID,
 //   fetchunreadNotification,
@@ -19,7 +20,21 @@ export default function ClientWrapper({ children }) {
   const userId = user?.id;
   const token =
     user?.token ||
-    (typeof window !== "undefined" && localStorage.getItem("token"));
+    (typeof window !== "undefined" && localStorage.getItem("userToken"));
+
+  // On mount: if the user is already logged in and has a local guest cart,
+  // merge it into the backend automatically.
+  useEffect(() => {
+    const userToken =
+      typeof window !== "undefined" && localStorage.getItem("userToken");
+    const localCart = typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("cartItems") || "[]")
+      : [];
+
+    if (userToken && localCart.length > 0) {
+      dispatch(mergeLocalCart());
+    }
+  }, [dispatch]);
 
 //   const [notifications, setNotifications] = useState([]);
 //   const unreadNotifications = useSelector(selectUnreadNotifications);

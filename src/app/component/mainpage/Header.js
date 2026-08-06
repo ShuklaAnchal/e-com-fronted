@@ -49,8 +49,7 @@ const Header = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log({token});
-    
+    console.log({ token });
 
     if (token && !admin) {
       dispatch(fetchCurrentUser());
@@ -196,11 +195,11 @@ const Header = () => {
                   >
                     Refund Policy
                   </Link>
-                   <Link
+                  <Link
                     href="/policys/cancellationRefund"
                     className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
                   >
-                   Blogs  
+                    Blogs
                   </Link>
                 </div>
               )}

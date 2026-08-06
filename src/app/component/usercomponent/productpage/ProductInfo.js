@@ -11,11 +11,7 @@ import {
   FaBoxOpen,
 } from "react-icons/fa";
 
-import {
-  MdSecurity,
-  MdLocalFireDepartment,
-  MdAutorenew,
-} from "react-icons/md";
+import { MdSecurity, MdLocalFireDepartment, MdAutorenew } from "react-icons/md";
 
 import { addToCartAction } from "@/app/store/action/cartAction";
 
@@ -30,13 +26,10 @@ export default function ProductInfo({
   const dispatch = useDispatch();
 
   const defaultVariant =
-    variants.find((variant) => variant.isDefault) ||
-    variants[0] ||
-    null;
+    variants.find((variant) => variant.isDefault) || variants[0] || null;
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariant, setSelectedVariant] =
-    useState(defaultVariant);
+  const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
 
   const [pincode, setPincode] = useState("");
   const [deliveryResult, setDeliveryResult] = useState(null);
@@ -47,11 +40,9 @@ export default function ProductInfo({
   const mrp = pricing.mrp || 0;
   const discountPercent = pricing.discountPercent || 0;
 
-  const stock =
-    selectedVariant?.inventory?.stockQuantity || 0;
+  const stock = selectedVariant?.inventory?.stockQuantity || 0;
 
-  const isInStock =
-    selectedVariant?.inventory?.inStock && stock > 0;
+  const isInStock = selectedVariant?.inventory?.inStock && stock > 0;
 
   const handleAddToCart = async (qty) => {
     if (!selectedVariant) {
@@ -70,8 +61,8 @@ export default function ProductInfo({
           ...product,
           selectedVariant,
         },
-        qty
-      )
+        qty,
+      ),
     );
 
     if (result?.success) {
@@ -98,8 +89,8 @@ export default function ProductInfo({
           ...product,
           selectedVariant,
         },
-        qty
-      )
+        qty,
+      ),
     );
 
     if (result?.success) {
@@ -127,7 +118,6 @@ export default function ProductInfo({
 
   return (
     <div className="flex flex-col w-full">
-
       {/* Brand */}
       <p className="uppercase tracking-[0.35em] text-xs text-gray-500 mb-4">
         {product.brand || "Premium Collection"}
@@ -140,31 +130,24 @@ export default function ProductInfo({
 
       {/* Category */}
       <div className="flex gap-2 text-sm text-gray-500 mb-6">
-        <span>
-          {product.category?.name}
-        </span>
+        <span>{product.category?.name}</span>
 
         {product.subCategory?.name && (
           <>
             <span>/</span>
-            <span>
-              {product.subCategory.name}
-            </span>
+            <span>{product.subCategory.name}</span>
           </>
         )}
       </div>
 
       {/* Price */}
       <div className="flex flex-wrap items-center gap-4 border-b border-gray-200 pb-7 mb-7">
-
         <span className="text-3xl font-medium text-gray-900">
           ₹{sellingPrice}
         </span>
 
         {mrp > sellingPrice && (
-          <span className="line-through text-gray-400 text-lg">
-            ₹{mrp}
-          </span>
+          <span className="line-through text-gray-400 text-lg">₹{mrp}</span>
         )}
 
         {discountPercent > 0 && (
@@ -172,7 +155,6 @@ export default function ProductInfo({
             {discountPercent}% OFF
           </span>
         )}
-
       </div>
 
       {/* Short Description */}
@@ -184,19 +166,15 @@ export default function ProductInfo({
       {/* Variants */}
       {variants.length > 0 && (
         <div className="mb-8">
-
           <p className="uppercase tracking-[0.25em] text-xs text-gray-500 mb-4">
             Choose Variant
           </p>
 
           <div className="flex flex-wrap gap-3">
-
             {variants.map((variant) => {
-              const isSelected =
-                selectedVariant?._id === variant._id;
+              const isSelected = selectedVariant?._id === variant._id;
 
-              const variantAttribute =
-                variant.attributes?.[0];
+              const variantAttribute = variant.attributes?.[0];
 
               return (
                 <button
@@ -209,112 +187,56 @@ export default function ProductInfo({
                       : "border-gray-300 hover:border-black"
                   }`}
                 >
-                  {variantAttribute?.value ||
-                    variant.sku ||
-                    "Variant"}
+                  {variantAttribute?.value || variant.sku || "Variant"}
                 </button>
               );
             })}
-
           </div>
-
         </div>
       )}
 
       {/* Stock */}
       <div className="mb-8">
-
         {isInStock ? (
           <p className="text-green-600 text-sm">
             ✓ In Stock ({stock} available)
           </p>
         ) : (
-          <p className="text-red-500 text-sm">
-            Out of Stock
-          </p>
+          <p className="text-red-500 text-sm">Out of Stock</p>
         )}
-
       </div>
 
-      {/* Specifications */}
-      {productDetails?.[0]?.values?.length > 0 && (
-        <div className="mb-10">
-
-          <h3 className="text-lg font-semibold mb-5">
-            Specifications
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            {productDetails[0].values.map((item) => (
-              <div
-                key={item._id}
-                className="border border-gray-200 rounded-xl p-4"
-              >
-
-                <p className="text-xs uppercase tracking-wider text-gray-400 mb-2">
-                  {item.attributeName}
-                </p>
-
-                <p className="text-gray-800">
-                  {item.value}
-                  {item.unit
-                    ? ` ${item.unit}`
-                    : ""}
-                </p>
-
-              </div>
-            ))}
-
-          </div>
-
-        </div>
-      )}
-
       {/* Delivery */}
-      <div className="border border-gray-200 rounded-2xl p-6 mb-8">
-
+      <div className="border border-gray-200 rounded-2xl p-3 mb-2">
         <div className="flex items-center gap-2 mb-5">
-
           <FaMapMarkerAlt className="text-gray-700" />
 
-          <h3 className="uppercase tracking-wider text-xs">
-            Check Delivery
-          </h3>
-
+          <h3 className="uppercase tracking-wider text-xs">Check Delivery</h3>
         </div>
 
         <div className="flex gap-3">
-
           <input
             type="text"
             placeholder="Enter Pincode"
-            maxLength={6}
+            maxLength={4}
             value={pincode}
-            onChange={(e) =>
-              setPincode(
-                e.target.value.replace(/\D/g, "")
-              )
-            }
-            className="flex-1 border rounded-lg px-4 py-3 outline-none focus:border-black"
+            onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
+            className="flex-1 border rounded-lg px-2.5 py-1.5 outline-none focus:border-black"
           />
 
           <button
             type="button"
             onClick={checkPincode}
-            className="bg-black text-white px-6 rounded-lg"
+            className="bg-black text-white px-4 rounded-lg"
           >
             Check
           </button>
-
         </div>
 
         {deliveryResult && (
           <p
             className={`mt-4 text-sm ${
-              deliveryResult.available
-                ? "text-green-600"
-                : "text-red-500"
+              deliveryResult.available ? "text-green-600" : "text-red-500"
             }`}
           >
             {deliveryResult.available
@@ -322,21 +244,13 @@ export default function ProductInfo({
               : deliveryResult.message}
           </p>
         )}
-
       </div>
 
       {/* Quantity */}
       <div className="mb-8">
+        <p className="uppercase tracking-wider text-xs mb-4">Quantity</p>
 
-        <p className="uppercase tracking-wider text-xs mb-4">
-          Quantity
-        </p>
-
-        <QuantitySelector
-          quantity={quantity}
-          setQuantity={setQuantity}
-        />
-
+        <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
       </div>
 
       {/* Cart / Buy Now */}
@@ -349,14 +263,11 @@ export default function ProductInfo({
 
       {/* Trust */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-10">
-
         <div className="flex gap-3">
           <FaTruck className="w-5 h-5 text-gray-700" />
 
           <div>
-            <h4 className="font-medium">
-              Free Shipping
-            </h4>
+            <h4 className="font-medium">Free Shipping</h4>
 
             <p className="text-xs text-gray-500">
               On prepaid orders above ₹999
@@ -368,9 +279,7 @@ export default function ProductInfo({
           <MdAutorenew className="w-5 h-5 text-gray-700" />
 
           <div>
-            <h4 className="font-medium">
-              Easy Returns
-            </h4>
+            <h4 className="font-medium">Easy Returns</h4>
 
             <p className="text-xs text-gray-500">
               7-Day replacement for damaged items
@@ -382,13 +291,9 @@ export default function ProductInfo({
           <MdSecurity className="w-5 h-5 text-gray-700" />
 
           <div>
-            <h4 className="font-medium">
-              Secure Payments
-            </h4>
+            <h4 className="font-medium">Secure Payments</h4>
 
-            <p className="text-xs text-gray-500">
-              100% encrypted checkout
-            </p>
+            <p className="text-xs text-gray-500">100% encrypted checkout</p>
           </div>
         </div>
 
@@ -396,18 +301,14 @@ export default function ProductInfo({
           <FaCheckCircle className="w-5 h-5 text-gray-700" />
 
           <div>
-            <h4 className="font-medium">
-              Authentic Product
-            </h4>
+            <h4 className="font-medium">Authentic Product</h4>
 
-            <p className="text-xs text-gray-500">
-              Quality assured product
-            </p>
+            <p className="text-xs text-gray-500">Quality assured product</p>
           </div>
         </div>
-
       </div>
 
+ 
     </div>
   );
 }

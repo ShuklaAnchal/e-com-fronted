@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Footer from "@/app/component/resuable/Footer";
 import { sendOtp, verifyOtp } from "@/app/store/action/userAction";
+import { mergeLocalCart } from "@/app/store/action/cartAction";
 import { useDispatch } from "react-redux";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
   const [step, setStep] = useState(1);
   const [mobileNumber, setmobileNumber] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -60,8 +63,9 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res.success) {
-      alert("Login Successful");
-      router.push("/user/cart");
+      // Merge any guest cart items into the backend
+      await dispatch(mergeLocalCart());
+      router.push(redirectTo);
     } else {
       alert(res.message);
     }
@@ -182,5 +186,13 @@ export default function LoginPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { addToCartAction, fetchCart } from "@/app/store/action/cartAction";
+import { fetchCart, removeFromCartAction, updateCartQuantityAction } from "@/app/store/action/cartAction";
+
+
 
 export default function CartPage() {
   const router = useRouter();
@@ -21,33 +23,26 @@ export default function CartPage() {
   const subtotal =
     cartItems?.reduce((acc, item) => acc + item.price * item.quantity, 0) || 0;
 
-  const handleLoadDummyData = async () => {
-    const dummyProduct1 = {
-      _id: "dummy-1",
-      name: "Vanilla Soy Candle",
-      price: 799,
-      images: ["/candle.png"],
-    };
-    const dummyProduct2 = {
-      _id: "dummy-2",
-      name: "Midnight Oud",
-      price: 1799,
-      images: ["/candle.png"],
-    };
-
-    await dispatch(addToCartAction(dummyProduct1, 1));
-    await dispatch(addToCartAction(dummyProduct2, 2));
-  };
 
   const handleCheckout = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("userToken");
     if (!token || token === "undefined" || token === "null") {
-      alert("Please login to proceed to checkout");
-      router.push("/login");
+      router.push("/login?redirect=/user/cart");
     } else {
       alert("Proceeding to payment gateway...");
     }
   };
+
+  const handleRemove = (productId) => {
+    dispatch(removeFromCartAction(productId));
+  };
+
+  const handleQuantityChange = (item, delta) => {
+    const newQty = item.quantity + delta;
+    if (newQty < 1) return;
+    dispatch(updateCartQuantityAction(item.product, newQty));
+  };
+
 
   if (!mounted) return null; // Avoid SSR hydration errors
 
@@ -84,13 +79,8 @@ export default function CartPage() {
                 >
                   Continue Shopping
                 </button>
-                <button
-                  onClick={handleLoadDummyData}
-                  className="border border-[#C5A880]/50 text-[#C5A880] text-xs uppercase tracking-[0.2em] py-4 px-8 hover:bg-[#C5A880] hover:text-[#121212] transition-colors duration-500 font-light"
-                >
-                  Load Dummy Data
-                </button>
               </div>
+
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -126,9 +116,18 @@ export default function CartPage() {
                           <h3 className="font-serif text-lg text-luxury-dark uppercase tracking-wide">
                             {item.name}
                           </h3>
-                          <button className="text-[10px] text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition-colors">
+                          {item.variantLabel && (
+                            <p className="text-[10px] text-luxury-gold-dark tracking-widest uppercase mt-1">
+                              {item.variantLabel}
+                            </p>
+                          )}
+                          <button
+                            onClick={() => handleRemove(item.product)}
+                            className="text-[10px] text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition-colors"
+                          >
                             Remove
                           </button>
+
                         </div>
                       </div>
 
@@ -137,9 +136,16 @@ export default function CartPage() {
                         <span className="md:hidden text-[10px] uppercase tracking-widest text-luxury-gold-dark mr-2">
                           Price:
                         </span>
-                        <span className="font-sans text-sm text-luxury-dark tracking-wide">
-                          Rs. {item.price}
-                        </span>
+                        <div className="flex flex-col items-start md:items-center gap-0.5">
+                          <span className="font-sans text-sm text-luxury-dark tracking-wide">
+                            Rs. {item.price}
+                          </span>
+                          {item.mrp && item.mrp > item.price && (
+                            <span className="font-sans text-xs text-gray-400 line-through">
+                              Rs. {item.mrp}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Quantity */}
@@ -148,16 +154,24 @@ export default function CartPage() {
                           Qty:
                         </span>
                         <div className="flex items-center border border-luxury-gold/30">
-                          <button className="px-3 py-1 text-luxury-dark hover:text-luxury-gold transition-colors">
+                          <button
+                            onClick={() => handleQuantityChange(item, -1)}
+                            className="px-3 py-1 text-luxury-dark hover:text-luxury-gold transition-colors disabled:opacity-40"
+                            disabled={item.quantity <= 1}
+                          >
                             -
                           </button>
                           <span className="px-3 py-1 text-sm font-sans">
                             {item.quantity}
                           </span>
-                          <button className="px-3 py-1 text-luxury-dark hover:text-luxury-gold transition-colors">
+                          <button
+                            onClick={() => handleQuantityChange(item, 1)}
+                            className="px-3 py-1 text-luxury-dark hover:text-luxury-gold transition-colors"
+                          >
                             +
                           </button>
                         </div>
+
                       </div>
 
                       {/* Total */}
