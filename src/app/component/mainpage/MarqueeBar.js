@@ -7,7 +7,7 @@ const MarqueeBar = () => {
     { icon: <FaUndo className="text-luxury-gold" />, text: "6 Days Easy Return" },
     { icon: <MdLocationOn className="text-luxury-gold" />, text: "Cash On Delivery Available" },
     { icon: <FaTruck className="text-luxury-gold" />, text: "Free Domestic Shipping" },
-    { icon: <FaTag className="text-luxury-gold" />, text: "EMI Option Available" },
+    { icon: <FaTag className="text-luxury-gold" />, text: "Flat 10% off on you first order use code siyaas10" },
   ]
 
   const row = (
@@ -25,7 +25,7 @@ const MarqueeBar = () => {
   )
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-luxury-dark text-luxury-cream py-3 overflow-hidden z-50 border-b border-luxury-gold/20">
+    <div className="fixed top-0 left-0 w-full bg-luxury-dark text-luxury-cream py-4 overflow-hidden z-50 border-b border-luxury-gold/20">
       <div className="max-w-7xl mx-auto">
         <div className="flex animate-marquee hover:[animation-play-state:paused]">
           {row}

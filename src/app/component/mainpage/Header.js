@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -19,13 +20,19 @@ const Header = () => {
 
   const admin = loginState?.admin || null;
 
+  // =====================================================
+  // STATES
+  // =====================================================
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [cartCount, setCartCount] = useState(0);
 
-  // Scroll only for homepage
+  // =====================================================
+  // SCROLL HANDLER
+  // =====================================================
   useEffect(() => {
     if (!isHomePage) {
       setIsScrolled(true);
@@ -47,8 +54,12 @@ const Header = () => {
     };
   }, [isHomePage]);
 
+  // =====================================================
+  // FETCH CURRENT USER
+  // =====================================================
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     console.log({ token });
 
     if (token && !admin) {
@@ -56,14 +67,16 @@ const Header = () => {
     }
   }, [dispatch, admin]);
 
-  // Cart count
+  // =====================================================
+  // CART COUNT
+  // =====================================================
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
       const count = cart.reduce(
         (total, item) => total + (item.quantity || 1),
-        0,
+        0
       );
 
       setCartCount(count);
@@ -78,6 +91,9 @@ const Header = () => {
     };
   }, []);
 
+  // =====================================================
+  // NAVIGATION ITEMS
+  // =====================================================
   const navItems = [
     {
       id: "home",
@@ -101,6 +117,9 @@ const Header = () => {
     },
   ];
 
+  // =====================================================
+  // NAVIGATION CLICK
+  // =====================================================
   const handleNavClick = (item) => {
     setIsOpen(false);
 
@@ -126,6 +145,9 @@ const Header = () => {
     router.push(item.route);
   };
 
+  // =====================================================
+  // SCROLL TO TOP
+  // =====================================================
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -133,71 +155,171 @@ const Header = () => {
     });
   };
 
+  // =====================================================
+  // HEADER ACTIVE STATE
+  // =====================================================
+  const headerActive = isScrolled || isHovered;
+
   return (
     <>
+      {/* =====================================================
+          DESKTOP / MAIN HEADER
+      ===================================================== */}
       <header
-        className={`fixed left-0 w-full transition-all duration-500  ${
-          isScrolled
-            ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
-            : "top-12 bg-transparent z-40 py-6"
-        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`
+          group
+          fixed
+          left-0
+          w-full
+          z-40
+          py-6
+          hover:bg-white
+          hover: transition-all
+          hover:ease-linear
+          transition-all
+          duration-500
+           ${
+            isScrolled
+              ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
+              : "top-12 bg-transparent z-40 py-6"
+          }
+
+        `}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-          {/* Mobile Menu Button */}
+
+          {/* =================================================
+              MOBILE MENU BUTTON
+          ================================================= */}
           <button
-            className={`md:hidden transition-colors duration-300 ${
-              isScrolled ? "text-[#121212]" : "text-white"
-            }`}
+            className={`
+              md:hidden
+              transition-colors
+              duration-300
+              cursor-pointer
+              ${
+                headerActive
+                  ? "text-[#121212]"
+                  : "text-white"
+              }
+            `}
             onClick={() => setIsOpen(true)}
           >
             <FiMenu className="w-6 h-6" />
           </button>
 
-          {/* Desktop Navigation */}
+          {/* =================================================
+              DESKTOP NAVIGATION
+          ================================================= */}
           <nav className="hidden md:flex items-center gap-8">
+
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                className={`text-xs uppercase tracking-[0.25em] transition-colors font-semibold ${
-                  isScrolled
-                    ? "text-[#121212] hover:text-[#C5A880]"
-                    : "text-white hover:text-[#C5A880]"
-                }`}
+                className={`
+                  text-xs
+                  uppercase
+                  tracking-[0.25em]
+                  transition-colors
+                  duration-300
+                  font-semibold
+                  ${
+                    headerActive
+                      ? "text-[#121212] hover:text-[#C5A880]"
+                      : "text-white hover:text-[#C5A880]"
+                  }
+                `}
               >
                 {item.name}
               </button>
             ))}
 
-            <div className="relative" onMouseLeave={() => setShowMore(false)}>
+            {/* =================================================
+                MORE DROPDOWN
+            ================================================= */}
+            <div
+              className="relative"
+              onMouseLeave={() => setShowMore(false)}
+            >
               <button
                 onMouseEnter={() => setShowMore(true)}
                 onClick={() => setShowMore(!showMore)}
-                className={`text-xs uppercase tracking-[0.25em] font-semibold ${
-                  isScrolled ? "text-[#121212]" : "text-white"
-                }`}
+                className={`
+                  text-xs
+                  uppercase
+                  tracking-[0.25em]
+                  font-semibold
+                  transition-colors
+                  duration-300
+                  ${
+                    headerActive
+                      ? "text-[#121212]"
+                      : "text-white"
+                  }
+                `}
               >
                 More ▾
               </button>
 
               {showMore && (
-                <div className="absolute top-8 bg-[#FAF7F2] w-52 shadow-xl py-3">
+                <div
+                  className="
+                    absolute
+                    top-8
+                    left-0
+                    bg-white
+                    w-52
+                    shadow-xl
+                    py-3
+                    border
+                    border-[#C5A880]/10
+                    z-50
+                  "
+                >
                   <Link
                     href="/faqs"
-                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                    className="
+                      block
+                      px-5
+                      py-3
+                      text-xs
+                      text-black
+                      hover:text-[#C5A880]
+                      transition-colors
+                    "
                   >
                     FAQ's
                   </Link>
 
                   <Link
                     href="/policys/cancellationRefund"
-                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                    className="
+                      block
+                      px-5
+                      py-3
+                      text-xs
+                      text-black
+                      hover:text-[#C5A880]
+                      transition-colors
+                    "
                   >
                     Refund Policy
                   </Link>
+
                   <Link
-                    href="/policys/cancellationRefund"
-                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                    href="/blogs"
+                    className="
+                      block
+                      px-5
+                      py-3
+                      text-xs
+                      text-black
+                      hover:text-[#C5A880]
+                      transition-colors
+                    "
                   >
                     Blogs
                   </Link>
@@ -206,34 +328,79 @@ const Header = () => {
             </div>
           </nav>
 
-          {/* Logo */}
+          {/* =================================================
+              LOGO
+          ================================================= */}
           <div
-            className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-            onClick={() => router.push("/")}
-          >
+            className="
+               absolute
+              left-1/2
+              -translate-x-1/2
+              cursor-pointer
+            "
+            onClick={() => router.push("/")}          >
+            {/* WHITE LOGO */}
             <Image
-              src={
-                isHomePage && !isScrolled
-                  ? "/siyassLogowhite.png"
-                  : "/siyaas-removebg-preview.png"
-              }
+              src="/siyassLogowhite.png"
               alt="Siyaas Logo"
               width={100}
               height={60}
               priority
-              className="object-contain transition-all duration-300"
+              className={`
+                object-contain
+                transition-all
+                duration-300
+                ${
+                  headerActive
+                    ? "opacity-0"
+                    : "opacity-100"
+                }
+              `}
+            />
+
+            {/* BLACK LOGO */}
+            <Image
+              src="/siyaas-removebg-preview.png"
+              alt="Siyaas Logo"
+              width={100}
+              height={60}
+              priority
+              className={`
+                absolute
+                inset-0
+                w-full
+                h-full
+                object-contain
+                transition-opacity
+                duration-500
+                ${
+                  headerActive
+                    ? "opacity-100"
+                    : "opacity-0"
+                }
+              `}
             />
           </div>
 
-          {/* Icons */}
+          {/* =================================================
+              RIGHT SIDE ICONS
+          ================================================= */}
           <div className="flex items-center gap-6 ml-auto">
-            {/* Search Icon */}
+
+            {/* =================================================
+                SEARCH ICON
+            ================================================= */}
             <button
-              className={`transition-colors duration-300 cursor-pointer ${
-                isScrolled
-                  ? "text-[#121212] hover:text-[#C5A880]"
-                  : "text-white hover:text-[#C5A880]"
-              }`}
+              className={`
+                transition-colors
+                duration-300
+                cursor-pointer
+                ${
+                  headerActive
+                    ? "text-[#121212] hover:text-[#C5A880]"
+                    : "text-white hover:text-[#C5A880]"
+                }
+              `}
             >
               <svg
                 className="w-5 h-5"
@@ -242,19 +409,42 @@ const Header = () => {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="8"
+                />
+
+                <line
+                  x1="21"
+                  y1="21"
+                  x2="16.65"
+                  y2="16.65"
+                />
               </svg>
             </button>
 
-            {/* User Icon */}
+            {/* =================================================
+                USER ICON
+            ================================================= */}
             <button
-              onClick={() => router.push(admin ? "/user" : "/login")}
-              className={`transition-colors duration-300 cursor-pointer ${
-                isScrolled
-                  ? "text-[#121212] hover:text-[#C5A880]"
-                  : "text-white hover:text-[#C5A880]"
-              }`}
+              onClick={() =>
+                router.push(
+                  admin
+                    ? "/user"
+                    : "/login"
+                )
+              }
+              className={`
+                transition-colors
+                duration-300
+                cursor-pointer
+                ${
+                  headerActive
+                    ? "text-[#121212] hover:text-[#C5A880]"
+                    : "text-white hover:text-[#C5A880]"
+                }
+              `}
             >
               <svg
                 className="w-5 h-5"
@@ -263,19 +453,34 @@ const Header = () => {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle cx="12" cy="7" r="4" />
+                <circle
+                  cx="12"
+                  cy="7"
+                  r="4"
+                />
+
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               </svg>
             </button>
 
-            {/* Cart Icon */}
+            {/* =================================================
+                CART ICON
+            ================================================= */}
             <button
-              onClick={() => router.push("/user/cart")}
-              className={`relative transition-colors duration-300 cursor-pointer ${
-                isScrolled
-                  ? "text-[#121212] hover:text-[#C5A880]"
-                  : "text-white hover:text-[#C5A880]"
-              }`}
+              onClick={() =>
+                router.push("/user/cart")
+              }
+              className={`
+                relative
+                transition-colors
+                duration-300
+                cursor-pointer
+                ${
+                  headerActive
+                    ? "text-[#121212] hover:text-[#C5A880]"
+                    : "text-white hover:text-[#C5A880]"
+                }
+              `}
             >
               <svg
                 className="w-5 h-5"
@@ -284,13 +489,42 @@ const Header = () => {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
+                <circle
+                  cx="9"
+                  cy="21"
+                  r="1"
+                />
+
+                <circle
+                  cx="20"
+                  cy="21"
+                  r="1"
+                />
+
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
 
+              {/* CART COUNT */}
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 bg-[#C5A880] text-[#121212] text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center shadow-sm animate-scale-in">
+                <span
+                  className="
+                    absolute
+                    -top-1.5
+                    -right-2
+                    bg-[#C5A880]
+                    text-[#121212]
+                    text-[10px]
+                    font-medium
+                    rounded-full
+                    w-4
+                    h-4
+                    flex
+                    items-center
+                    justify-center
+                    shadow-sm
+                    animate-scale-in
+                  "
+                >
                   {cartCount}
                 </span>
               )}
@@ -299,23 +533,60 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile Side Panel */}
+      {/* =====================================================
+          MOBILE OVERLAY
+      ===================================================== */}
       <div
         style={{ zIndex: 999 }}
-        className={`fixed inset-0 bg-black/50 transition-opacity duration-300 md:hidden ${
-          isOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
+        className={`
+          fixed
+          inset-0
+          bg-black/50
+          transition-opacity
+          duration-300
+          md:hidden
+          ${
+            isOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }
+        `}
         onClick={() => setIsOpen(false)}
       />
+
+      {/* =====================================================
+          MOBILE SIDE PANEL
+      ===================================================== */}
       <div
         style={{ zIndex: 1000 }}
-        className={`fixed top-0 left-0 h-full w-50 bg-white transform transition-all ease-in duration-300 md:hidden flex flex-col p-6 ${
-          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full shadow-none"
-        }`}
+        className={`
+          fixed
+          top-0
+          left-0
+          h-full
+          w-50
+          bg-white
+          transform
+          transition-all
+          ease-in
+          duration-300
+          md:hidden
+          flex
+          flex-col
+          p-6
+          ${
+            isOpen
+              ? "translate-x-0 shadow-2xl"
+              : "-translate-x-full shadow-none"
+          }
+        `}
       >
+
+        {/* =================================================
+            MOBILE HEADER
+        ================================================= */}
         <div className="flex justify-between items-center mb-10">
+
           <Image
             src="/siyaas-removebg-preview.png"
             alt="Siyaas Logo"
@@ -323,46 +594,111 @@ const Header = () => {
             height={40}
             className="object-contain"
           />
+
           <button
             onClick={() => setIsOpen(false)}
-            className="text-3xl text-[#121212] leading-none"
+            className="
+              text-3xl
+              text-[#121212]
+              leading-none
+            "
           >
             &times;
           </button>
         </div>
 
+        {/* =================================================
+            MOBILE NAVIGATION
+        ================================================= */}
         <nav className="flex flex-col gap-6">
+
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavClick(item)}
-              className="text-left text-sm uppercase tracking-[0.2em] text-[#121212] hover:text-[#C5A880]"
+              className="
+                text-left
+                text-sm
+                uppercase
+                tracking-[0.2em]
+                text-[#121212]
+                hover:text-[#C5A880]
+                transition-colors
+              "
             >
               {item.name}
             </button>
           ))}
-          <div className="flex flex-col gap-4 mt-2 border-t border-[#C5A880]/20 pt-6">
-            <span className="text-sm uppercase tracking-[0.2em] text-[#121212]">
+
+          {/* =================================================
+              MOBILE MORE
+          ================================================= */}
+          <div
+            className="
+              flex
+              flex-col
+              gap-4
+              mt-2
+              border-t
+              border-[#C5A880]/20
+              pt-6
+            "
+          >
+            <span
+              className="
+                text-sm
+                uppercase
+                tracking-[0.2em]
+                text-[#121212]
+              "
+            >
               More ▾
             </span>
+
             <Link
               href="/faqs"
               onClick={() => setIsOpen(false)}
-              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
+              className="
+                pl-4
+                text-xs
+                uppercase
+                tracking-widest
+                text-[#6C6C6C]
+                hover:text-[#C5A880]
+                transition-colors
+              "
             >
               FAQ's
             </Link>
+
             <Link
               href="/blogs"
               onClick={() => setIsOpen(false)}
-              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
+              className="
+                pl-4
+                text-xs
+                uppercase
+                tracking-widest
+                text-[#6C6C6C]
+                hover:text-[#C5A880]
+                transition-colors
+              "
             >
               Blogs
             </Link>
+
             <Link
               href="/policys/cancellationRefund"
               onClick={() => setIsOpen(false)}
-              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C] hover:text-[#C5A880]"
+              className="
+                pl-4
+                text-xs
+                uppercase
+                tracking-widest
+                text-[#6C6C6C]
+                hover:text-[#C5A880]
+                transition-colors
+              "
             >
               Refund Policy
             </Link>
@@ -370,10 +706,22 @@ const Header = () => {
         </nav>
       </div>
 
+      {/* =====================================================
+          SCROLL TO TOP BUTTON
+      ===================================================== */}
       {showTopBtn && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 bg-black text-white p-3 rounded-full"
+          className="
+            fixed
+            bottom-6
+            right-6
+            z-50
+            bg-black
+            text-white
+            p-3
+            rounded-full
+          "
         >
           ↑
         </button>

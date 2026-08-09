@@ -11,52 +11,124 @@ const Products = () => {
   const { products = [], loading, refreshProducts } = useProducts();
 
   // --------------------------------------------------
-  // Convert API product structure into UI structure
+  // SAFE IMAGE URL HELPER
+  // --------------------------------------------------
+  const getImageUrl = (imageUrl) => {
+    const placeholder = "/placeholder-product.png";
+
+    // No image
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return placeholder;
+    }
+
+    const trimmedUrl = imageUrl.trim();
+
+    // Empty / invalid values
+    if (
+      !trimmedUrl ||
+      trimmedUrl === "undefined" ||
+      trimmedUrl === "null" ||
+      trimmedUrl.includes("/undefined") ||
+      trimmedUrl.includes("undefined/")
+    ) {
+      return placeholder;
+    }
+
+    // Already a complete URL
+    if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+      return trimmedUrl;
+    }
+
+    // Local/public image
+    if (trimmedUrl.startsWith("/")) {
+      // If it is already a local Next.js path
+      if (trimmedUrl.startsWith("/placeholder")) {
+        return trimmedUrl;
+      }
+
+      // API URL available
+      if (process.env.NEXT_PUBLIC_API_URL) {
+        return `${process.env.NEXT_PUBLIC_API_URL.replace(
+          /\/$/,
+          "",
+        )}${trimmedUrl}`;
+      }
+
+      return trimmedUrl;
+    }
+
+    // Relative API image path
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return `${process.env.NEXT_PUBLIC_API_URL.replace(
+        /\/$/,
+        "",
+      )}/${trimmedUrl.replace(/^\//, "")}`;
+    }
+
+    // API URL is missing
+    return placeholder;
+  };
+
+  // --------------------------------------------------
+  // CONVERT API PRODUCT STRUCTURE INTO UI STRUCTURE
   // --------------------------------------------------
   const mappedProducts = products
     .filter((product) => product.status === "published")
     .map((product) => {
-      // Get only image media
+      // --------------------------------------------------
+      // GET ONLY IMAGE MEDIA
+      // --------------------------------------------------
       const imageMedia =
         product.media?.filter((media) => media.mediaType === "image") || [];
 
-      // Primary image
+      // --------------------------------------------------
+      // PRIMARY IMAGE
+      // --------------------------------------------------
       const primaryImage =
         imageMedia.find((media) => media.isPrimary)?.url ||
         imageMedia[0]?.url ||
-        "/placeholder-product.png";
+        null;
 
-      // Hover image
+      // --------------------------------------------------
+      // HOVER IMAGE
+      // --------------------------------------------------
       const hoverImage =
         imageMedia.find((media) => !media.isPrimary)?.url ||
         imageMedia[1]?.url ||
-        primaryImage;
+        primaryImage ||
+        null;
 
-      // Default variant
+      // --------------------------------------------------
+      // DEFAULT VARIANT
+      // --------------------------------------------------
       const defaultVariant =
         product.variants?.find((variant) => variant.isDefault) ||
         product.variants?.[0];
 
+      // --------------------------------------------------
+      // RETURN UI PRODUCT
+      // --------------------------------------------------
       return {
         ...product,
 
-        image: primaryImage.startsWith("http")
-          ? primaryImage
-          : `${process.env.NEXT_PUBLIC_API_URL}${primaryImage}`,
+        // SAFE IMAGE URL
+        image: getImageUrl(primaryImage),
 
-        hoverImage: hoverImage.startsWith("http")
-          ? hoverImage
-          : `${process.env.NEXT_PUBLIC_API_URL}${hoverImage}`,
+        // SAFE HOVER IMAGE URL
+        hoverImage: getImageUrl(hoverImage),
 
+        // DESCRIPTION
         description:
           product.shortDescription ||
           product.fullDescription ||
           "Premium quality product",
 
+        // PRICE
         mrp: defaultVariant?.pricing?.mrp || 0,
 
         price: defaultVariant?.pricing?.sellingPrice || 0,
 
+        // INVENTORY
         inStock: defaultVariant?.inventory?.inStock ?? false,
 
         stockQuantity: defaultVariant?.inventory?.stockQuantity || 0,
@@ -64,43 +136,28 @@ const Products = () => {
     });
 
   // --------------------------------------------------
-  // Loading
+  // LOADING
   // --------------------------------------------------
   if (loading) {
     return (
-      <section className="webprimarycolor w-full px-3 py-20">
-        <div className="container mx-auto w-[94%]">
-          <p className="text-center text-sm text-luxury-dark">
-            Loading products...
-          </p>
+      <section className="w-full py-16">
+        <div className="flex justify-center items-center">
+          <p className="text-sm text-gray-500">Loading products...</p>
         </div>
       </section>
     );
   }
 
+  // --------------------------------------------------
+  // RETURN
+  // --------------------------------------------------
   return (
-    <section className="webprimarycolor w-full px-2 sm:px-4 pb-8 md:pb-12">
-      <div className="container mx-auto w-[94%] sm:w-[92%]">
+    <section className="w-full py-0 sm:py-10 md:py-16">
+      <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-5 md:px-8 lg:px-10">
         {/* --------------------------------------------------
             SECTION HEADING
         -------------------------------------------------- */}
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
-          <p
-            className="
-              text-[10px]
-              sm:text-xs
-              tracking-[0.3em]
-              sm:tracking-[0.4em]
-              text-luxury-gold
-              font-light
-              mb-2
-              sm:mb-3
-              uppercase
-            "
-          >
-            Latest Releases
-          </p>
-
+        <div className="mb-8 sm:mb-8 md:mb-12">
           <h2
             className="
               text-2xl
@@ -109,7 +166,7 @@ const Products = () => {
               font-serif
               font-extralight
               text-center
-              mb-3
+              mb-2
               sm:mb-4
               tracking-[0.08em]
               sm:tracking-[0.1em]
@@ -124,13 +181,12 @@ const Products = () => {
             className="
               text-center
               font-serif
-              italic
-              text-luxury-gold-dark/70
-              text-xs
-              sm:text-base
+              text-luxury-dark
+              text-[12px]
+              sm:text-[15px]
               tracking-wide
               sm:tracking-wider
-              font-light
+              font-medium
             "
           >
             Meticulously formulated. Small-batch crafted.
@@ -149,12 +205,11 @@ const Products = () => {
              PRODUCTS GRID
           -------------------------------------------------- */
           <div
-            className="
-              grid
+            className="grid
               grid-cols-2
               gap-3
               sm:gap-5
-              md:grid-cols-5
+              md:grid-cols-4
               md:gap-6
               lg:gap-8
             "
@@ -166,147 +221,166 @@ const Products = () => {
               <div
                 key={product._id}
                 onClick={() => router.push(`/products/${product._id}`)}
-                className="
-                  group
-                  flex
-                  flex-col
-                  text-center
-                  cursor-pointer
-
-                  p-2
-                  sm:p-3
-                  md:p-4
-
-                  bg-white/40
-                  backdrop-blur-[2px]
-
-                  border
-                  border-[#C5A880]/15
-
-                  rounded-[14px]
-                  sm:rounded-[18px]
-                  md:rounded-[20px]
-
-                  shadow-[0_5px_20px_rgba(40,30,20,0.05)]
-
-                  transition-all
-                  duration-500
-                  ease-out
-
-                  hover:border-[#C5A880]/40
-                  hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)]
-                  hover:-translate-y-1
-                "
+                className=" group flex flex-col text-center cursor-pointer bg-white/40 backdrop-blur-[2px] border border-[#C5A880]/15
+rounded-[14px] sm:rounded-[18px]  md:rounded-[20px] shadow-[0_5px_20px_rgba(40,30,20,0.05)] transition-all duration-500
+ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)] hover:-translate-y-1"
               >
-                {/* --------------------------------------------------
-                    PRODUCT IMAGE
-                -------------------------------------------------- */}
-                <div
-                  className="
-                    relative
-                    w-full
 
-                    aspect-[1/1.05]
-                    sm:aspect-[4/4.5]
-                    md:aspect-[4/5]
+<div
+  className="
+    relative
+    aspect-square
+    overflow-hidden
+    bg-[#F8F5F0]
+    rounded-t-[14px]
+    sm:rounded-t-[18px]
+    md:rounded-t-[20px]
+  "
+>
+  {/* --------------------------------------------------
+      PRODUCT BADGES
+  -------------------------------------------------- */}
+  <div
+    className="
+      absolute
+      top-2
+      left-2
+      sm:top-3
+      sm:left-3
+      z-20
+      flex
+      flex-col
+      items-start
+      gap-1
+    "
+  >
+    {/* NEW */}
+    <span
+      className="
+        bg-[#121212]/90
+        text-white
+        px-2
+        sm:px-3
+        py-1
+        sm:py-1.5
+        text-[7px]
+        sm:text-[9px]
+        uppercase
+        tracking-[0.15em]
+        sm:tracking-[0.2em]
+        font-medium
+        rounded-[3px]
+        shadow-sm
+      "
+    >
+      NEW
+    </span>
 
-                    overflow-hidden
+    {/* RAKHI SPECIAL */}
+    <span
+      className="
+        bg-[#C5A880]
+        text-[#121212]
+        px-2
+        sm:px-3
+        py-1
+        sm:py-1.5
+        text-[7px]
+        sm:text-[9px]
+        uppercase
+        tracking-[0.12em]
+        sm:tracking-[0.18em]
+        font-medium
+        rounded-[3px]
+        shadow-sm
+      "
+    >
+      Rakhi Special
+    </span>
+  </div>
 
-                    rounded-[10px]
-                    sm:rounded-xl
+  {/* MAIN IMAGE */}
+  <Image
+    src={product.image || "/placeholder-product.png"}
+    alt={product.name || "Product"}
+    fill
+    sizes="
+      (max-width: 500px) 34vw,
+      (max-width: 600px) 20vw,
+      20vw
+    "
+    className="
+      object-contain
+      p-1
+      sm:p-2
+      transition-transform
+      duration-700
+      ease-out
+      group-hover:scale-[1.04]
+    "
+  />
 
-                    mb-2
-                    sm:mb-3
+  {/* HOVER IMAGE */}
+  <Image
+    src={
+      product.hoverImage ||
+      product.image ||
+      "/placeholder-product.png"
+    }
+    alt={`${product.name || "Product"} Hover`}
+    fill
+    sizes="
+      (max-width: 640px) 44vw,
+      (max-width: 768px) 30vw,
+      20vw
+    "
+    className="
+      object-contain
+      p-1
+      sm:p-2
+      opacity-0
+      transition-opacity
+      duration-500
+      group-hover:opacity-100
+    "
+  />
 
-                    bg-[#F7F3ED]
-                  "
-                >
-                  {/* Main Image */}
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    sizes="
-                      (max-width: 640px) 44vw,
-                      (max-width: 768px) 30vw,
-                      20vw
-                    "
-                    className="
-                      object-contain
-                      p-1
-                      sm:p-2
+  {/* OUT OF STOCK */}
+  {!product.inStock && (
+    <div
+      className="
+        absolute
+        inset-0
+        z-10
+        bg-black/30
+        flex
+        items-center
+        justify-center
+      "
+    >
+      <span
+        className="
+          bg-white/90
+          px-2
+          sm:px-4
+          py-1.5
+          sm:py-2
+          text-[7px]
+          sm:text-[10px]
+          uppercase
+          tracking-[0.12em]
+          sm:tracking-[0.15em]
+          text-black
+        "
+      >
+        Out of Stock
+      </span>
+    </div>
+  )}
+</div>
 
-                      transition-transform
-                      duration-700
-                      ease-out
-
-                      group-hover:scale-[1.04]
-                    "
-                  />
-
-                  {/* Hover Image */}
-                  <Image
-                    src={product.hoverImage}
-                    alt={`${product.name} Hover`}
-                    fill
-                    sizes="
-                      (max-width: 640px) 44vw,
-                      (max-width: 768px) 30vw,
-                      20vw
-                    "
-                    className="
-                      object-contain
-                      p-1
-                      sm:p-2
-
-                      opacity-0
-
-                      transition-opacity
-                      duration-500
-
-                      group-hover:opacity-100
-                    "
-                  />
-
+            <div className="px-4 pb-3">
                   {/* --------------------------------------------------
-                      OUT OF STOCK
-                  -------------------------------------------------- */}
-                  {!product.inStock && (
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        bg-black/30
-                        flex
-                        items-center
-                        justify-center
-                      "
-                    >
-                      <span
-                        className="
-                          bg-white/90
-                          px-2
-                          sm:px-4
-                          py-1.5
-                          sm:py-2
-
-                          text-[7px]
-                          sm:text-[10px]
-
-                          uppercase
-                          tracking-[0.12em]
-                          sm:tracking-[0.15em]
-
-                          text-black
-                        "
-                      >
-                        Out of Stock
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* --------------------------------------------------
                     PRODUCT NAME
                 -------------------------------------------------- */}
                 <h3
@@ -314,25 +388,17 @@ const Products = () => {
                     text-[9px]
                     sm:text-xs
                     md:text-sm
-
                     font-serif
                     font-light
-
                     tracking-[0.1em]
                     sm:tracking-[0.16em]
-
                     text-luxury-dark
-
                     mb-1
                     sm:mb-2
-
                     uppercase
-
                     truncate
-
                     transition-colors
                     duration-300
-
                     group-hover:text-luxury-gold
                   "
                 >
@@ -343,25 +409,15 @@ const Products = () => {
                     DESCRIPTION
                 -------------------------------------------------- */}
                 <p
-                  className="
-                    text-[8px]
-                    sm:text-[10px]
-                    md:text-[11px]
-
+                  className="text-[8px] sm:text-[10px] md:text-[11px]
                     text-[#777]
-
                     font-light
-
                     leading-[1.4]
-
                     line-clamp-2
-
                     min-h-[10px]
                     sm:min-h-[10px]
-
                     font-sans
                     tracking-wide
-
                     px-0.5
                     sm:px-1
                   "
@@ -409,7 +465,7 @@ const Products = () => {
                       </span>
                     )}
 
-                    {/* Selling Price */}
+                    {/* SELLING PRICE */}
                     <span
                       className="
                         text-[9px]
@@ -450,40 +506,26 @@ const Products = () => {
                       router.push(`/products/${product._id}`);
                     }
                   }}
-                  className={`
-                    mt-2.5
-                    sm:mt-4
-                    w-full
-                    border
-                    py-2
-                    sm:py-2.5
-                    md:py-3
-                    text-[7px]
-                    sm:text-[9px]
-                    md:text-[10px]
-                    uppercase
-                    tracking-[0.1em]
-                    sm:tracking-[0.18em]
-                    transition-all
-                    duration-500
-
-                    font-light
-
-                    rounded-[2px]
-
-                    ${
+                  className={` mt-2.5 sm:mt-4 w-full border py-2 sm:py-2.5 md:py-3
+text-[7px] sm:text-[9px]   md:text-[10px] uppercase
+tracking-[0.1em]  sm:tracking-[0.18em] transition-all duration-500
+font-light rounded-[10px]
+ ${
                       product.inStock
                         ? `
                           border-[#C5A880]/50
                           text-[#B08F5A]
                           bg-transparent
+
                           hover:bg-[#C5A880]
                           hover:text-[#121212]
+
                           cursor-pointer
                         `
                         : `
                           border-gray-300
                           text-gray-400
+
                           cursor-not-allowed
                         `
                     }
@@ -491,6 +533,7 @@ const Products = () => {
                 >
                   {product.inStock ? "Buy Now" : "Out of Stock"}
                 </button>
+            </div>
               </div>
             ))}
           </div>
@@ -503,6 +546,7 @@ const Products = () => {
           className="
             flex
             justify-center
+
             mt-8
             sm:mt-10
             md:mt-12
@@ -514,22 +558,33 @@ const Products = () => {
               border
               border-luxury-dark
               text-luxury-dark
+
               px-7
               sm:px-10
+
               py-3
               sm:py-4
+
               tracking-[0.15em]
               sm:tracking-[0.2em]
+
               uppercase
+
               text-[9px]
               sm:text-xs
+
               hover:bg-luxury-dark
               hover:text-luxury-cream
+
               transition-all
               duration-500
+
               bg-transparent
+
               font-light
+
               cursor-pointer
+
               shadow-sm
             "
           >
@@ -542,3 +597,62 @@ const Products = () => {
 };
 
 export default Products;
+
+// ### Also check your `.env`
+
+// You should have something like:
+
+// ```env
+// NEXT_PUBLIC_API_URL=http://localhost:5000
+// ```
+
+// or, for production:
+
+// ```env
+// NEXT_PUBLIC_API_URL=https://your-api-domain.com
+// ```
+
+// **Do not put a trailing `/`** at the end.
+
+// And create:
+
+// ```text
+// public/placeholder-product.png
+// ```
+
+// So your structure should be:
+
+// ```text
+// project/
+// ├── app/
+// ├── public/
+// │   └── placeholder-product.png
+// ├── .env.local
+// ├── package.json
+// └── ...
+// ```
+
+// Now even if your backend returns:
+
+// ```js
+// media: [
+//   {
+//     mediaType: "image",
+//     url: undefined
+//   }
+// ]
+// ```
+
+// or:
+
+// ```js
+// url: "/uploads/undefined"
+// ```
+
+// the frontend will safely show:
+
+// ```text
+// /public/placeholder-product.png
+// ```
+
+// instead of sending `undefined/uploads/undefined` to `next/image`.

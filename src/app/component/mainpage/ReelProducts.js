@@ -190,7 +190,7 @@ const ReelProducts = () => {
               {products.map((item, index) => (
                 <SwiperSlide key={item._id} className="py-2">
                   <div className="bg-white overflow-hidden transition-all border-b-2 border-white shadow-md transition-transform rounded-2xl duration-700">
-                    <div className="relative overflow-hidden h-[220px] sm:h-[250px] lg:h-[290px] ">
+                    <div className="relative overflow-hidden h-[220px] sm:h-[250px] lg:h-[240px] ">
                       <video
                         ref={(el) => {
                           videoRefs.current[index] = el;
