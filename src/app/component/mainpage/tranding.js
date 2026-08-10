@@ -25,7 +25,22 @@ const Trending = () => {
   ];
 
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-10 sm:py-12 md:py-16 lg:py-20">
+   <div className="text-center">
+       <h1
+        className="
+            text-3xl
+            sm:text-5xl
+            font-serif
+            font-extralight
+            tracking-[0.1em]
+            text-[#1A1A1A]
+            uppercase
+            "
+      >
+        MOST TRENDING
+      </h1>
+     <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-10 sm:py-12 md:py-16 lg:py-10">
+   
       <div
         className="
           max-w-[1500px]
@@ -184,6 +199,7 @@ const Trending = () => {
         ))}
       </div>
     </section>
+   </div>
   );
 };
 
