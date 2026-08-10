@@ -17,9 +17,7 @@ export default function CatgoryPage() {
 
   const { modal, openModal, closeModal } = useModal();
 
-  const {  categories,
-    loading,
-    refreshCategories, } = useCategories();
+  const { categories, loading, refreshCategories } = useCategories();
 
   const handleEdit = (category) => {
     openModal(
@@ -37,7 +35,10 @@ export default function CatgoryPage() {
   };
 
   const handleDelete = async (category) => {
-    const confirmDelete = window.confirm(`Delete ${category.name}?`);
+    const confirmDelete =
+      window.confirm(`This action will permanently delete this category and all associated data,
+  including its subcategories, products, and related records. This action
+  cannot be undone.`);
 
     if (!confirmDelete) return;
 

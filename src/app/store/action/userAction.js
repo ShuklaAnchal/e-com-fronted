@@ -38,7 +38,7 @@ export const sendOtp = (mobileNumber) => async (dispatch) => {
 export const fetchCurrentCustomer = () => async (dispatch) => {
   try {
     // The axios interceptor attaches userToken for non-/admin URLs
-    const { data } = await axios.get("/user/current-user");
+    const { data } = await axios.post("/currentadmin");
 
     console.log("Current Customer:", data);
 
@@ -73,12 +73,14 @@ export const verifyOtp =
         otp,
       });
       console.log("Customer Login Response:", data);
+
       if (data.token) {
         localStorage.setItem(
           "userToken",
           data.token,
         );
       }
+
       dispatch(
         customerLogin({
           user: data.user,

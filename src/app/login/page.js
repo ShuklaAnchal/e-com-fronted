@@ -28,11 +28,9 @@ function LoginContent() {
     }
 
     setLoading(true);
-
     const res = await dispatch(sendOtp(mobileNumber));
 
     setLoading(false);
-
     if (res.success) {
       alert("OTP sent successfully");
       setStep(2);

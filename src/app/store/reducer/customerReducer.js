@@ -28,6 +28,10 @@ export const customerReducer = createSlice({
 
     currentCustomer: (state, action) => {
       state.user = action.payload;
+      state.token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("userToken")
+          : null;
       state.isAuthenticated = true;
     },
 

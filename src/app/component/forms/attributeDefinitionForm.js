@@ -137,7 +137,7 @@ const CreateAttribute = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <div className="max-w-xl mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">Create Attribute</h1>
 
       <form onSubmit={submitHandler} className="space-y-4">

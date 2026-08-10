@@ -7,6 +7,10 @@ const nextConfig = {
         port: "8080",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
 
       // Keep your existing DigitalOcean configuration here
       {

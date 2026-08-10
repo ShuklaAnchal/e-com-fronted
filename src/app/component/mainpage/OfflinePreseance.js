@@ -91,7 +91,7 @@ export default function MomentsWithSiyaas() {
           </p>
 
           <h2 className="font-serif text-3xl md:text-5xl font-light text-[#1A1A1A] leading-tight uppercase tracking-wider">
-            Moments With Siyaas
+            Offline Presence
           </h2>
 
           <div className="w-24 h-px bg-[#C5A880] mx-auto my-4" />
@@ -255,7 +255,7 @@ export default function MomentsWithSiyaas() {
 
         {/* Brand Quote */}
         <div className="max-w-5xl mx-auto text-center mt-10">
-          <p className="font-serif italic text-xl md:text-3xl font-extralight text-[#1A1A1A] leading-relaxed max-w-4xl mx-auto">
+          <p className="font-serif italic text-xl md:text-3xl font-extralight text-[#1A1A1A] leading-[35px] max-w-4xl mx-auto">
             “Luxury is not simply what you see,
             <br />
             but what you feel long after the moment has passed.”

@@ -18,18 +18,16 @@ export default function ProductPage() {
 
   const { products, loading, refreshProducts } = useProducts();
 
-
-const handleAddVariant = (product) => {
-  openModal(
-    `Add Variant - ${product.name}`,
-    <VariantForm
-      product={product}
-      onClose={closeModal}
-      refreshProducts={refreshProducts}
-    />
-  );
-};
-
+  const handleAddVariant = (product) => {
+    openModal(
+      `Add Variant - ${product.name}`,
+      <VariantForm
+        product={product}
+        onClose={closeModal}
+        refreshProducts={refreshProducts}
+      />,
+    );
+  };
 
   const handleEdit = (category) => {
     console.log({ category });
@@ -54,7 +52,7 @@ const handleAddVariant = (product) => {
     if (!confirmDelete) return;
 
     try {
-      await dispatch( (product._id));
+      await dispatch(product._id);
 
       await refreshProducts();
 

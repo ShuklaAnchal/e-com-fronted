@@ -2,7 +2,8 @@ import Hero from "@/app/component/mainpage/Hero";
 import Collection from "@/app/component/mainpage/Collection";
 import Products from "@/app/component/mainpage/Products";
 import About from "@/app/component/mainpage/About";
-import TestimonialSlider from "@/app/component/mainpage/TestimonialSlider";
+import OfflinePreseance from "@/app/component/mainpage/OfflinePreseance";
+import TestimonialSlider from "@/app/component/mainpage/Testimonials";
 import ReelProducts from "@/app/component/mainpage/ReelProducts";
 import Header from "@/app/component/mainpage/Header";
 import Footer from "@/app/component/resuable/Footer";
@@ -24,9 +25,10 @@ export default function Home() {
         <Banner />
         <Products />
         <Tranding />
-        <TestimonialSlider />
+        <OfflinePreseance />
         <HomeBlogSection />
-        <About />
+        <TestimonialSlider />
+        {/* <About /> */}
         <div>
           <Exclusively />
           <Footer />

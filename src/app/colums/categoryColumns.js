@@ -1,4 +1,8 @@
+
 import { createColumnHelper } from "@tanstack/react-table";
+import Link from "next/link";
+import Image from "next/image";
+
 import ActionDropdown from "../component/table/ActionDropdown";
 
 const columnHelper = createColumnHelper();
@@ -8,39 +12,88 @@ export const categoryColumns = ({
   onView,
   onDelete,
 }) => [
+  // ---------------------------------------------
+  // SR NO
+  // ---------------------------------------------
   columnHelper.display({
     id: "srNo",
     header: "Sr No",
     cell: ({ row }) => row.index + 1,
   }),
 
+  // ---------------------------------------------
+  // CATEGORY
+  // ---------------------------------------------
   columnHelper.accessor("name", {
     header: "Category",
     enableSorting: true,
 
-    cell: ({ row, getValue }) => (
-      <div className="flex items-center gap-3">
-        <img
-          src={`${row.original.image}`}
-          alt={getValue()}
-          className="w-10 h-10 rounded-md object-cover border"
-        />
+    cell: ({ row, getValue }) => {
+      const category = row.original;
 
-        <span className="font-medium text-[#5C4033]">
-          {getValue()}
-        </span>
-      </div>
+      return (
+        <div className="flex items-center gap-3">
+
+          {/* Category Image */}
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-gray-100">
+            {category?.image ? (
+              <Image
+                src={category.image}
+                alt={category?.name || "Category"}
+                fill
+                className="object-cover"
+                sizes="40px"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                N/A
+              </div>
+            )}
+          </div>
+
+          {/* Category Name */}
+          <Link
+            href={`/admin/dashboard/category/${category?._id}`}
+            className="font-medium text-[#5C4033] transition hover:underline"
+          >
+            {getValue() || "-"}
+          </Link>
+
+        </div>
+      );
+    },
+  }),
+
+  // ---------------------------------------------
+  // SLUG
+  // ---------------------------------------------
+  columnHelper.accessor("slug", {
+    header: "Slug",
+    enableSorting: true,
+
+    cell: ({ getValue }) => (
+      <span className="text-sm text-gray-600">
+        {getValue() || "-"}
+      </span>
     ),
   }),
 
-  columnHelper.accessor("slug", {
-    header: "Slug",
-  }),
-
+  // ---------------------------------------------
+  // DESCRIPTION
+  // ---------------------------------------------
   columnHelper.accessor("description", {
     header: "Description",
+
+    cell: ({ getValue }) => (
+      <p className="max-w-xs truncate text-sm text-gray-600">
+        {getValue() || "-"}
+      </p>
+    ),
   }),
 
+  // ---------------------------------------------
+  // ACTIONS
+  // ---------------------------------------------
   columnHelper.display({
     id: "actions",
 
@@ -61,3 +114,4 @@ export const categoryColumns = ({
     ),
   }),
 ];
+

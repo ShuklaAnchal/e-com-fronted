@@ -5,6 +5,7 @@ import {
   createProductvarient,
   editProduct,
   removeProduct,
+  catgeorywiseProducts,
   productByid,
   iserror,
 } from "../reducer/productReducer";
@@ -19,8 +20,6 @@ const getToken = () => {
 export const asyncfetchproduct = () => async (dispatch, getState) => {
   try {
     const { data } = await axios.get("/products/fetch-AllProducts-user");
-    console.log("Fetched products:", data);
-    console.log({pr:data.products});
     dispatch(fetchProduct(data.products));
     return data;
   } catch (error) {
@@ -46,7 +45,6 @@ export const fetchProductbyID = (id) => async (dispatch) => {
 };
 
 export const createProduct = (formData) => async (dispatch, getState) => {
-  console.log({formData});
   
   try {
     const token = getToken();
@@ -56,11 +54,9 @@ export const createProduct = (formData) => async (dispatch, getState) => {
       },
     };
 
-    console.log({formData});
-    
     const { data } = await axios.post("/products/create", formData, config);
- console.log({data});
- 
+
+
     dispatch(createnewProduct(data));
 
     return { success: true, payload: data };
@@ -80,7 +76,6 @@ export const createProduct = (formData) => async (dispatch, getState) => {
   };
 }
 };
-
 
 //edit products detailes
 export const editProductDetails =
@@ -172,3 +167,23 @@ export const createProductVarient = (productId, formData) => async (dispatch, ge
   };
 }
 };
+
+
+//fetch category wise products 
+export const fetchCategoryWiseProducts= (id) => async (dispatch) => {
+  try {
+    const { data } = await axios.get(
+      `/products/fetch-catgeory-wise-products/${id}`
+    );
+
+    dispatch(catgeorywiseProducts(data));
+
+    return data; // Return the whole response
+  } catch (error) {
+    console.error(error);
+    dispatch(iserror(error.message));
+    throw error;
+  }
+};
+
+

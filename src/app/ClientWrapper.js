@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { mergeLocalCart } from "@/app/store/action/cartAction";
+import { fetchCurrentCustomer } from "@/app/store/action/userAction";
 // import {
 //   fetchnotificationbyID,
 //   fetchunreadNotification,
@@ -24,15 +25,20 @@ export default function ClientWrapper({ children }) {
 
   // On mount: if the user is already logged in and has a local guest cart,
   // merge it into the backend automatically.
+  // Re-hydrate user state on every page load/refresh
   useEffect(() => {
     const userToken =
       typeof window !== "undefined" && localStorage.getItem("userToken");
-    const localCart = typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("cartItems") || "[]")
-      : [];
 
-    if (userToken && localCart.length > 0) {
-      dispatch(mergeLocalCart());
+    if (userToken) {
+      // Restore user data into Redux from the backend
+      dispatch(fetchCurrentCustomer());
+
+      // Merge any guest cart items that existed before login
+      const localCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      if (localCart.length > 0) {
+        dispatch(mergeLocalCart());
+      }
     }
   }, [dispatch]);
 

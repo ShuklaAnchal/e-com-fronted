@@ -41,9 +41,8 @@ export default function HomeBlogSection() {
           <p className="text-xs tracking-[0.5em] uppercase text-[#C5A880] mb-2 font-light">
             From The Journal
           </p>
-
           <h2 className="font-serif text-3xl md:text-5xl font-light text-[#1A1A1A] uppercase tracking-wider leading-tight">
-            Stories &amp; Insights
+            Articles &amp; Blogs
           </h2>
 
           <div className="w-20 h-px bg-[#C5A880] mx-auto my-2" />

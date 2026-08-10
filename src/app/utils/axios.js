@@ -9,9 +9,26 @@ const instance = axios.create({
 
 
 instance.interceptors.request.use((config) => {
-  const token = typeof window !== "undefined" && localStorage.getItem("token");
+  if (typeof window === "undefined") return config;
 
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  // Admin routes use explicit Bearer token (header-based auth)
+  const isAdminRoute =
+    config.url?.includes("/admin") ||
+    config.url?.includes("/portal") ||
+    config.url?.includes("/adminlogin") ||
+    config.url?.includes("/currentadmin");
+
+  if (isAdminRoute) {
+    const adminToken =
+      localStorage.getItem("adminToken") || localStorage.getItem("token");
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
+    }
+  }
+  // User routes use cookie-based auth — the browser sends the cookie
+  // automatically because withCredentials: true is set above.
+  // No manual Authorization header needed for user routes.
+
   return config;
 });
 

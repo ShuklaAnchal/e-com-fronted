@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,11 +13,13 @@ const Header = () => {
   const pathname = usePathname();
 
   const isHomePage = pathname === "/";
-  const loginState = useSelector((state) => state.login);
+  const loginState = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
 
-  const admin = loginState?.admin || null;
+  const admin = loginState?.user || null;
+
+  console.log({ admin });
 
   // =====================================================
   // STATES
@@ -76,7 +77,7 @@ const Header = () => {
 
       const count = cart.reduce(
         (total, item) => total + (item.quantity || 1),
-        0
+        0,
       );
 
       setCartCount(count);
@@ -181,15 +182,14 @@ const Header = () => {
           transition-all
           duration-500
            ${
-            isScrolled
-              ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
-              : "top-12 bg-transparent z-40 py-6"
-          }
+             isScrolled
+               ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
+               : "top-12 bg-transparent z-40 py-6"
+           }
 
         `}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-
           {/* =================================================
               MOBILE MENU BUTTON
           ================================================= */}
@@ -199,11 +199,7 @@ const Header = () => {
               transition-colors
               duration-300
               cursor-pointer
-              ${
-                headerActive
-                  ? "text-[#121212]"
-                  : "text-white"
-              }
+              ${headerActive ? "text-[#121212]" : "text-white"}
             `}
             onClick={() => setIsOpen(true)}
           >
@@ -214,7 +210,6 @@ const Header = () => {
               DESKTOP NAVIGATION
           ================================================= */}
           <nav className="hidden md:flex items-center gap-8">
-
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -240,10 +235,7 @@ const Header = () => {
             {/* =================================================
                 MORE DROPDOWN
             ================================================= */}
-            <div
-              className="relative"
-              onMouseLeave={() => setShowMore(false)}
-            >
+            <div className="relative" onMouseLeave={() => setShowMore(false)}>
               <button
                 onMouseEnter={() => setShowMore(true)}
                 onClick={() => setShowMore(!showMore)}
@@ -254,11 +246,7 @@ const Header = () => {
                   font-semibold
                   transition-colors
                   duration-300
-                  ${
-                    headerActive
-                      ? "text-[#121212]"
-                      : "text-white"
-                  }
+                  ${headerActive ? "text-[#121212]" : "text-white"}
                 `}
               >
                 More ▾
@@ -338,7 +326,8 @@ const Header = () => {
               -translate-x-1/2
               cursor-pointer
             "
-            onClick={() => router.push("/")}          >
+            onClick={() => router.push("/")}
+          >
             {/* WHITE LOGO */}
             <Image
               src="/siyassLogowhite.png"
@@ -350,11 +339,7 @@ const Header = () => {
                 object-contain
                 transition-all
                 duration-300
-                ${
-                  headerActive
-                    ? "opacity-0"
-                    : "opacity-100"
-                }
+                ${headerActive ? "opacity-0" : "opacity-100"}
               `}
             />
 
@@ -373,11 +358,7 @@ const Header = () => {
                 object-contain
                 transition-opacity
                 duration-500
-                ${
-                  headerActive
-                    ? "opacity-100"
-                    : "opacity-0"
-                }
+                ${headerActive ? "opacity-100" : "opacity-0"}
               `}
             />
           </div>
@@ -386,7 +367,6 @@ const Header = () => {
               RIGHT SIDE ICONS
           ================================================= */}
           <div className="flex items-center gap-6 ml-auto">
-
             {/* =================================================
                 SEARCH ICON
             ================================================= */}
@@ -409,18 +389,9 @@ const Header = () => {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="8"
-                />
+                <circle cx="11" cy="11" r="8" />
 
-                <line
-                  x1="21"
-                  y1="21"
-                  x2="16.65"
-                  y2="16.65"
-                />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
 
@@ -428,13 +399,7 @@ const Header = () => {
                 USER ICON
             ================================================= */}
             <button
-              onClick={() =>
-                router.push(
-                  admin
-                    ? "/user"
-                    : "/login"
-                )
-              }
+              onClick={() => router.push(admin ? "/user" : "/login")}
               className={`
                 transition-colors
                 duration-300
@@ -453,11 +418,7 @@ const Header = () => {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle
-                  cx="12"
-                  cy="7"
-                  r="4"
-                />
+                <circle cx="12" cy="7" r="4" />
 
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               </svg>
@@ -467,9 +428,7 @@ const Header = () => {
                 CART ICON
             ================================================= */}
             <button
-              onClick={() =>
-                router.push("/user/cart")
-              }
+              onClick={() => router.push("/user/cart")}
               className={`
                 relative
                 transition-colors
@@ -489,17 +448,9 @@ const Header = () => {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle
-                  cx="9"
-                  cy="21"
-                  r="1"
-                />
+                <circle cx="9" cy="21" r="1" />
 
-                <circle
-                  cx="20"
-                  cy="21"
-                  r="1"
-                />
+                <circle cx="20" cy="21" r="1" />
 
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
@@ -581,12 +532,10 @@ const Header = () => {
           }
         `}
       >
-
         {/* =================================================
             MOBILE HEADER
         ================================================= */}
         <div className="flex justify-between items-center mb-10">
-
           <Image
             src="/siyaas-removebg-preview.png"
             alt="Siyaas Logo"
@@ -611,7 +560,6 @@ const Header = () => {
             MOBILE NAVIGATION
         ================================================= */}
         <nav className="flex flex-col gap-6">
-
           {navItems.map((item) => (
             <button
               key={item.id}
