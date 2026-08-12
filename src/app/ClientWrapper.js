@@ -23,15 +23,19 @@ export default function ClientWrapper({ children }) {
   console.log({user});
   
   const userId = user?.id;
- const token = localStorage.getItem("token");
+  const token =
+    user?.token ||
+    (typeof window !== "undefined" && localStorage.getItem("token")); 
+console.log(token);
+
   // On mount: if the user is already logged in and has a local guest cart,
   // merge it into the backend automatically.
   // Re-hydrate user state on every page load/refresh
   useEffect(() => {
-     const token = localStorage.getItem("token");
-     console.log({token});
-     
-    if (token) {
+    const userToken =
+      typeof window !== "undefined" && localStorage.getItem("token");
+
+    if (userToken) {
       // Restore user data into Redux from the backend
       dispatch(fetchCurrentAdmin());
 
