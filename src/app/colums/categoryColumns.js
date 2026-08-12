@@ -53,7 +53,7 @@ export const categoryColumns = ({
 
           {/* Category Name */}
           <Link
-            href={`/admin/dashboard/category/${category?._id}`}
+            href={`/admin/dashboard/category  /${category?._id}`}
             className="font-medium text-[#5C4033] transition hover:underline"
           >
             {getValue() || "-"}

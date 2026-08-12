@@ -15,13 +15,13 @@ export const subcategoryColumns = ({
   }),
 
   columnHelper.accessor("name", {
-    header: "Subcatgeory",
+    header: "Subcategory",
     enableSorting: true,
 
     cell: ({ row, getValue }) => (
       <div className="flex items-center gap-3">
         <img
-          src={`${process.env.NEXT_PUBLIC_API_URL}${row.original.image}`}
+          src={row.original.image}
           alt={getValue()}
           className="w-10 h-10 rounded-md object-cover border"
         />
@@ -32,7 +32,8 @@ export const subcategoryColumns = ({
       </div>
     ),
   }),
-   columnHelper.accessor("categoryId.name", {
+
+  columnHelper.accessor("categoryId.name", {
     header: "Category",
   }),
 

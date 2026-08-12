@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { mergeLocalCart } from "@/app/store/action/cartAction";
-import { fetchCurrentCustomer } from "@/app/store/action/userAction";
+import { fetchCurrentAdmin } from "@/app/store/action/adminAction";
 // import {
 //   fetchnotificationbyID,
 //   fetchunreadNotification,
@@ -17,22 +17,23 @@ import { fetchCurrentCustomer } from "@/app/store/action/userAction";
 export default function ClientWrapper({ children }) {
   const dispatch = useDispatch();
 
-  const user = useSelector((state) => state.login.admin);
-  const userId = user?.id;
-  const token =
-    user?.token ||
-    (typeof window !== "undefined" && localStorage.getItem("userToken"));
 
+   const user = useSelector((state) => state.login.user);
+   
+  console.log({user});
+  
+  const userId = user?.id;
+ const token = localStorage.getItem("token");
   // On mount: if the user is already logged in and has a local guest cart,
   // merge it into the backend automatically.
   // Re-hydrate user state on every page load/refresh
   useEffect(() => {
-    const userToken =
-      typeof window !== "undefined" && localStorage.getItem("userToken");
-
-    if (userToken) {
+     const token = localStorage.getItem("token");
+     console.log({token});
+     
+    if (token) {
       // Restore user data into Redux from the backend
-      dispatch(fetchCurrentCustomer());
+      dispatch(fetchCurrentAdmin());
 
       // Merge any guest cart items that existed before login
       const localCart = JSON.parse(localStorage.getItem("cartItems") || "[]");

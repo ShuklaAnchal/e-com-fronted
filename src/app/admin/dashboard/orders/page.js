@@ -16,9 +16,7 @@ export default function CatgoryPage() {
 
   const { modal, openModal, closeModal } = useModal();
 
-  const {   allOrders,
-    loading,
-    refreshOrders, } = useOrders();
+  const { allOrders, loading, refreshOrders } = useOrders();
 
   // const handleEdit = (category) => {
   //   openModal(
@@ -65,10 +63,7 @@ export default function CatgoryPage() {
   return (
     <div className="p-8 bg-[#F8F4F1] h-full">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-[#5C4033]">
-          Orders
-        </h1>
-
+        <h1 className="text-2xl font-semibold text-[#5C4033]">Orders</h1>
       </div>
 
       <Table columns={columns} data={allOrders || []} />

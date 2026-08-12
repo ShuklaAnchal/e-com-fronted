@@ -6,34 +6,76 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
 import { FiMenu } from "react-icons/fi";
-import { fetchCurrentUser } from "@/app/store/action/adminAction";
+
+import { fetchCurrentAdmin } from "@/app/store/action/adminAction";
+import { fetchCart } from "@/app/store/action/cartAction";
+import { Donegal_One } from "next/font/google";
+import { FaRunning } from "react-icons/fa";
 
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
-
-  const isHomePage = pathname === "/";
-  const loginState = useSelector((state) => state.user);
-
   const dispatch = useDispatch();
 
-  const admin = loginState?.user || null;
+  // =====================================================
+  // PAGE
+  // =====================================================
 
-  console.log({ admin });
+  const isHomePage = pathname === "/";
+
+  // =====================================================
+  // REDUX STATE
+  // =====================================================
+
+  /*
+    IMPORTANT:
+
+    If your store is:
+
+    combineReducers({
+      login: loginReducer,
+      cart: cartReducer
+    })
+
+    then use:
+
+    state.login
+
+    NOT:
+
+    state.loginState
+  */
+
+  const loginState = useSelector((state) => state.login);
+
+  const { cartItems = [] } = useSelector((state) => state.cart);
+
+  // Your reducer currently seems to store the user inside `admin`
+  const currentUser = loginState?.admin || null;
+
+  // =====================================================
+  // CART COUNT
+  // =====================================================
+
+  const cartCount = cartItems.reduce(
+    (total, item) => total + Number(item.quantity || 0),
+    0,
+  );
 
   // =====================================================
   // STATES
   // =====================================================
+
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [showMore, setShowMore] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
 
   // =====================================================
   // SCROLL HANDLER
   // =====================================================
+
   useEffect(() => {
     if (!isHomePage) {
       setIsScrolled(true);
@@ -58,43 +100,76 @@ const Header = () => {
   // =====================================================
   // FETCH CURRENT USER
   // =====================================================
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
 
-    console.log({ token });
-
-    if (token && !admin) {
-      dispatch(fetchCurrentUser());
+    if (token && token !== "undefined" && token !== "null" && !currentUser) {
+      dispatch(fetchCurrentAdmin());
     }
-  }, [dispatch, admin]);
+  }, [dispatch, currentUser]);
 
   // =====================================================
-  // CART COUNT
+  // FETCH CART
   // =====================================================
+
   useEffect(() => {
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
 
-      const count = cart.reduce(
-        (total, item) => total + (item.quantity || 1),
-        0,
-      );
+    if (token && token !== "undefined" && token !== "null") {
+      dispatch(fetchCart());
+    }
+  }, [dispatch]);
 
-      setCartCount(count);
-    };
+  // =====================================================
+  // PROFILE CLICK
+  // =====================================================
 
-    updateCartCount();
+  const handleProfileClick = () => {
+    console.log({hand:"riundf"});
+    
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
+console.log({token});
 
-    window.addEventListener("cartUpdated", updateCartCount);
+    // No token
+    if (!token || token === "undefined" || token === "null") {
+      router.push("/login");
+      return;
+    }
 
-    return () => {
-      window.removeEventListener("cartUpdated", updateCartCount);
-    };
-  }, []);
+    console.log("PROFILE USER:", currentUser);
+
+    /*
+      Depending on your backend response,
+      you may have:
+
+      currentUser.userType
+      OR
+      currentUser.role
+    */
+    const userType = currentUser?.userType || currentUser?.role;
+
+    console.log("PROFILE USER TYPE:", userType);
+
+    if (userType === "user" || userType === "USER") {
+      router.push("/user");
+      return;
+    }
+
+    // If admin / salesperson / distributor / retailer etc.
+    console.log("User is not a normal user:", userType);
+
+    // You can send them somewhere else if required
+    router.push("/login");
+  };
 
   // =====================================================
   // NAVIGATION ITEMS
   // =====================================================
+
   const navItems = [
     {
       id: "home",
@@ -121,6 +196,7 @@ const Header = () => {
   // =====================================================
   // NAVIGATION CLICK
   // =====================================================
+
   const handleNavClick = (item) => {
     setIsOpen(false);
 
@@ -149,6 +225,7 @@ const Header = () => {
   // =====================================================
   // SCROLL TO TOP
   // =====================================================
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -159,13 +236,19 @@ const Header = () => {
   // =====================================================
   // HEADER ACTIVE STATE
   // =====================================================
+
   const headerActive = isScrolled || isHovered;
+
+  // =====================================================
+  // RETURN
+  // =====================================================
 
   return (
     <>
       {/* =====================================================
           DESKTOP / MAIN HEADER
       ===================================================== */}
+
       <header
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -177,22 +260,19 @@ const Header = () => {
           z-40
           py-6
           hover:bg-white
-          hover: transition-all
-          hover:ease-linear
           transition-all
+          ease-linear
           duration-500
-           ${
-             isScrolled
-               ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
-               : "top-12 bg-transparent z-40 py-6"
-           }
-
+          ${
+            isScrolled
+              ? "top-0 bg-white border-b border-[#C5A880]/15 shadow-lg z-50 py-6"
+              : "top-12 bg-transparent z-40 py-6"
+          }
         `}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-          {/* =================================================
-              MOBILE MENU BUTTON
-          ================================================= */}
+          {/* MOBILE MENU */}
+
           <button
             className={`
               md:hidden
@@ -206,9 +286,8 @@ const Header = () => {
             <FiMenu className="w-6 h-6" />
           </button>
 
-          {/* =================================================
-              DESKTOP NAVIGATION
-          ================================================= */}
+          {/* DESKTOP NAVIGATION */}
+
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <button
@@ -232,9 +311,8 @@ const Header = () => {
               </button>
             ))}
 
-            {/* =================================================
-                MORE DROPDOWN
-            ================================================= */}
+            {/* MORE */}
+
             <div className="relative" onMouseLeave={() => setShowMore(false)}>
               <button
                 onMouseEnter={() => setShowMore(true)}
@@ -269,45 +347,21 @@ const Header = () => {
                 >
                   <Link
                     href="/faqs"
-                    className="
-                      block
-                      px-5
-                      py-3
-                      text-xs
-                      text-black
-                      hover:text-[#C5A880]
-                      transition-colors
-                    "
+                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
                   >
-                    FAQ's
+                    FAQ&apos;s
                   </Link>
 
                   <Link
                     href="/policys/cancellationRefund"
-                    className="
-                      block
-                      px-5
-                      py-3
-                      text-xs
-                      text-black
-                      hover:text-[#C5A880]
-                      transition-colors
-                    "
+                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
                   >
                     Refund Policy
                   </Link>
 
                   <Link
                     href="/blogs"
-                    className="
-                      block
-                      px-5
-                      py-3
-                      text-xs
-                      text-black
-                      hover:text-[#C5A880]
-                      transition-colors
-                    "
+                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
                   >
                     Blogs
                   </Link>
@@ -316,19 +370,17 @@ const Header = () => {
             </div>
           </nav>
 
-          {/* =================================================
-              LOGO
-          ================================================= */}
+          {/* LOGO */}
+
           <div
             className="
-               absolute
+              absolute
               left-1/2
               -translate-x-1/2
               cursor-pointer
             "
             onClick={() => router.push("/")}
           >
-            {/* WHITE LOGO */}
             <Image
               src="/siyassLogowhite.png"
               alt="Siyaas Logo"
@@ -343,7 +395,6 @@ const Header = () => {
               `}
             />
 
-            {/* BLACK LOGO */}
             <Image
               src="/siyaas-removebg-preview.png"
               alt="Siyaas Logo"
@@ -363,13 +414,11 @@ const Header = () => {
             />
           </div>
 
-          {/* =================================================
-              RIGHT SIDE ICONS
-          ================================================= */}
+          {/* RIGHT SIDE */}
+
           <div className="flex items-center gap-6 ml-auto">
-            {/* =================================================
-                SEARCH ICON
-            ================================================= */}
+            {/* SEARCH */}
+
             <button
               className={`
                 transition-colors
@@ -390,16 +439,14 @@ const Header = () => {
                 strokeWidth="2"
               >
                 <circle cx="11" cy="11" r="8" />
-
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
 
-            {/* =================================================
-                USER ICON
-            ================================================= */}
+            {/* USER */}
+
             <button
-              onClick={() => router.push(admin ? "/user" : "/login")}
+             onClick={handleProfileClick}
               className={`
                 transition-colors
                 duration-300
@@ -424,9 +471,8 @@ const Header = () => {
               </svg>
             </button>
 
-            {/* =================================================
-                CART ICON
-            ================================================= */}
+            {/* CART */}
+
             <button
               onClick={() => router.push("/user/cart")}
               className={`
@@ -455,7 +501,6 @@ const Header = () => {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
 
-              {/* CART COUNT */}
               {cartCount > 0 && (
                 <span
                   className="
@@ -473,7 +518,6 @@ const Header = () => {
                     items-center
                     justify-center
                     shadow-sm
-                    animate-scale-in
                   "
                 >
                   {cartCount}
@@ -487,6 +531,7 @@ const Header = () => {
       {/* =====================================================
           MOBILE OVERLAY
       ===================================================== */}
+
       <div
         style={{ zIndex: 999 }}
         className={`
@@ -508,6 +553,7 @@ const Header = () => {
       {/* =====================================================
           MOBILE SIDE PANEL
       ===================================================== */}
+
       <div
         style={{ zIndex: 1000 }}
         className={`
@@ -515,7 +561,7 @@ const Header = () => {
           top-0
           left-0
           h-full
-          w-50
+          w-64
           bg-white
           transform
           transition-all
@@ -532,9 +578,6 @@ const Header = () => {
           }
         `}
       >
-        {/* =================================================
-            MOBILE HEADER
-        ================================================= */}
         <div className="flex justify-between items-center mb-10">
           <Image
             src="/siyaas-removebg-preview.png"
@@ -546,19 +589,12 @@ const Header = () => {
 
           <button
             onClick={() => setIsOpen(false)}
-            className="
-              text-3xl
-              text-[#121212]
-              leading-none
-            "
+            className="text-3xl text-[#121212]"
           >
             &times;
           </button>
         </div>
 
-        {/* =================================================
-            MOBILE NAVIGATION
-        ================================================= */}
         <nav className="flex flex-col gap-6">
           {navItems.map((item) => (
             <button
@@ -571,16 +607,12 @@ const Header = () => {
                 tracking-[0.2em]
                 text-[#121212]
                 hover:text-[#C5A880]
-                transition-colors
               "
             >
               {item.name}
             </button>
           ))}
 
-          {/* =================================================
-              MOBILE MORE
-          ================================================= */}
           <div
             className="
               flex
@@ -606,31 +638,15 @@ const Header = () => {
             <Link
               href="/faqs"
               onClick={() => setIsOpen(false)}
-              className="
-                pl-4
-                text-xs
-                uppercase
-                tracking-widest
-                text-[#6C6C6C]
-                hover:text-[#C5A880]
-                transition-colors
-              "
+              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C]"
             >
-              FAQ's
+              FAQ&apos;s
             </Link>
 
             <Link
               href="/blogs"
               onClick={() => setIsOpen(false)}
-              className="
-                pl-4
-                text-xs
-                uppercase
-                tracking-widest
-                text-[#6C6C6C]
-                hover:text-[#C5A880]
-                transition-colors
-              "
+              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C]"
             >
               Blogs
             </Link>
@@ -638,15 +654,7 @@ const Header = () => {
             <Link
               href="/policys/cancellationRefund"
               onClick={() => setIsOpen(false)}
-              className="
-                pl-4
-                text-xs
-                uppercase
-                tracking-widest
-                text-[#6C6C6C]
-                hover:text-[#C5A880]
-                transition-colors
-              "
+              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C]"
             >
               Refund Policy
             </Link>
@@ -654,9 +662,8 @@ const Header = () => {
         </nav>
       </div>
 
-      {/* =====================================================
-          SCROLL TO TOP BUTTON
-      ===================================================== */}
+      {/* SCROLL TOP */}
+
       {showTopBtn && (
         <button
           onClick={scrollToTop}

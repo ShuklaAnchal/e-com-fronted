@@ -7,6 +7,7 @@ import {
   createProduct,
   editProductDetails,
 } from "@/app/store/action/productAction";
+import { toast } from "react-toastify";
 
 import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryAction";
 
@@ -14,95 +15,88 @@ import { fetchAttributeBySubCatgeoryID } from "@/app/store/action/attributeActio
 
 import { useCategories } from "@/app/hooks/catgeoryHook";
 
+const DEFAULT_VARIANT = {
+  sku: "",
+  barcode: "",
+
+  pricing: {
+    mrp: "",
+    sellingPrice: "",
+    currency: "INR",
+    gstRate: 18,
+    taxIncluded: true,
+    discountPercent: 0,
+  },
+
+  inventory: {
+    stockQuantity: "",
+    lowStockThreshold: 5,
+    reservedStock: 0,
+    inStock: true,
+    backorderAllowed: false,
+    preOrder: false,
+  },
+
+  shippingWeight: "",
+
+  isDefault: false,
+
+  attributes: [],
+};
+
+const DEFAULT_PRODUCT = {
+  name: "",
+  slug: "",
+
+  shortDescription: "",
+  fullDescription: "",
+
+  categoryId: "",
+  subCategoryId: "",
+
+  brand: "",
+
+  tags: "",
+  highlights: "",
+
+  productcollection: "",
+
+  images: [],
+  videos: [],
+
+  imagePreviews: [],
+  videoPreviews: [],
+
+  existingImages: [],
+  existingVideos: [],
+
+  gifting: {
+    giftWrappingAvailable: false,
+    personalizedMessage: false,
+    corporateGifting: false,
+    occasions: "",
+    festivals: "",
+  },
+};
+
 const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const dispatch = useDispatch();
 
   const { categories, loading } = useCategories();
 
-  // =========================================================
-  // PRODUCT STATE
-  // =========================================================
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
 
-  const [product, setProduct] = useState({
-    name: "",
-    slug: "",
-
-    shortDescription: "",
-    fullDescription: "",
-
-    categoryId: "",
-    subCategoryId: "",
-
-    brand: "",
-
-    tags: "",
-    highlights: "",
-
-    productcollection: "",
-
-    images: [],
-    videos: [],
-
-    imagePreviews: [],
-    videoPreviews: [],
-
-    // =====================================================
-    // GIFTING
-    // =====================================================
-
-    gifting: {
-      giftWrappingAvailable: false,
-      personalizedMessage: false,
-      corporateGifting: false,
-      occasions: "",
-      festivals: "",
-    },
-  });
-
-  // =========================================================
-  // PRODUCT DETAILS ATTRIBUTES
-  // =========================================================
+  const [product, setProduct] = useState(DEFAULT_PRODUCT);
 
   const [details, setDetails] = useState([]);
 
-  // =========================================================
-  // VARIANTS
-  // =========================================================
-
   const [variants, setVariants] = useState([
     {
-      sku: "",
-      barcode: "",
-
-      pricing: {
-        mrp: "",
-        sellingPrice: "",
-        currency: "INR",
-        gstRate: 18,
-        taxIncluded: true,
-        discountPercent: 0,
-      },
-
-      inventory: {
-        stockQuantity: "",
-        lowStockThreshold: 5,
-        reservedStock: 0,
-        inStock: true,
-        backorderAllowed: false,
-        preOrder: false,
-      },
-
-      shippingWeight: "",
-
+      ...DEFAULT_VARIANT,
       isDefault: true,
-
-      attributes: [],
     },
   ]);
-
-  // =========================================================
-  // ATTRIBUTE STATES
-  // =========================================================
 
   const [subcategories, setSubcategories] = useState([]);
   const [attributes, setAttributes] = useState([]);
@@ -112,14 +106,117 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const [loadingSubs, setLoadingSubs] = useState(false);
   const [loadingAttributes, setLoadingAttributes] = useState(false);
 
-  // =========================================================
-  // SUBMITTING STATE
-  // =========================================================
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const imageInputRef = useRef(null);
-  const videoInputRef = useRef(null);
+  // =========================================================
+  // HELPERS
+  // =========================================================
+
+  const getId = (value) => {
+    if (!value) return "";
+
+    if (typeof value === "string") return value;
+
+    if (value._id) return value._id.toString();
+
+    if (value.$oid) return value.$oid.toString();
+
+    return value.toString();
+  };
+
+  const getArray = (value) => {
+    if (Array.isArray(value)) return value;
+
+    if (typeof value === "string") {
+      return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
+
+  const normalizeVariant = (variant, index) => {
+    return {
+      ...DEFAULT_VARIANT,
+
+      ...variant,
+
+      sku: variant?.sku || "",
+      barcode: variant?.barcode || "",
+
+      pricing: {
+        ...DEFAULT_VARIANT.pricing,
+        ...(variant?.pricing || {}),
+
+        mrp: variant?.pricing?.mrp !== undefined ? variant.pricing.mrp : "",
+
+        sellingPrice:
+          variant?.pricing?.sellingPrice !== undefined
+            ? variant.pricing.sellingPrice
+            : "",
+
+        gstRate:
+          variant?.pricing?.gstRate !== undefined
+            ? variant.pricing.gstRate
+            : 18,
+
+        discountPercent:
+          variant?.pricing?.discountPercent !== undefined
+            ? variant.pricing.discountPercent
+            : 0,
+      },
+
+      inventory: {
+        ...DEFAULT_VARIANT.inventory,
+        ...(variant?.inventory || {}),
+
+        stockQuantity:
+          variant?.inventory?.stockQuantity !== undefined
+            ? variant.inventory.stockQuantity
+            : "",
+
+        lowStockThreshold:
+          variant?.inventory?.lowStockThreshold !== undefined
+            ? variant.inventory.lowStockThreshold
+            : 5,
+
+        reservedStock:
+          variant?.inventory?.reservedStock !== undefined
+            ? variant.inventory.reservedStock
+            : 0,
+
+        inStock:
+          variant?.inventory?.inStock !== undefined
+            ? variant.inventory.inStock
+            : true,
+
+        backorderAllowed:
+          variant?.inventory?.backorderAllowed !== undefined
+            ? variant.inventory.backorderAllowed
+            : false,
+
+        preOrder:
+          variant?.inventory?.preOrder !== undefined
+            ? variant.inventory.preOrder
+            : false,
+      },
+
+      shippingWeight:
+        variant?.shippingWeight !== undefined ? variant.shippingWeight : "",
+
+      isDefault: index === 0 ? true : Boolean(variant?.isDefault),
+
+      attributes: Array.isArray(variant?.attributes)
+        ? variant.attributes.map((item) => ({
+            ...item,
+            attributeId: getId(item.attributeId),
+            value: item.value,
+          }))
+        : [],
+    };
+  };
 
   // =========================================================
   // EDIT MODE
@@ -127,6 +224,23 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
   useEffect(() => {
     if (!editData) return;
+
+    const categoryId = getId(editData.categoryId);
+    const subCategoryId = getId(editData.subCategoryId);
+
+    const normalizedDetails = Array.isArray(editData.details)
+      ? editData.details
+      : [];
+
+    const existingAttributeValues = {};
+
+    normalizedDetails.forEach((detail) => {
+      const attributeId = getId(detail.attributeId);
+
+      if (attributeId) {
+        existingAttributeValues[attributeId] = detail.value;
+      }
+    });
 
     setProduct({
       name: editData.name || "",
@@ -137,81 +251,86 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       fullDescription: editData.fullDescription || "",
 
-      categoryId: editData.categoryId?._id || editData.categoryId || "",
+      categoryId,
 
-      subCategoryId:
-        editData.subCategoryId?._id || editData.subCategoryId || "",
+      subCategoryId,
 
       brand: editData.brand || "",
 
-      tags: editData.tags?.join(", ") || "",
+      tags: getArray(editData.tags).join(", "),
 
-      highlights: editData.highlights?.join(", ") || "",
+      highlights: getArray(editData.highlights).join(", "),
 
       productcollection: editData.productcollection || "",
 
       images: [],
+
       videos: [],
 
       imagePreviews: [],
+
       videoPreviews: [],
 
-      // =====================================================
-      // EDIT GIFTING
-      // =====================================================
+      /*
+       * Preserve existing media.
+       *
+       * Adjust this according to your backend response structure.
+       */
+      existingImages: Array.isArray(editData.images) ? editData.images : [],
+
+      existingVideos: Array.isArray(editData.videos) ? editData.videos : [],
 
       gifting: {
-        giftWrappingAvailable: editData.gifting?.giftWrappingAvailable || false,
+        giftWrappingAvailable: Boolean(editData.gifting?.giftWrappingAvailable),
 
-        personalizedMessage: editData.gifting?.personalizedMessage || false,
+        personalizedMessage: Boolean(editData.gifting?.personalizedMessage),
 
-        corporateGifting: editData.gifting?.corporateGifting || false,
+        corporateGifting: Boolean(editData.gifting?.corporateGifting),
 
-        occasions: editData.gifting?.occasions?.join(", ") || "",
+        occasions: getArray(editData.gifting?.occasions).join(", "),
 
-        festivals: editData.gifting?.festivals?.join(", ") || "",
+        festivals: getArray(editData.gifting?.festivals).join(", "),
       },
     });
 
-    // Load existing variants if available
-    if (editData.variants?.length) {
-      setVariants(editData.variants);
+    setAttributeValues(existingAttributeValues);
+
+    setDetails(normalizedDetails);
+
+    // =====================================================
+    // VARIANTS
+    // =====================================================
+
+    if (Array.isArray(editData.variants) && editData.variants.length > 0) {
+      setVariants(
+        editData.variants.map((variant, index) =>
+          normalizeVariant(variant, index),
+        ),
+      );
+    } else {
+      setVariants([
+        {
+          ...DEFAULT_VARIANT,
+          isDefault: true,
+        },
+      ]);
     }
 
-    // Load existing details if available
-    if (editData.details?.length) {
-      const existingValues = {};
+    // =====================================================
+    // LOAD SUBCATEGORIES
+    // =====================================================
 
-      editData.details.forEach((detail) => {
-        if (detail.attributeId) {
-          existingValues[detail.attributeId?._id || detail.attributeId] =
-            detail.value;
-        }
-      });
-
-      setAttributeValues(existingValues);
-      setDetails(editData.details);
+    if (categoryId) {
+      loadSubCategories(categoryId);
     }
-  }, [editData]);
 
-  // =========================================================
-  // LOAD SUBCATEGORY EDIT MODE
-  // =========================================================
+    // =====================================================
+    // LOAD ATTRIBUTES
+    // =====================================================
 
-  useEffect(() => {
-    if (!editData?.categoryId?._id) return;
-
-    loadSubCategories(editData.categoryId._id);
-  }, [editData]);
-
-  // =========================================================
-  // LOAD ATTRIBUTES EDIT MODE
-  // =========================================================
-
-  useEffect(() => {
-    if (!editData?.subCategoryId?._id) return;
-
-    fetchAttributes(editData.subCategoryId._id);
+    if (subCategoryId) {
+      fetchAttributes(subCategoryId);
+    }
   }, [editData]);
 
   // =========================================================
@@ -250,7 +369,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const loadSubCategories = async (categoryId) => {
     if (!categoryId) {
       setSubcategories([]);
-      return;
+      return [];
     }
 
     try {
@@ -258,9 +377,17 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       const res = await dispatch(fetchSubcategorybyCategoryID(categoryId));
 
-      setSubcategories(res?.subcategories || []);
+      const list = res?.subcategories || [];
+
+      setSubcategories(list);
+
+      return list;
     } catch (error) {
-      console.log(error);
+      console.error("Subcategory loading error:", error);
+
+      setSubcategories([]);
+
+      return [];
     } finally {
       setLoadingSubs(false);
     }
@@ -287,6 +414,8 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
     setAttributeValues({});
 
+    setDetails([]);
+
     await loadSubCategories(categoryId);
   };
 
@@ -297,7 +426,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const fetchAttributes = async (subCategoryId) => {
     if (!subCategoryId) {
       setAttributes([]);
-      return;
+      return [];
     }
 
     try {
@@ -305,29 +434,23 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       const res = await dispatch(fetchAttributeBySubCatgeoryID(subCategoryId));
 
-      console.log("ATTRIBUTES", res);
+      console.log("ATTRIBUTES:", res);
 
-      setAttributes(res?.attributes || []);
+      const list = res?.attributes || [];
+
+      setAttributes(list);
+
+      return list;
     } catch (error) {
-      console.log(error);
+      console.error("Attribute loading error:", error);
 
       setAttributes([]);
+
+      return [];
     } finally {
       setLoadingAttributes(false);
     }
   };
-
-  // =========================================================
-  // ATTRIBUTE TYPE SPLIT
-  // =========================================================
-
-  const productAttributes = attributes.filter(
-    (item) => !item.isVariantAttribute,
-  );
-
-  const variantAttributes = attributes.filter(
-    (item) => item.isVariantAttribute,
-  );
 
   // =========================================================
   // SUBCATEGORY CHANGE
@@ -344,8 +467,22 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
     setAttributeValues({});
 
+    setDetails([]);
+
     await fetchAttributes(subCategoryId);
   };
+
+  // =========================================================
+  // ATTRIBUTE TYPE SPLIT
+  // =========================================================
+
+  const productAttributes = attributes.filter(
+    (item) => !item.isVariantAttribute,
+  );
+
+  const variantAttributes = attributes.filter(
+    (item) => item.isVariantAttribute,
+  );
 
   // =========================================================
   // PRODUCT ATTRIBUTE CHANGE
@@ -364,10 +501,13 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const prepareDetails = () => {
-    return Object.entries(attributeValues).map(([attributeId, value]) => ({
-      attributeId,
-      value,
-    }));
+    return Object.entries(attributeValues)
+      .filter(([attributeId]) => attributeId)
+      .map(([attributeId, value]) => ({
+        attributeId,
+
+        value,
+      }));
   };
 
   // =========================================================
@@ -375,23 +515,41 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const handleVariantAttributeChange = (variantIndex, attributeId, value) => {
-    const updated = [...variants];
+    setVariants((prev) => {
+      const updated = [...prev];
 
-    const existing = updated[variantIndex].attributes.find(
-      (item) => item.attributeId === attributeId,
-    );
+      const variant = {
+        ...updated[variantIndex],
+      };
 
-    if (existing) {
-      existing.value = value;
-    } else {
-      updated[variantIndex].attributes.push({
-        attributeId,
+      const variantAttributesList = [...(variant.attributes || [])];
 
-        value,
-      });
-    }
+      const existingIndex = variantAttributesList.findIndex(
+        (item) => getId(item.attributeId) === getId(attributeId),
+      );
 
-    setVariants(updated);
+      if (existingIndex >= 0) {
+        variantAttributesList[existingIndex] = {
+          ...variantAttributesList[existingIndex],
+
+          attributeId,
+
+          value,
+        };
+      } else {
+        variantAttributesList.push({
+          attributeId,
+
+          value,
+        });
+      }
+
+      variant.attributes = variantAttributesList;
+
+      updated[variantIndex] = variant;
+
+      return updated;
+    });
   };
 
   // =========================================================
@@ -403,28 +561,15 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       ...prev,
 
       {
-        sku: "",
-        barcode: "",
+        ...DEFAULT_VARIANT,
 
         pricing: {
-          mrp: "",
-          sellingPrice: "",
-          currency: "INR",
-          gstRate: 18,
-          taxIncluded: true,
-          discountPercent: 0,
+          ...DEFAULT_VARIANT.pricing,
         },
 
         inventory: {
-          stockQuantity: "",
-          lowStockThreshold: 5,
-          reservedStock: 0,
-          inStock: true,
-          backorderAllowed: false,
-          preOrder: false,
+          ...DEFAULT_VARIANT.inventory,
         },
-
-        shippingWeight: "",
 
         isDefault: false,
 
@@ -438,7 +583,18 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const removeVariant = (index) => {
-    setVariants((prev) => prev.filter((_, i) => i !== index));
+    setVariants((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+
+      if (updated.length > 0) {
+        updated[0] = {
+          ...updated[0],
+          isDefault: true,
+        };
+      }
+
+      return updated;
+    });
   };
 
   // =========================================================
@@ -446,11 +602,17 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const updateVariantField = (index, field, value) => {
-    const updated = [...variants];
+    setVariants((prev) => {
+      const updated = [...prev];
 
-    updated[index][field] = value;
+      updated[index] = {
+        ...updated[index],
 
-    setVariants(updated);
+        [field]: value,
+      };
+
+      return updated;
+    });
   };
 
   // =========================================================
@@ -458,11 +620,21 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const updateVariantNested = (index, section, field, value) => {
-    const updated = [...variants];
+    setVariants((prev) => {
+      const updated = [...prev];
 
-    updated[index][section][field] = value;
+      updated[index] = {
+        ...updated[index],
 
-    setVariants(updated);
+        [section]: {
+          ...updated[index][section],
+
+          [field]: value,
+        },
+      };
+
+      return updated;
+    });
   };
 
   // =========================================================
@@ -498,16 +670,119 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   };
 
   // =========================================================
+  // REMOVE EXISTING IMAGE
+  // =========================================================
+
+  const removeExistingImage = (index) => {
+    setProduct((prev) => ({
+      ...prev,
+
+      existingImages: prev.existingImages.filter((_, i) => i !== index),
+    }));
+  };
+
+  // =========================================================
+  // REMOVE EXISTING VIDEO
+  // =========================================================
+
+  const removeExistingVideo = (index) => {
+    setProduct((prev) => ({
+      ...prev,
+
+      existingVideos: prev.existingVideos.filter((_, i) => i !== index),
+    }));
+  };
+
+  // =========================================================
   // CLEAN PREVIEW URL
   // =========================================================
 
   useEffect(() => {
     return () => {
-      product.imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+      product.imagePreviews.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
 
-      product.videoPreviews.forEach((url) => URL.revokeObjectURL(url));
+      product.videoPreviews.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
     };
   }, [product.imagePreviews, product.videoPreviews]);
+
+  // =========================================================
+  // PREPARE VARIANTS
+  // =========================================================
+
+  const prepareVariants = () => {
+    return variants.map((variant, index) => ({
+      ...variant,
+
+      sku: variant.sku?.trim() || "",
+
+      barcode: variant.barcode?.trim() || "",
+
+      pricing: {
+        ...variant.pricing,
+
+        mrp: variant.pricing.mrp === "" ? 0 : Number(variant.pricing.mrp),
+
+        sellingPrice:
+          variant.pricing.sellingPrice === ""
+            ? 0
+            : Number(variant.pricing.sellingPrice),
+
+        gstRate:
+          variant.pricing.gstRate === "" ? 0 : Number(variant.pricing.gstRate),
+
+        discountPercent:
+          variant.pricing.discountPercent === ""
+            ? 0
+            : Number(variant.pricing.discountPercent),
+
+        currency: variant.pricing.currency || "INR",
+
+        taxIncluded: Boolean(variant.pricing.taxIncluded),
+      },
+
+      inventory: {
+        ...variant.inventory,
+
+        stockQuantity:
+          variant.inventory.stockQuantity === ""
+            ? 0
+            : Number(variant.inventory.stockQuantity),
+
+        lowStockThreshold:
+          variant.inventory.lowStockThreshold === ""
+            ? 0
+            : Number(variant.inventory.lowStockThreshold),
+
+        reservedStock:
+          variant.inventory.reservedStock === ""
+            ? 0
+            : Number(variant.inventory.reservedStock),
+
+        inStock: Boolean(variant.inventory.inStock),
+
+        backorderAllowed: Boolean(variant.inventory.backorderAllowed),
+
+        preOrder: Boolean(variant.inventory.preOrder),
+      },
+
+      shippingWeight:
+        variant.shippingWeight === "" ? 0 : Number(variant.shippingWeight),
+
+      isDefault: index === 0,
+
+      attributes: (variant.attributes || []).map((item) => ({
+        ...item,
+
+        attributeId: getId(item.attributeId),
+
+        value: item.value,
+      })),
+    }));
+  };
 
   // =========================================================
   // SUBMIT PRODUCT
@@ -516,11 +791,29 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prevent duplicate submissions
     if (isSubmitting) return;
 
     try {
       setIsSubmitting(true);
+
+      // =====================================================
+      // VALIDATION
+      // =====================================================
+
+      if (!product.name.trim()) {
+        toast.error("Product name is required.");
+        return;
+      }
+
+      if (!product.slug.trim()) {
+        toast.error("Product slug is required.");
+        return;
+      }
+
+      if (!product.categoryId) {
+        toast.error("Please select a category.");
+        return;
+      }
 
       // =====================================================
       // PRODUCT DATA
@@ -531,9 +824,9 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
         slug: product.slug.trim(),
 
-        shortDescription: product.shortDescription.trim(),
+        shortDescription: product.shortDescription?.trim() || "",
 
-        fullDescription: product.fullDescription.trim(),
+        fullDescription: product.fullDescription?.trim() || "",
 
         categoryId: product.categoryId,
 
@@ -541,21 +834,15 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
         brand: product.brand?.trim() || "Siyaas",
 
-        tags: product.tags
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        tags: getArray(product.tags),
 
-        highlights: product.highlights
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        highlights: getArray(product.highlights),
 
         productcollection: product.productcollection?.trim() || "",
 
-        // =================================================
+        // ===================================================
         // GIFTING
-        // =================================================
+        // ===================================================
 
         gifting: {
           giftWrappingAvailable: Boolean(product.gifting.giftWrappingAvailable),
@@ -564,23 +851,23 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
           corporateGifting: Boolean(product.gifting.corporateGifting),
 
-          occasions: product.gifting.occasions
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean),
+          occasions: getArray(product.gifting.occasions),
 
-          festivals: product.gifting.festivals
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean),
+          festivals: getArray(product.gifting.festivals),
         },
       };
 
       // =====================================================
-      // PRODUCT DETAILS
+      // DETAILS
       // =====================================================
 
       const productDetails = prepareDetails();
+
+      // =====================================================
+      // VARIANTS
+      // =====================================================
+
+      const preparedVariants = prepareVariants();
 
       // =====================================================
       // FORM DATA
@@ -590,12 +877,28 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       formData.append("productData", JSON.stringify(productData));
 
-      formData.append("variants", JSON.stringify(variants));
+      formData.append("variants", JSON.stringify(preparedVariants));
 
       formData.append("details", JSON.stringify(productDetails));
 
       // =====================================================
-      // IMAGES
+      // EXISTING IMAGES
+      // =====================================================
+
+      if (editData?._id) {
+        formData.append(
+          "existingImages",
+          JSON.stringify(product.existingImages),
+        );
+
+        formData.append(
+          "existingVideos",
+          JSON.stringify(product.existingVideos),
+        );
+      }
+
+      // =====================================================
+      // NEW IMAGES
       // =====================================================
 
       product.images.forEach((image) => {
@@ -603,7 +906,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       });
 
       // =====================================================
-      // VIDEOS
+      // NEW VIDEOS
       // =====================================================
 
       product.videos.forEach((video) => {
@@ -611,46 +914,63 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       });
 
       // =====================================================
-      // EDIT
+      // DEBUG
+      // =====================================================
+
+      console.log("========== PRODUCT SUBMIT DATA ==========");
+
+      console.log("Product:", productData);
+
+      console.log("Details:", productDetails);
+
+      console.log("Variants:", preparedVariants);
+
+      console.log("Existing Images:", product.existingImages);
+
+      console.log("Existing Videos:", product.existingVideos);
+
+      // =====================================================
+      // UPDATE PRODUCT
       // =====================================================
 
       if (editData?._id) {
         await dispatch(editProductDetails(editData._id, formData));
+
+        // SUCCESS TOAST
+        toast.success("Product updated successfully!");
       }
 
       // =====================================================
-      // CREATE
+      // CREATE PRODUCT
       // =====================================================
       else {
         await dispatch(createProduct(formData));
+
+        // SUCCESS TOAST
+        toast.success("Product created successfully!");
       }
 
-      // Refresh product list
-      refreshProducts?.();
+      // =====================================================
+      // REFRESH PRODUCTS
+      // =====================================================
 
-      /*
-       * IMPORTANT:
-       *
-       * Do NOT call onClose() here.
-       *
-       * The form/modal will remain open after
-       * successful submission.
-       *
-       * User must click the X button to close it.
-       */
+      refreshProducts?.();
     } catch (error) {
       console.error("Product submit error:", error);
+
+      toast.error(
+        error?.message || "Something went wrong while saving the product.",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   // =========================================================
-  // CLOSE FORM
+  // CLOSE
   // =========================================================
 
   const handleClose = () => {
-    // Don't close while submitting
     if (isSubmitting) return;
 
     onClose?.();
@@ -662,11 +982,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
   return (
     <div className="w-full bg-white rounded-2xl">
-      {/* =====================================================
-          FORM
-      ===================================================== */}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* ===================================================
             BASIC DETAILS
         =================================================== */}
@@ -764,68 +1080,156 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           <div className="grid md:grid-cols-2 gap-4">
             {/* IMAGES */}
 
-            <div
-              className="border-dashed border-2 p-5 rounded-xl cursor-pointer hover:border-blue-500 transition"
-              onClick={() => document.getElementById("images")?.click()}
-            >
-              <p className="font-medium">Upload Images</p>
+            <div className="border rounded-xl p-5">
+              <div
+                className="border-dashed border-2 p-5 rounded-xl cursor-pointer hover:border-blue-500 transition"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <p className="font-medium">Upload Images</p>
 
-              <p className="text-sm text-gray-500 mt-1">
-                Select product images
-              </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Select new product images
+                </p>
 
-              <input
-                id="images"
-                ref={imageInputRef}
-                hidden
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-
-              <div className="flex gap-3 flex-wrap mt-3">
-                {product.imagePreviews.map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    alt={`Preview ${i + 1}`}
-                    className="w-24 h-24 object-cover rounded-lg"
-                  />
-                ))}
+                <input
+                  ref={imageInputRef}
+                  hidden
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
               </div>
+
+              {/* EXISTING IMAGES */}
+
+              {product.existingImages.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium mb-2">Existing Images</p>
+
+                  <div className="flex gap-3 flex-wrap">
+                    {product.existingImages.map((image, index) => {
+                      const imageUrl =
+                        typeof image === "string"
+                          ? image
+                          : image.url || image.secure_url || image.path;
+
+                      return (
+                        <div key={index} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Existing ${index + 1}`}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* NEW IMAGE PREVIEWS */}
+
+              {product.imagePreviews.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium mb-2">New Images</p>
+
+                  <div className="flex gap-3 flex-wrap">
+                    {product.imagePreviews.map((src, index) => (
+                      <img
+                        key={index}
+                        src={src}
+                        alt={`Preview ${index + 1}`}
+                        className="w-24 h-24 object-cover rounded-lg"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* VIDEOS */}
 
-            <div
-              className="border-dashed border-2 p-5 rounded-xl cursor-pointer hover:border-blue-500 transition"
-              onClick={() => document.getElementById("videos")?.click()}
-            >
-              <p className="font-medium">Upload Videos</p>
+            <div className="border rounded-xl p-5">
+              <div
+                className="border-dashed border-2 p-5 rounded-xl cursor-pointer hover:border-blue-500 transition"
+                onClick={() => videoInputRef.current?.click()}
+              >
+                <p className="font-medium">Upload Videos</p>
 
-              <p className="text-sm text-gray-500 mt-1">
-                Select product videos
-              </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Select new product videos
+                </p>
 
-              <input
-                id="videos"
-                ref={videoInputRef}
-                hidden
-                type="file"
-                multiple
-                accept="video/*"
-                onChange={handleVideoChange}
-              />
-
-              {product.videoPreviews.map((src, i) => (
-                <video
-                  key={i}
-                  src={src}
-                  controls
-                  className="w-40 mt-2 rounded-lg"
+                <input
+                  ref={videoInputRef}
+                  hidden
+                  type="file"
+                  multiple
+                  accept="video/*"
+                  onChange={handleVideoChange}
                 />
-              ))}
+              </div>
+
+              {/* EXISTING VIDEOS */}
+
+              {product.existingVideos.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium mb-2">Existing Videos</p>
+
+                  <div className="flex gap-3 flex-wrap">
+                    {product.existingVideos.map((video, index) => {
+                      const videoUrl =
+                        typeof video === "string"
+                          ? video
+                          : video.url || video.secure_url || video.path;
+
+                      return (
+                        <div key={index} className="relative">
+                          <video
+                            src={videoUrl}
+                            controls
+                            className="w-40 rounded-lg"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => removeExistingVideo(index)}
+                            className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* NEW VIDEO PREVIEWS */}
+
+              {product.videoPreviews.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium mb-2">New Videos</p>
+
+                  {product.videoPreviews.map((src, index) => (
+                    <video
+                      key={index}
+                      src={src}
+                      controls
+                      className="w-40 mt-2 rounded-lg"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -856,7 +1260,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         </div>
 
         {/* ===================================================
-            TAGS
+            CLASSIFICATION
         =================================================== */}
 
         <div className="space-y-4">
@@ -864,20 +1268,12 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             Product Classification
           </h3>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <input
               className="border p-3 rounded-lg"
               name="tags"
               placeholder="Tags comma separated"
               value={product.tags}
-              onChange={handleChange}
-            />
-
-            <input
-              className="border p-3 rounded-lg"
-              name="productcollection"
-              placeholder="Product Collection"
-              value={product.productcollection}
               onChange={handleChange}
             />
 
@@ -904,8 +1300,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             </p>
           </div>
 
-          {/* BOOLEAN OPTIONS */}
-
           <div className="grid md:grid-cols-3 gap-4">
             {/* GIFT WRAPPING */}
 
@@ -913,8 +1307,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               className={`
                 flex items-center gap-3
                 p-4 rounded-lg border
-                cursor-pointer
-                transition
+                cursor-pointer transition
                 ${
                   product.gifting.giftWrappingAvailable
                     ? "border-green-500 bg-green-50"
@@ -938,14 +1331,13 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               </div>
             </label>
 
-            {/* PERSONALIZED MESSAGE */}
+            {/* PERSONALIZED */}
 
             <label
               className={`
                 flex items-center gap-3
                 p-4 rounded-lg border
-                cursor-pointer
-                transition
+                cursor-pointer transition
                 ${
                   product.gifting.personalizedMessage
                     ? "border-green-500 bg-green-50"
@@ -971,14 +1363,13 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               </div>
             </label>
 
-            {/* CORPORATE GIFTING */}
+            {/* CORPORATE */}
 
             <label
               className={`
                 flex items-center gap-3
                 p-4 rounded-lg border
-                cursor-pointer
-                transition
+                cursor-pointer transition
                 ${
                   product.gifting.corporateGifting
                     ? "border-green-500 bg-green-50"
@@ -1005,8 +1396,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             </label>
           </div>
 
-          {/* OCCASIONS + FESTIVALS */}
-
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1022,10 +1411,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                   handleGiftingChange("occasions", e.target.value)
                 }
               />
-
-              <p className="text-xs text-gray-500 mt-1">
-                Separate multiple occasions with commas.
-              </p>
             </div>
 
             <div>
@@ -1042,10 +1427,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                   handleGiftingChange("festivals", e.target.value)
                 }
               />
-
-              <p className="text-xs text-gray-500 mt-1">
-                Separate multiple festivals with commas.
-              </p>
             </div>
           </div>
         </div>
@@ -1066,12 +1447,13 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               <div key={attr._id} className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">
                   {attr.name}
+                  {attr.unit && ` (${attr.unit})`}
                 </label>
 
                 <input
                   type="text"
-                  className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={attributeValues[attr._id] || ""}
+                  className="border border-gray-300 p-3 rounded-lg w-full"
+                  value={attributeValues[attr._id] ?? ""}
                   onChange={(e) =>
                     handleAttributeChange(attr._id, e.target.value)
                   }
@@ -1083,7 +1465,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         </div>
 
         {/* ===================================================
-            VARIANTS
+            VARIANTS HEADER
         =================================================== */}
 
         <div className="flex justify-between items-center">
@@ -1099,11 +1481,14 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         </div>
 
         {/* ===================================================
-            VARIANT LIST
+            VARIANTS
         =================================================== */}
 
         {variants.map((variant, index) => (
-          <div key={index} className="border p-5 rounded-xl space-y-4">
+          <div
+            key={variant._id || index}
+            className="border p-5 rounded-xl space-y-4"
+          >
             <div className="flex justify-between items-center">
               <h4 className="font-semibold">Variant {index + 1}</h4>
 
@@ -1118,14 +1503,27 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               )}
             </div>
 
-            {/* SKU */}
+            {/* SKU + BARCODE */}
 
-            <input
-              className="border p-3 rounded-lg w-full"
-              placeholder="SKU"
-              value={variant.sku}
-              onChange={(e) => updateVariantField(index, "sku", e.target.value)}
-            />
+            <div className="grid md:grid-cols-2 gap-3">
+              <input
+                className="border p-3 rounded-lg"
+                placeholder="SKU"
+                value={variant.sku || ""}
+                onChange={(e) =>
+                  updateVariantField(index, "sku", e.target.value)
+                }
+              />
+
+              <input
+                className="border p-3 rounded-lg"
+                placeholder="Barcode"
+                value={variant.barcode || ""}
+                onChange={(e) =>
+                  updateVariantField(index, "barcode", e.target.value)
+                }
+              />
+            </div>
 
             {/* PRICE */}
 
@@ -1134,7 +1532,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 type="number"
                 className="border p-3 rounded-lg"
                 placeholder="MRP"
-                value={variant.pricing.mrp}
+                value={variant.pricing?.mrp ?? ""}
                 onChange={(e) =>
                   updateVariantNested(index, "pricing", "mrp", e.target.value)
                 }
@@ -1144,7 +1542,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 type="number"
                 className="border p-3 rounded-lg"
                 placeholder="Selling Price"
-                value={variant.pricing.sellingPrice}
+                value={variant.pricing?.sellingPrice ?? ""}
                 onChange={(e) =>
                   updateVariantNested(
                     index,
@@ -1156,22 +1554,171 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               />
             </div>
 
-            {/* STOCK */}
+            {/* GST */}
+
+            <div className="grid md:grid-cols-3 gap-3">
+              <input
+                type="number"
+                className="border p-3 rounded-lg"
+                placeholder="GST Rate"
+                value={variant.pricing?.gstRate ?? ""}
+                onChange={(e) =>
+                  updateVariantNested(
+                    index,
+                    "pricing",
+                    "gstRate",
+                    e.target.value,
+                  )
+                }
+              />
+
+              <input
+                type="number"
+                className="border p-3 rounded-lg"
+                placeholder="Discount %"
+                value={variant.pricing?.discountPercent ?? ""}
+                onChange={(e) =>
+                  updateVariantNested(
+                    index,
+                    "pricing",
+                    "discountPercent",
+                    e.target.value,
+                  )
+                }
+              />
+
+              <input
+                className="border p-3 rounded-lg"
+                placeholder="Currency"
+                value={variant.pricing?.currency || "INR"}
+                onChange={(e) =>
+                  updateVariantNested(
+                    index,
+                    "pricing",
+                    "currency",
+                    e.target.value,
+                  )
+                }
+              />
+            </div>
+
+            {/* TAX INCLUDED */}
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={Boolean(variant.pricing?.taxIncluded)}
+                onChange={(e) =>
+                  updateVariantNested(
+                    index,
+                    "pricing",
+                    "taxIncluded",
+                    e.target.checked,
+                  )
+                }
+                className="w-5 h-5"
+              />
+
+              <span className="text-sm">Tax Included</span>
+            </label>
+
+            {/* INVENTORY */}
+
+            <div className="grid md:grid-cols-2 gap-3">
+              <input
+                type="number"
+                className="border p-3 rounded-lg"
+                placeholder="Stock Quantity"
+                value={variant.inventory?.stockQuantity ?? ""}
+                onChange={(e) =>
+                  updateVariantNested(
+                    index,
+                    "inventory",
+                    "stockQuantity",
+                    e.target.value,
+                  )
+                }
+              />
+
+              <input
+                type="number"
+                className="border p-3 rounded-lg"
+                placeholder="Low Stock Threshold"
+                value={variant.inventory?.lowStockThreshold ?? ""}
+                onChange={(e) =>
+                  updateVariantNested(
+                    index,
+                    "inventory",
+                    "lowStockThreshold",
+                    e.target.value,
+                  )
+                }
+              />
+            </div>
+
+            {/* SHIPPING */}
 
             <input
               type="number"
-              className="border p-3 rounded-lg"
-              placeholder="Stock Quantity"
-              value={variant.inventory.stockQuantity}
+              className="border p-3 rounded-lg w-full"
+              placeholder="Shipping Weight"
+              value={variant.shippingWeight ?? ""}
               onChange={(e) =>
-                updateVariantNested(
-                  index,
-                  "inventory",
-                  "stockQuantity",
-                  e.target.value,
-                )
+                updateVariantField(index, "shippingWeight", e.target.value)
               }
             />
+
+            {/* INVENTORY OPTIONS */}
+
+            <div className="grid md:grid-cols-3 gap-3">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={Boolean(variant.inventory?.inStock)}
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "inventory",
+                      "inStock",
+                      e.target.checked,
+                    )
+                  }
+                />
+                In Stock
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={Boolean(variant.inventory?.backorderAllowed)}
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "inventory",
+                      "backorderAllowed",
+                      e.target.checked,
+                    )
+                  }
+                />
+                Backorder Allowed
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={Boolean(variant.inventory?.preOrder)}
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "inventory",
+                      "preOrder",
+                      e.target.checked,
+                    )
+                  }
+                />
+                Pre Order
+              </label>
+            </div>
 
             {/* =================================================
                 VARIANT ATTRIBUTES
@@ -1184,8 +1731,8 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 </h4>
 
                 {variantAttributes.map((attr) => {
-                  const currentValue = variant.attributes.find(
-                    (item) => item.attributeId === attr._id,
+                  const currentValue = variant.attributes?.find(
+                    (item) => getId(item.attributeId) === getId(attr._id),
                   )?.value;
 
                   return (
@@ -1203,7 +1750,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                           type="text"
                           placeholder={attr.placeholder}
                           className="border p-3 rounded-lg w-full"
-                          value={currentValue || ""}
+                          value={currentValue ?? ""}
                           onChange={(e) =>
                             handleVariantAttributeChange(
                               index,
@@ -1221,7 +1768,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                           type="number"
                           placeholder={attr.placeholder}
                           className="border p-3 rounded-lg w-full"
-                          value={currentValue || ""}
+                          value={currentValue ?? ""}
                           onChange={(e) =>
                             handleVariantAttributeChange(
                               index,
@@ -1237,7 +1784,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                       {attr.fieldType === "select" && (
                         <select
                           className="border p-3 rounded-lg w-full"
-                          value={currentValue || ""}
+                          value={currentValue ?? ""}
                           onChange={(e) =>
                             handleVariantAttributeChange(
                               index,
@@ -1344,8 +1891,6 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           >
             {isSubmitting ? (
               <>
-                {/* LOADER */}
-
                 <span
                   className="
                     w-5

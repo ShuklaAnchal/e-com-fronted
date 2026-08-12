@@ -14,26 +14,6 @@ export const customerReducer = createSlice({
   initialState,
 
   reducers: {
-    customerLogin: (state, action) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.isAuthenticated = true;
-    },
-
-    customerLogout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-    },
-
-    currentCustomer: (state, action) => {
-      state.user = action.payload;
-      state.token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("userToken")
-          : null;
-      state.isAuthenticated = true;
-    },
 
     editCustomer: (state, action) => {
       state.user = action.payload;
@@ -51,9 +31,7 @@ export const customerReducer = createSlice({
 });
 
 export const {
-  customerLogin,
   customerLogout,
-  currentCustomer,
   editCustomer,
   customerError,
   clearCustomerError,

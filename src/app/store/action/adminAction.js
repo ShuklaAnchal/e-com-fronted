@@ -17,7 +17,6 @@ const getToken = () => {
 };
 
 // Admin Login
-
 export const asyncfetchlogin = (formData) => async (dispatch) => {
   try {
     // dispatch(clearAdminError());
@@ -53,28 +52,47 @@ export const asyncfetchlogin = (formData) => async (dispatch) => {
 
 export const fetchCurrentAdmin = () => async (dispatch) => {
   try {
-    // URL must start with /admin so the axios interceptor attaches adminToken
+    // Axios interceptor should attach adminToken/userToken
     const { data } = await axios.post("/currentadmin");
+
+    console.log("Current User Response:", data);
+
+    const currentUser = data.admin ?? data.user;
+
+    if (!currentUser) {
+      throw new Error("Current user not found");
+    }
+
+    const role =
+      data.admin?.role ??
+      data.admin?.userType ??
+      data.user?.role ??
+      data.user?.userType ??
+      null;
+
     dispatch(
       currentAdmin({
-        user: data.admin,
-        role: data.admin ?? data.admin?.role ?? data.admin?.userType,
-      }),
+        user: currentUser,
+        role,
+      })
     );
 
     return {
       success: true,
-      payload: data.admin,
-      role: data.role,
+      payload: currentUser,
+      role,
     };
   } catch (error) {
-    dispatch(
-      adminError(
-        error.response?.data?.message || "Failed to fetch current user",
-      ),
-    );
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to fetch current user";
+
+    dispatch(adminError(message));
+
     return {
       success: false,
+      message,
     };
   }
 };

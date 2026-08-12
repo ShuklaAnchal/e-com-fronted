@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCart, removeFromCartAction, updateCartQuantityAction } from "@/app/store/action/cartAction";
-
-
+import {
+  fetchCart,
+  removeFromCartAction,
+  updateCartQuantityAction,
+} from "@/app/store/action/cartAction";
 
 export default function CartPage() {
   const router = useRouter();
@@ -23,13 +25,13 @@ export default function CartPage() {
   const subtotal =
     cartItems?.reduce((acc, item) => acc + item.price * item.quantity, 0) || 0;
 
-
   const handleCheckout = () => {
     const token = localStorage.getItem("userToken");
+
     if (!token || token === "undefined" || token === "null") {
-      router.push("/login?redirect=/user/cart");
+      router.push("/login?redirect=/user/checkout");
     } else {
-      alert("Proceeding to payment gateway...");
+      router.push("/user/checkout");
     }
   };
 
@@ -43,14 +45,13 @@ export default function CartPage() {
     dispatch(updateCartQuantityAction(item.product, newQty));
   };
 
-
   if (!mounted) return null; // Avoid SSR hydration errors
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1 bg-luxury-cream pt-32 mb-20 mt-[100px]">
+    <div className="flex flex-col min-h-screen webprimarycolor">
+      <main className="flex-1 pt-10 mb-20 mt-[100px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 animate-fade-up">
+          <div className="mb-10 animate-fade-up">
             <h1 className="text-4xl md:text-5xl font-serif text-luxury-dark uppercase tracking-[0.1em] mb-4">
               Your Cart
             </h1>
@@ -80,7 +81,6 @@ export default function CartPage() {
                   Continue Shopping
                 </button>
               </div>
-
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -127,7 +127,6 @@ export default function CartPage() {
                           >
                             Remove
                           </button>
-
                         </div>
                       </div>
 
@@ -171,7 +170,6 @@ export default function CartPage() {
                             +
                           </button>
                         </div>
-
                       </div>
 
                       {/* Total */}

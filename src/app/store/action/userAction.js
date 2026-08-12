@@ -9,6 +9,8 @@ import {
   clearCustomerError,
 } from "../reducer/customerReducer";
 
+import { adminLogin, currentAdmin } from "../reducer/adminReducer";
+
 // SEND OTP
 export const sendOtp = (mobileNumber) => async (dispatch) => {
   try {
@@ -34,32 +36,32 @@ export const sendOtp = (mobileNumber) => async (dispatch) => {
   }
 };
 
-// GET CURRENT LOGGED-IN CUSTOMER (for re-hydrating state after refresh)
-export const fetchCurrentCustomer = () => async (dispatch) => {
-  try {
-    // The axios interceptor attaches userToken for non-/admin URLs
-    const { data } = await axios.post("/currentadmin");
+// // GET CURRENT LOGGED-IN CUSTOMER (for re-hydrating state after refresh)
+// export const fetchCurrentCustomer = () => async (dispatch) => {
+//   try {
+//     // The axios interceptor attaches userToken for non-/admin URLs
+//     const { data } = await axios.post("/currentadmin");
 
-    console.log("Current Customer:", data);
+//     console.log("Current Customer:", data);
 
-    dispatch(currentCustomer(data.user));
+//     dispatch(currentCustomer(data.user));
 
-    return {
-      success: true,
-      payload: data.user,
-    };
-  } catch (error) {
-    console.error("Current Customer Error:", error);
-    dispatch(
-      customerError(
-        error.response?.data?.message || "Failed to fetch current user",
-      ),
-    );
-    return {
-      success: false,
-    };
-  }
-};
+//     return {
+//       success: true,
+//       payload: data.user,
+//     };
+//   } catch (error) {
+//     console.error("Current Customer Error:", error);
+//     dispatch(
+//       customerError(
+//         error.response?.data?.message || "Failed to fetch current user",
+//       ),
+//     );
+//     return {
+//       success: false,
+//     };
+//   }
+// };
 
 // VERIFY OTP LOGIN
 
@@ -75,15 +77,14 @@ export const verifyOtp =
       console.log("Customer Login Response:", data);
 
       if (data.token) {
-        localStorage.setItem(
-          "userToken",
-          data.token,
-        );
+        localStorage.setItem("userToken", data.token);
       }
 
+      console.log({ user: data.admin });
+      console.log({ token: data.token });
       dispatch(
-        customerLogin({
-          user: data.user,
+        adminLogin({
+          user: data.admin,
           token: data.token,
         }),
       );
@@ -101,7 +102,6 @@ export const verifyOtp =
       };
     }
   };
-
 
 // GET ALL USERS (ADMIN PURPOSE)
 

@@ -50,7 +50,7 @@ const Hero = () => {
       {/* Hero Content */}
       <div
         className=" relative z-10 w-full max-w-5xl mx-auto px-5 sm:px-8 text-end
-    flex flex-col items-center justify-end  min-h-screen pb-12 sm:pb-16 md:pb-20"
+    flex flex-col items-center justify-center  min-h-screen pb-12 sm:pb-16 md:pb-20"
       >
         <p
           className=" font-serif

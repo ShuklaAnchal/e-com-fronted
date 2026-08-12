@@ -112,7 +112,7 @@ export const editSubCategorydetailes =
       };
 
       const result = await axios.put(
-        `/subcategory/update-category/${id}`,
+        `/subcategory/update-subcategory/${id}`,
         formData,
         config
       );

@@ -23,12 +23,13 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
     metaDescription: "",
     keywords: "",
     sortOrder: 0,
-    active: true,
+    isActive: true,
   });
 
   const [image, setImage] = useState(null);
   const [video, setVideo] = useState(null);
   const [videoURL, setVideoURL] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
 
   // --------------------------------------------------
   // EDIT MODE SET DATA
@@ -44,7 +45,7 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
         metaDescription: editData?.seo?.metaDescription || "",
         keywords: editData?.seo?.keywords?.join(", ") || "",
         sortOrder: editData?.sortOrder || 0,
-        active: editData?.active ?? true,
+        isActive: editData?.isActive ?? true,
       });
 
       // Reset newly selected files when switching edit data
@@ -52,6 +53,20 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
       setVideo(null);
     }
   }, [editData]);
+
+  useEffect(() => {
+    if (!image) {
+      setImageURL(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(image);
+    setImageURL(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [image]);
 
   // --------------------------------------------------
   // VIDEO PREVIEW
@@ -132,8 +147,7 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
       );
 
       formData.append("sortOrder", String(category.sortOrder));
-      formData.append("active", String(category.active));
-
+      formData.append("isActive", String(category.isActive));
       // Only append image if user selected a new image
       if (image) {
         formData.append("image", image);
@@ -300,7 +314,7 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
 
               {(image || editData?.image) && (
                 <img
-                  src={image ? URL.createObjectURL(image) : editData?.image}
+                  src={imageURL || editData?.image}
                   alt="Category preview"
                   className="mt-2 h-32 w-40 rounded-lg border object-cover"
                 />
@@ -329,9 +343,8 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
                 <video
                   controls
                   className="mt-2 h-32 w-40 rounded-lg border object-cover"
-                >
-                  <source src={videoURL || editData?.video} type="video/mp4" />
-                </video>
+                  src={videoURL || editData?.video}
+                />
               )}
             </div>
           </div>
@@ -402,8 +415,8 @@ const CategoryForm = ({ editData, onClose, refreshCategories }) => {
             >
               <input
                 type="checkbox"
-                name="active"
-                checked={category.active}
+                name="isActive"
+                checked={category.isActive}
                 onChange={handleChange}
                 className="h-5 w-5"
                 disabled={submitting}

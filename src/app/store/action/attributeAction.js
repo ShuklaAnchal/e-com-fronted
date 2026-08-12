@@ -21,7 +21,18 @@ const getToken = () => {
 // FETCH ALL ATTRIBUTES
 export const asyncFetchAttributes = () => async (dispatch) => {
   try {
-    const { data } = await axios.get("/attribute/fetch-all");
+
+     const token = getToken();
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    console.log("Fetching attributes...");
+    console.log("Token:", token);
+    
+    const { data } = await axios.get("/attribute/fetch-all", config);
     console.log({ data });
 
     dispatch(fetchAttributes(data.attributes));
@@ -111,7 +122,6 @@ export const createNewAttribute = (attributeData) => async (dispatch) => {
 export const updateAttributeDetails = (id, attributeData) => async (dispatch) => {
     try {
       const token = getToken();
-
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -120,9 +130,7 @@ export const updateAttributeDetails = (id, attributeData) => async (dispatch) =>
 
       const { data } = await axios.put(
         `/attribute/update/${id}`,
-
         attributeData,
-
         config,
       );
 
@@ -130,14 +138,12 @@ export const updateAttributeDetails = (id, attributeData) => async (dispatch) =>
 
       return {
         success: true,
-
         payload: data,
       };
     } catch (error) {
       dispatch(
         iserror(error.response?.data?.message || "Failed to update attribute"),
       );
-
       return {
         success: false,
       };
