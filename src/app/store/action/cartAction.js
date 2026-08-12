@@ -42,8 +42,6 @@ export const fetchCart = () => async (dispatch, getState) => {
 
     const { data } = await axios.get("/cart/get-all-cart-product", config);
 
-    console.log("FETCH CART API RESPONSE:", data);
-
     // ======================================================
     // GET ITEMS FROM API
     // ======================================================
@@ -93,8 +91,6 @@ export const fetchCart = () => async (dispatch, getState) => {
         variantLabel: item.variantLabel || item.sku || null,
       };
     });
-
-    console.log("NORMALIZED CART:", normalized);
 
     dispatch(setCartSuccess(normalized));
 

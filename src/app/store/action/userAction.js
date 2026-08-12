@@ -11,6 +11,15 @@ import {
 
 import { adminLogin, currentAdmin } from "../reducer/adminReducer";
 
+
+const getToken = () => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("token");
+  }
+  return null;
+};
+
+
 // SEND OTP
 export const sendOtp = (mobileNumber) => async (dispatch) => {
   try {

@@ -39,7 +39,7 @@ const sidenavbar = () => {
 
   // Adjust this based on your reducer structure
   const admin = loginState?.admin || null;
-
+ console.log({admin});
   // Fetch current user if token exists and admin is not loaded
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -48,7 +48,8 @@ const sidenavbar = () => {
       dispatch(fetchCurrentUser());
     }
   }, [dispatch, admin]);
-
+ console.log({admin});
+ 
   // Save admin data only when it exists
   useEffect(() => {
     if (admin) {

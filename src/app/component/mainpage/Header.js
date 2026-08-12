@@ -9,8 +9,6 @@ import { FiMenu } from "react-icons/fi";
 
 import { fetchCurrentAdmin } from "@/app/store/action/adminAction";
 import { fetchCart } from "@/app/store/action/cartAction";
-import { Donegal_One } from "next/font/google";
-import { FaRunning } from "react-icons/fa";
 
 const Header = () => {
   const router = useRouter();
@@ -27,31 +25,36 @@ const Header = () => {
   // REDUX STATE
   // =====================================================
 
-  /*
-    IMPORTANT:
-
-    If your store is:
-
-    combineReducers({
-      login: loginReducer,
-      cart: cartReducer
-    })
-
-    then use:
-
-    state.login
-
-    NOT:
-
-    state.loginState
-  */
-
   const loginState = useSelector((state) => state.login);
 
   const { cartItems = [] } = useSelector((state) => state.cart);
 
-  // Your reducer currently seems to store the user inside `admin`
-  const currentUser = loginState?.admin || null;
+  /*
+    Your customer login stores the user in:
+
+    state.login.user
+
+    Your admin login may store the user in:
+
+    state.login.admin
+
+    Therefore support both.
+  */
+
+  const currentUser = loginState?.user || loginState?.admin || null;
+
+  const loading = loginState?.loading || false;
+
+  // =====================================================
+  // STATES
+  // =====================================================
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   // =====================================================
   // CART COUNT
@@ -63,16 +66,6 @@ const Header = () => {
   );
 
   // =====================================================
-  // STATES
-  // =====================================================
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [showTopBtn, setShowTopBtn] = useState(false);
-  const [showMore, setShowMore] = useState(false);
-
-  // =====================================================
   // SCROLL HANDLER
   // =====================================================
 
@@ -80,6 +73,7 @@ const Header = () => {
     if (!isHomePage) {
       setIsScrolled(true);
       setShowTopBtn(false);
+
       return;
     }
 
@@ -98,16 +92,36 @@ const Header = () => {
   }, [isHomePage]);
 
   // =====================================================
-  // FETCH CURRENT USER
+  // RESTORE CURRENT USER
   // =====================================================
 
   useEffect(() => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
+    if (typeof window === "undefined") return;
 
-    if (token && token !== "undefined" && token !== "null" && !currentUser) {
-      dispatch(fetchCurrentAdmin());
+    const adminToken = localStorage.getItem("adminToken");
+
+    const userToken = localStorage.getItem("userToken");
+
+    const token = adminToken || userToken;
+
+    if (!token || token === "undefined" || token === "null") {
+      return;
     }
+
+    /*
+      If ClientWrapper has already restored
+      the user, don't call the API again.
+    */
+
+    if (currentUser) {
+      return;
+    }
+
+    /*
+      Restore current user from backend.
+    */
+
+    dispatch(fetchCurrentAdmin());
   }, [dispatch, currentUser]);
 
   // =====================================================
@@ -115,56 +129,121 @@ const Header = () => {
   // =====================================================
 
   useEffect(() => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
+    if (typeof window === "undefined") return;
 
-    if (token && token !== "undefined" && token !== "null") {
+    const userToken = localStorage.getItem("userToken");
+
+    /*
+      Only customers should fetch customer cart.
+    */
+
+    if (userToken && userToken !== "undefined" && userToken !== "null") {
       dispatch(fetchCart());
     }
   }, [dispatch]);
 
   // =====================================================
-  // PROFILE CLICK
+  // GET USER ROLE
   // =====================================================
 
-  const handleProfileClick = () => {
-    console.log({hand:"riundf"});
-    
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
-console.log({token});
+const getUserRole = (user) => {
+  if (!user) return null;
 
-    // No token
-    if (!token || token === "undefined" || token === "null") {
+  return (
+    user.role ||
+    user.userType ||
+    user.user?.role ||
+    user.user?.userType ||
+    null
+  );
+};
+
+const redirectBasedOnUser = (user) => {
+  if (!user) {
+    router.push("/login");
+    return;
+  }
+
+  const userType = getUserRole(user);
+
+  if (userType === "user" || userType === "USER") {
+    router.push("/user");
+    return;
+  }
+
+  if (userType === "admin" || userType === "ADMIN") {
+    router.push("/admin/dashboard");
+    return;
+  }
+
+};
+
+  // =====================================================
+  // PROFILE CLICK
+  // =====================================================
+const handleProfileClick = async () => {
+  if (typeof window === "undefined") return;
+
+  const adminToken = localStorage.getItem("adminToken");
+  const userToken = localStorage.getItem("userToken");
+
+  const token = adminToken || userToken;
+  // =====================================
+  // NO TOKEN
+  // =====================================
+
+  if (
+    !token ||
+    token === "undefined" ||
+    token === "null"
+  ) {
+    router.push("/login");
+    return;
+  }
+
+  // =====================================
+  // USER ALREADY IN REDUX
+  // =====================================
+
+  if (currentUser) {
+    redirectBasedOnUser(currentUser);
+    return;
+  }
+
+  // =====================================
+  // FETCH USER
+  // =====================================
+
+  try {
+    setProfileLoading(true);
+    const result = await dispatch(fetchCurrentAdmin());
+    if (!result?.success) {
       router.push("/login");
       return;
     }
 
-    console.log("PROFILE USER:", currentUser);
+    // Your fetchCurrentAdmin returns:
+    //
+    // {
+    //   success: true,
+    //   payload: data.admin
+    // }
 
-    /*
-      Depending on your backend response,
-      you may have:
+    const fetchedUser = result?.payload;
 
-      currentUser.userType
-      OR
-      currentUser.role
-    */
-    const userType = currentUser?.userType || currentUser?.role;
-
-    console.log("PROFILE USER TYPE:", userType);
-
-    if (userType === "user" || userType === "USER") {
-      router.push("/user");
+    if (!fetchedUser) {
+      router.push("/login");
       return;
     }
 
-    // If admin / salesperson / distributor / retailer etc.
-    console.log("User is not a normal user:", userType);
+    redirectBasedOnUser(fetchedUser);
 
-    // You can send them somewhere else if required
+  } catch (error) {
     router.push("/login");
-  };
+  } finally {
+    setProfileLoading(false);
+  }
+};
 
   // =====================================================
   // NAVIGATION ITEMS
@@ -205,6 +284,7 @@ console.log({token});
 
       if (pathname !== "/") {
         router.push(item.route);
+
         return;
       }
 
@@ -246,7 +326,7 @@ console.log({token});
   return (
     <>
       {/* =====================================================
-          DESKTOP / MAIN HEADER
+          MAIN HEADER
       ===================================================== */}
 
       <header
@@ -270,8 +350,20 @@ console.log({token});
           }
         `}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-          {/* MOBILE MENU */}
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            px-6
+            lg:px-10
+            flex
+            items-center
+            justify-between
+          "
+        >
+          {/* =================================================
+              MOBILE MENU
+          ================================================= */}
 
           <button
             className={`
@@ -286,7 +378,9 @@ console.log({token});
             <FiMenu className="w-6 h-6" />
           </button>
 
-          {/* DESKTOP NAVIGATION */}
+          {/* =================================================
+              DESKTOP NAVIGATION
+          ================================================= */}
 
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
@@ -347,21 +441,42 @@ console.log({token});
                 >
                   <Link
                     href="/faqs"
-                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                    className="
+                      block
+                      px-5
+                      py-3
+                      text-xs
+                      text-black
+                      hover:text-[#C5A880]
+                    "
                   >
                     FAQ&apos;s
                   </Link>
 
                   <Link
                     href="/policys/cancellationRefund"
-                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                    className="
+                      block
+                      px-5
+                      py-3
+                      text-xs
+                      text-black
+                      hover:text-[#C5A880]
+                    "
                   >
                     Refund Policy
                   </Link>
 
                   <Link
                     href="/blogs"
-                    className="block px-5 py-3 text-xs text-black hover:text-[#C5A880]"
+                    className="
+                      block
+                      px-5
+                      py-3
+                      text-xs
+                      text-black
+                      hover:text-[#C5A880]
+                    "
                   >
                     Blogs
                   </Link>
@@ -370,7 +485,9 @@ console.log({token});
             </div>
           </nav>
 
-          {/* LOGO */}
+          {/* =================================================
+              LOGO
+          ================================================= */}
 
           <div
             className="
@@ -414,7 +531,9 @@ console.log({token});
             />
           </div>
 
-          {/* RIGHT SIDE */}
+          {/* =================================================
+              RIGHT SIDE
+          ================================================= */}
 
           <div className="flex items-center gap-6 ml-auto">
             {/* SEARCH */}
@@ -439,14 +558,16 @@ console.log({token});
                 strokeWidth="2"
               >
                 <circle cx="11" cy="11" r="8" />
+
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
 
-            {/* USER */}
+            {/* USER / PROFILE */}
 
             <button
-             onClick={handleProfileClick}
+              onClick={handleProfileClick}
+              disabled={profileLoading}
               className={`
                 transition-colors
                 duration-300
@@ -456,6 +577,7 @@ console.log({token});
                     ? "text-[#121212] hover:text-[#C5A880]"
                     : "text-white hover:text-[#C5A880]"
                 }
+                ${profileLoading ? "opacity-50 cursor-wait" : ""}
               `}
             >
               <svg
@@ -533,7 +655,9 @@ console.log({token});
       ===================================================== */}
 
       <div
-        style={{ zIndex: 999 }}
+        style={{
+          zIndex: 999,
+        }}
         className={`
           fixed
           inset-0
@@ -555,7 +679,9 @@ console.log({token});
       ===================================================== */}
 
       <div
-        style={{ zIndex: 1000 }}
+        style={{
+          zIndex: 1000,
+        }}
         className={`
           fixed
           top-0
@@ -638,7 +764,13 @@ console.log({token});
             <Link
               href="/faqs"
               onClick={() => setIsOpen(false)}
-              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C]"
+              className="
+                pl-4
+                text-xs
+                uppercase
+                tracking-widest
+                text-[#6C6C6C]
+              "
             >
               FAQ&apos;s
             </Link>
@@ -646,7 +778,13 @@ console.log({token});
             <Link
               href="/blogs"
               onClick={() => setIsOpen(false)}
-              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C]"
+              className="
+                pl-4
+                text-xs
+                uppercase
+                tracking-widest
+                text-[#6C6C6C]
+              "
             >
               Blogs
             </Link>
@@ -654,7 +792,13 @@ console.log({token});
             <Link
               href="/policys/cancellationRefund"
               onClick={() => setIsOpen(false)}
-              className="pl-4 text-xs uppercase tracking-widest text-[#6C6C6C]"
+              className="
+                pl-4
+                text-xs
+                uppercase
+                tracking-widest
+                text-[#6C6C6C]
+              "
             >
               Refund Policy
             </Link>
@@ -662,7 +806,9 @@ console.log({token});
         </nav>
       </div>
 
-      {/* SCROLL TOP */}
+      {/* =====================================================
+          SCROLL TOP
+      ===================================================== */}
 
       {showTopBtn && (
         <button
