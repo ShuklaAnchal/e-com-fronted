@@ -27,8 +27,7 @@ instance.interceptors.request.use(
     // /currentadmin can use either token
     if (config.url?.includes("/currentadmin")) {
       token =
-        localStorage.getItem("adminToken") ||
-        localStorage.getItem("userToken");
+        localStorage.getItem("adminToken") || localStorage.getItem("userToken");
     }
 
     if (token) {
@@ -37,7 +36,7 @@ instance.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default instance;
