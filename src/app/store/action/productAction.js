@@ -177,6 +177,7 @@ export const fetchCategoryWiseProducts= (id) => async (dispatch) => {
     );
 
     dispatch(catgeorywiseProducts(data));
+console.log({data});
 
     return data; // Return the whole response
   } catch (error) {

@@ -146,104 +146,98 @@ const Header = () => {
   // GET USER ROLE
   // =====================================================
 
-const getUserRole = (user) => {
-  if (!user) return null;
+  const getUserRole = (user) => {
+    if (!user) return null;
 
-  return (
-    user.role ||
-    user.userType ||
-    user.user?.role ||
-    user.user?.userType ||
-    null
-  );
-};
+    return (
+      user.role ||
+      user.userType ||
+      user.user?.role ||
+      user.user?.userType ||
+      null
+    );
+  };
 
-const redirectBasedOnUser = (user) => {
-  if (!user) {
-    router.push("/login");
-    return;
-  }
+  const redirectBasedOnUser = (user) => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-  const userType = getUserRole(user);
+    const userType = getUserRole(user);
 
-  if (userType === "user" || userType === "USER") {
-    router.push("/user");
-    return;
-  }
+    if (userType === "user" || userType === "USER") {
+      router.push("/user");
+      return;
+    }
 
-  if (userType === "admin" || userType === "ADMIN") {
-    router.push("/admin/dashboard");
-    return;
-  }
-
-};
+    if (userType === "admin" || userType === "ADMIN") {
+      router.push("/admin/dashboard");
+      return;
+    }
+  };
 
   // =====================================================
   // PROFILE CLICK
   // =====================================================
-const handleProfileClick = async () => {
-  if (typeof window === "undefined") return;
+  const handleProfileClick = async () => {
+    if (typeof window === "undefined") return;
 
-  const adminToken = localStorage.getItem("adminToken");
-  const userToken = localStorage.getItem("userToken");
+    const adminToken = localStorage.getItem("adminToken");
+    const userToken = localStorage.getItem("userToken");
 
-  const token = adminToken || userToken;
-  // =====================================
-  // NO TOKEN
-  // =====================================
+    const token = adminToken || userToken;
+    // =====================================
+    // NO TOKEN
+    // =====================================
 
-  if (
-    !token ||
-    token === "undefined" ||
-    token === "null"
-  ) {
-    router.push("/login");
-    return;
-  }
-
-  // =====================================
-  // USER ALREADY IN REDUX
-  // =====================================
-
-  if (currentUser) {
-    redirectBasedOnUser(currentUser);
-    return;
-  }
-
-  // =====================================
-  // FETCH USER
-  // =====================================
-
-  try {
-    setProfileLoading(true);
-    const result = await dispatch(fetchCurrentAdmin());
-    if (!result?.success) {
+    if (!token || token === "undefined" || token === "null") {
       router.push("/login");
       return;
     }
 
-    // Your fetchCurrentAdmin returns:
-    //
-    // {
-    //   success: true,
-    //   payload: data.admin
-    // }
+    // =====================================
+    // USER ALREADY IN REDUX
+    // =====================================
 
-    const fetchedUser = result?.payload;
-
-    if (!fetchedUser) {
-      router.push("/login");
+    if (currentUser) {
+      redirectBasedOnUser(currentUser);
       return;
     }
 
-    redirectBasedOnUser(fetchedUser);
+    // =====================================
+    // FETCH USER
+    // =====================================
 
-  } catch (error) {
-    router.push("/login");
-  } finally {
-    setProfileLoading(false);
-  }
-};
+    try {
+      setProfileLoading(true);
+      const result = await dispatch(fetchCurrentAdmin());
+      if (!result?.success) {
+        router.push("/login");
+        return;
+      }
+
+      // Your fetchCurrentAdmin returns:
+      //
+      // {
+      //   success: true,
+      //   payload: data.admin
+      // }
+
+      const fetchedUser = result?.payload;
+
+      if (!fetchedUser) {
+        router.push("/login");
+        return;
+      }
+
+      redirectBasedOnUser(fetchedUser);
+    } catch (error) {
+      router.push("/login");
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   // =====================================================
   // NAVIGATION ITEMS
@@ -454,7 +448,7 @@ const handleProfileClick = async () => {
                   </Link>
 
                   <Link
-                    href="/policys/cancellationRefund"
+                    href="/policies/cancellation-refund-policy"
                     className="
                       block
                       px-5
@@ -790,7 +784,7 @@ const handleProfileClick = async () => {
             </Link>
 
             <Link
-              href="/policys/cancellationRefund"
+              href="/policies/cancellation-refund-policy"
               onClick={() => setIsOpen(false)}
               className="
                 pl-4

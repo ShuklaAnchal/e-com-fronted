@@ -66,7 +66,7 @@ export default function ProductInfo({
     );
 
     if (result?.success) {
-      alert("Product added successfully.");
+      console.log("d")
     } else {
       alert(result?.message || "Unable to add product.");
     }

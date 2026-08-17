@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -41,10 +40,7 @@ const ProductsPage = () => {
     }
 
     // Already complete URL
-    if (
-      trimmedUrl.startsWith("http://") ||
-      trimmedUrl.startsWith("https://")
-    ) {
+    if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
       return trimmedUrl;
     }
 
@@ -120,9 +116,7 @@ const ProductsPage = () => {
       // -------------------------------------------------------
 
       const defaultVariant =
-        product.variants?.find(
-          (variant) => variant?.isDefault,
-        ) ||
+        product.variants?.find((variant) => variant?.isDefault) ||
         product.variants?.[0] ||
         null;
 
@@ -144,14 +138,11 @@ const ProductsPage = () => {
 
         mrp: defaultVariant?.pricing?.mrp || 0,
 
-        price:
-          defaultVariant?.pricing?.sellingPrice || 0,
+        price: defaultVariant?.pricing?.sellingPrice || 0,
 
-        inStock:
-          defaultVariant?.inventory?.inStock ?? false,
+        inStock: defaultVariant?.inventory?.inStock ?? false,
 
-        stockQuantity:
-          defaultVariant?.inventory?.stockQuantity || 0,
+        stockQuantity: defaultVariant?.inventory?.stockQuantity || 0,
       };
     });
 
@@ -200,12 +191,12 @@ const ProductsPage = () => {
           MAIN
       ===================================================== */}
 
-      <main className="h-auto bg-white mt-5">
+      <main className="h-auto bg-white">
         {/* ===================================================
             PAGE HEADER
         =================================================== */}
 
-        <div className="pt-32 pb-12 sm:pb-16 px-4 sm:px-6">
+        <div className="pt-26 pb-5 sm:pb-16 px-4 sm:px-6">
           <div
             className="
               max-w-7xl
@@ -244,7 +235,7 @@ const ProductsPage = () => {
                 uppercase
                 tracking-[0.08em]
                 sm:tracking-[0.1em]
-                mb-5
+                mb-2
                 sm:mb-6
               "
             >
@@ -268,8 +259,8 @@ const ProductsPage = () => {
                 leading-relaxed
               "
             >
-              Discover our complete range of meticulously formulated
-              aromatics and artisanal creations.
+              Discover our complete range of meticulously formulated aromatics
+              and artisanal creations.
             </p>
           </div>
         </div>
@@ -329,9 +320,7 @@ const ProductsPage = () => {
 
                   <div
                     key={product._id}
-                    onClick={() =>
-                      router.push(`/products/${product._id}`)
-                    }
+                    onClick={() => router.push(`/products/${product._id}`)}
                     className="
                       group
                       flex
@@ -397,13 +386,8 @@ const ProductsPage = () => {
                       {/* PRIMARY IMAGE */}
 
                       <Image
-                        src={
-                          product.image ||
-                          "/placeholder-product.png"
-                        }
-                        alt={
-                          product.name || "Product"
-                        }
+                        src={product.image || "/placeholder-product.png"}
+                        alt={product.name || "Product"}
                         fill
                         sizes="
                           (max-width: 500px) 44vw,
@@ -533,8 +517,7 @@ const ProductsPage = () => {
 
                       {/* PRICE */}
 
-                      {product.mrp > 0 &&
-                      product.price > 0 ? (
+                      {product.mrp > 0 && product.price > 0 ? (
                         <div
                           className="
                             flex
@@ -552,8 +535,7 @@ const ProductsPage = () => {
                         >
                           {/* MRP */}
 
-                          {product.mrp >
-                            product.price && (
+                          {product.mrp > product.price && (
                             <span
                               className="
                                 text-[7px]
@@ -603,9 +585,7 @@ const ProductsPage = () => {
                           e.stopPropagation();
 
                           if (product.inStock) {
-                            router.push(
-                              `/products/${product._id}`,
-                            );
+                            router.push(`/products/${product._id}`);
                           }
                         }}
                         className={`
@@ -645,9 +625,7 @@ const ProductsPage = () => {
                           }
                         `}
                       >
-                        {product.inStock
-                          ? "Buy Now"
-                          : "Out of Stock"}
+                        {product.inStock ? "Buy Now" : "Out of Stock"}
                       </button>
                     </div>
                   </div>
@@ -668,4 +646,3 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
-

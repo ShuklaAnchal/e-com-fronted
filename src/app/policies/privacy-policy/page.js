@@ -1,8 +1,13 @@
 import React from 'react'
+import Header from "@/app/component/mainpage/Header";
+import Footer from "@/app/component/resuable/Footer";
+
 
 const Page = () => {
   return (
-    <div className="w-full h-full mt-20 bg-white py-24 sm:py-12 md:py-16 px-4 sm:px-6 md:px-10 lg:px-16">
+  <div>
+    <Header />
+      <div className="w-full h-full mt-10 bg-white py-16 sm:py-12 md:py-16 px-4 sm:px-6 md:px-10 lg:px-16">
       <div className="max-w-5xl mx-auto text-[#5f5f5f] text-sm sm:text-[15px] md:text-base leading-7 sm:leading-8">
 
         {/* Header */}
@@ -281,6 +286,8 @@ const Page = () => {
 
       </div>
     </div>
+    <Footer />
+  </div>
   )
 }
 

@@ -9,7 +9,8 @@ const Products = () => {
   const router = useRouter();
 
   const { products = [], loading, refreshProducts } = useProducts();
-
+   console.log({products});
+   
   // --------------------------------------------------
   // SAFE IMAGE URL HELPER
   // --------------------------------------------------
@@ -113,10 +114,8 @@ const Products = () => {
 
         // SAFE IMAGE URL
         image: getImageUrl(primaryImage),
-
         // SAFE HOVER IMAGE URL
         hoverImage: getImageUrl(hoverImage),
-
         // DESCRIPTION
         description:
           product.shortDescription ||
@@ -225,9 +224,8 @@ const Products = () => {
 rounded-[14px] sm:rounded-[18px]  md:rounded-[20px] shadow-[0_5px_20px_rgba(40,30,20,0.05)] transition-all duration-500
 ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)] hover:-translate-y-1"
               >
-
-<div
-  className="
+                <div
+                  className="
     relative
     aspect-square
     overflow-hidden
@@ -236,12 +234,12 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
     sm:rounded-t-[18px]
     md:rounded-t-[20px]
   "
->
-  {/* --------------------------------------------------
+                >
+                  {/* --------------------------------------------------
       PRODUCT BADGES
   -------------------------------------------------- */}
-  <div
-    className="
+                  <div
+                    className="
       absolute
       top-2
       left-2
@@ -253,10 +251,10 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
       items-start
       gap-1
     "
-  >
-    {/* NEW */}
-    <span
-      className="
+                  >
+                    {/* NEW */}
+                    <span
+                      className="
         bg-[#121212]/90
         text-white
         px-2
@@ -272,13 +270,13 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
         rounded-[3px]
         shadow-sm
       "
-    >
-      NEW
-    </span>
+                    >
+                      NEW
+                    </span>
 
-    {/* RAKHI SPECIAL */}
-    <span
-      className="
+                    {/* RAKHI SPECIAL */}
+                    <span
+                      className="
         bg-[#C5A880]
         text-[#121212]
         px-2
@@ -294,22 +292,22 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
         rounded-[3px]
         shadow-sm
       "
-    >
-      Rakhi Special
-    </span>
-  </div>
+                    >
+                      Rakhi Special
+                    </span>
+                  </div>
 
-  {/* MAIN IMAGE */}
-  <Image
-    src={product.image || "/placeholder-product.png"}
-    alt={product.name || "Product"}
-    fill
-    sizes="
+                  {/* MAIN IMAGE */}
+                  <Image
+                    src={product.image || "/placeholder-product.png"}
+                    alt={product.name || "Product"}
+                    fill
+                    sizes="
       (max-width: 500px) 34vw,
       (max-width: 600px) 20vw,
       20vw
     "
-    className="
+                    className="
       object-contain
       p-1
       sm:p-2
@@ -318,23 +316,23 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
       ease-out
       group-hover:scale-[1.04]
     "
-  />
+                  />
 
-  {/* HOVER IMAGE */}
-  <Image
-    src={
-      product.hoverImage ||
-      product.image ||
-      "/placeholder-product.png"
-    }
-    alt={`${product.name || "Product"} Hover`}
-    fill
-    sizes="
+                  {/* HOVER IMAGE */}
+                  <Image
+                    src={
+                      product.hoverImage ||
+                      product.image ||
+                      "/placeholder-product.png"
+                    }
+                    alt={`${product.name || "Product"} Hover`}
+                    fill
+                    sizes="
       (max-width: 640px) 44vw,
       (max-width: 768px) 30vw,
       20vw
     "
-    className="
+                    className="
       object-contain
       p-1
       sm:p-2
@@ -343,12 +341,12 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
       duration-500
       group-hover:opacity-100
     "
-  />
+                  />
 
-  {/* OUT OF STOCK */}
-  {!product.inStock && (
-    <div
-      className="
+                  {/* OUT OF STOCK */}
+                  {!product.inStock && (
+                    <div
+                      className="
         absolute
         inset-0
         z-10
@@ -357,9 +355,9 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
         items-center
         justify-center
       "
-    >
-      <span
-        className="
+                    >
+                      <span
+                        className="
           bg-white/90
           px-2
           sm:px-4
@@ -372,19 +370,19 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
           sm:tracking-[0.15em]
           text-black
         "
-      >
-        Out of Stock
-      </span>
-    </div>
-  )}
-</div>
+                      >
+                        Out of Stock
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-            <div className="px-4 pb-3">
+                <div className="px-4 pb-3">
                   {/* --------------------------------------------------
                     PRODUCT NAME
                 -------------------------------------------------- */}
-                <h3
-                  className="
+                  <h3
+                    className="
                     text-[9px]
                     sm:text-xs
                     md:text-sm
@@ -401,15 +399,15 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                     duration-300
                     group-hover:text-luxury-gold
                   "
-                >
-                  {product.name}
-                </h3>
+                  >
+                    {product.name}
+                  </h3>
 
-                {/* --------------------------------------------------
+                  {/* --------------------------------------------------
                     DESCRIPTION
                 -------------------------------------------------- */}
-                <p
-                  className="text-[8px] sm:text-[10px] md:text-[11px]
+                  <p
+                    className="text-[8px] sm:text-[10px] md:text-[11px]
                     text-[#777]
                     font-light
                     leading-[1.4]
@@ -421,16 +419,16 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                     px-0.5
                     sm:px-1
                   "
-                >
-                  {product.description}
-                </p>
+                  >
+                    {product.description}
+                  </p>
 
-                {/* --------------------------------------------------
+                  {/* --------------------------------------------------
                     PRICE
                 -------------------------------------------------- */}
-                {product.mrp > 0 && product.price > 0 ? (
-                  <div
-                    className="
+                  {product.mrp > 0 && product.price > 0 ? (
+                    <div
+                      className="
                       flex
                       items-baseline
                       justify-center
@@ -447,11 +445,11 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                       border-t
                       border-[#C5A880]/15
                     "
-                  >
-                    {/* MRP */}
-                    {product.mrp > product.price && (
-                      <span
-                        className="
+                    >
+                      {/* MRP */}
+                      {product.mrp > product.price && (
+                        <span
+                          className="
                           text-[7px]
                           sm:text-[10px]
 
@@ -460,14 +458,14 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                           line-through
                           font-light
                         "
-                      >
-                        Rs. {product.mrp}
-                      </span>
-                    )}
+                        >
+                          Rs. {product.mrp}
+                        </span>
+                      )}
 
-                    {/* SELLING PRICE */}
-                    <span
-                      className="
+                      {/* SELLING PRICE */}
+                      <span
+                        className="
                         text-[9px]
                         sm:text-xs
 
@@ -476,43 +474,43 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                         font-medium
                         tracking-wide
                       "
-                    >
-                      Rs. {product.price}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="mt-2 sm:mt-3">
-                    <span
-                      className="
+                      >
+                        Rs. {product.price}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 sm:mt-3">
+                      <span
+                        className="
                         text-[8px]
                         sm:text-xs
                         text-gray-500
                       "
-                    >
-                      Price unavailable
-                    </span>
-                  </div>
-                )}
+                      >
+                        Price unavailable
+                      </span>
+                    </div>
+                  )}
 
-                {/* --------------------------------------------------
+                  {/* --------------------------------------------------
                     BUY BUTTON
                 -------------------------------------------------- */}
-                <button
-                  disabled={!product.inStock}
-                  onClick={(e) => {
-                    e.stopPropagation();
+                  <button
+                    disabled={!product.inStock}
+                    onClick={(e) => {
+                      e.stopPropagation();
 
-                    if (product.inStock) {
-                      router.push(`/products/${product._id}`);
-                    }
-                  }}
-                  className={` mt-2.5 sm:mt-4 w-full border py-2 sm:py-2.5 md:py-3
+                      if (product.inStock) {
+                        router.push(`/products/${product._id}`);
+                      }
+                    }}
+                    className={` mt-2.5 sm:mt-4 w-full border py-2 sm:py-2.5 md:py-3
 text-[7px] sm:text-[9px]   md:text-[10px] uppercase
 tracking-[0.1em]  sm:tracking-[0.18em] transition-all duration-500
 font-light rounded-[10px]
  ${
-                      product.inStock
-                        ? `
+   product.inStock
+     ? `
                           border-[#C5A880]/50
                           text-[#B08F5A]
                           bg-transparent
@@ -522,18 +520,18 @@ font-light rounded-[10px]
 
                           cursor-pointer
                         `
-                        : `
+     : `
                           border-gray-300
                           text-gray-400
 
                           cursor-not-allowed
                         `
-                    }
+ }
                   `}
-                >
-                  {product.inStock ? "Buy Now" : "Out of Stock"}
-                </button>
-            </div>
+                  >
+                    {product.inStock ? "Buy Now" : "Out of Stock"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

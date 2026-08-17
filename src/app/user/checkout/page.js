@@ -51,7 +51,7 @@ export default function CheckoutPage() {
       cartItems?.reduce(
         (total, item) =>
           total + Number(item.price || 0) * Number(item.quantity || 0),
-        0
+        0,
       ) || 0
     );
   }, [cartItems]);
@@ -60,8 +60,9 @@ export default function CheckoutPage() {
     return (
       cartItems?.reduce(
         (total, item) =>
-          total + Number(item.mrp || item.price || 0) * Number(item.quantity || 0),
-        0
+          total +
+          Number(item.mrp || item.price || 0) * Number(item.quantity || 0),
+        0,
       ) || 0
     );
   }, [cartItems]);
@@ -162,7 +163,9 @@ export default function CheckoutPage() {
       if (paymentMethod === "COD") {
         alert("COD order flow is ready to connect with your order API.");
       } else {
-        alert(`${paymentMethod} payment flow is ready to connect with Razorpay.`);
+        alert(
+          `${paymentMethod} payment flow is ready to connect with Razorpay.`,
+        );
       }
     } catch (error) {
       console.error("Place order error:", error);
@@ -230,9 +233,7 @@ export default function CheckoutPage() {
 
               <span>—</span>
 
-              <span className="text-luxury-dark font-medium">
-                Checkout
-              </span>
+              <span className="text-luxury-dark font-medium">Checkout</span>
 
               <span>—</span>
 
@@ -515,8 +516,7 @@ export default function CheckoutPage() {
                         <div className="text-sm font-medium text-luxury-dark">
                           Rs.{" "}
                           {(
-                            Number(item.price || 0) *
-                            Number(item.quantity || 0)
+                            Number(item.price || 0) * Number(item.quantity || 0)
                           ).toFixed(2)}
                         </div>
                       </div>
@@ -576,8 +576,8 @@ export default function CheckoutPage() {
                     {placingOrder
                       ? "Processing..."
                       : paymentMethod === "COD"
-                      ? "Place Order"
-                      : "Continue to Payment"}
+                        ? "Place Order"
+                        : "Continue to Payment"}
                   </button>
 
                   <div className="mt-5 text-center">
@@ -636,13 +636,7 @@ function InputField({
    Payment Option
 ------------------------------------------------------- */
 
-function PaymentOption({
-  value,
-  title,
-  description,
-  selected,
-  onChange,
-}) {
+function PaymentOption({ value, title, description, selected, onChange }) {
   return (
     <label
       className={`flex items-center gap-4 p-4 border cursor-pointer transition-all ${
@@ -661,13 +655,9 @@ function PaymentOption({
       />
 
       <div className="flex-1">
-        <p className="text-sm text-luxury-dark font-medium">
-          {title}
-        </p>
+        <p className="text-sm text-luxury-dark font-medium">{title}</p>
 
-        <p className="text-[10px] text-[#777] mt-1">
-          {description}
-        </p>
+        <p className="text-[10px] text-[#777] mt-1">{description}</p>
       </div>
 
       {selected && (
@@ -686,9 +676,7 @@ function PaymentOption({
 function PriceRow({ label, value, green = false }) {
   return (
     <div className="flex justify-between items-center text-sm">
-      <span className="text-[#6C6C6C] font-light tracking-wide">
-        {label}
-      </span>
+      <span className="text-[#6C6C6C] font-light tracking-wide">{label}</span>
 
       <span
         className={`tracking-wide ${
@@ -712,9 +700,7 @@ function TrustItem({ title, description }) {
         {title}
       </p>
 
-      <p className="text-[9px] text-[#777] mt-1">
-        {description}
-      </p>
+      <p className="text-[9px] text-[#777] mt-1">{description}</p>
     </div>
   );
 }

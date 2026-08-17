@@ -39,7 +39,7 @@ const sidenavbar = () => {
 
   // Adjust this based on your reducer structure
   const admin = loginState?.admin || null;
- console.log({admin});
+  console.log({ admin });
   // Fetch current user if token exists and admin is not loaded
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -48,19 +48,21 @@ const sidenavbar = () => {
       dispatch(fetchCurrentUser());
     }
   }, [dispatch, admin]);
- console.log({admin});
- 
+  console.log({ admin });
+
   // Save admin data only when it exists
   useEffect(() => {
     if (admin) {
       localStorage.setItem("admin", JSON.stringify(admin));
     }
   }, [admin]);
-
+  console.log({admin});
+  
   const id = admin?.id || "";
   const userType = admin?.userType || "";
   const adminName = admin?.adminName || "";
-
+  console.log({adminName});
+  
   const data = [
     { id: 0, Links: "/admin/dashboard/category", text: "Dashboard" },
     { id: 1, Links: "/admin/dashboard/", text: "Catgeory" },
@@ -77,7 +79,20 @@ const sidenavbar = () => {
   return (
     <div className=" rounded-br-3xl h-screen w-[12vw] py-6 flex flex-col justify-between bg-[#5C4033] text-white">
       <div className="flex flex-col gap-1 justify-center px-4">
-        <div className="h-28">logo</div>
+        <div className="h-28">
+          <Image
+            src="/siyassLogowhite.png"
+            alt="Siyaas Logo"
+            width={100}
+            height={60}
+            priority
+            className={`
+                          object-contain
+                          transition-all
+                          duration-300
+                        `}
+          />
+        </div>
         <Link href="/admin/dashboard">
           <div
             className={`h-10 w-full flex flex-row gap-5 justify-start rounded-[5px] items-center cursor-pointer px-2 ${active === "dashboard" ? "primarybackground" : ""}`}
@@ -102,7 +117,7 @@ const sidenavbar = () => {
           </div>
         </Link>
 
-         <Link href="/admin/dashboard/subcategory">
+        <Link href="/admin/dashboard/subcategory">
           <div
             className={`h-10 px-2 w-full flex flex-row gap-5 justify-start items-center cursor-pointer ${active === "/Routes/vmpage" ? "bg-red-500" : ""}`}
             onClick={() => handleClick("vm")}
@@ -113,7 +128,7 @@ const sidenavbar = () => {
             </h1>
           </div>
         </Link>
-         <Link href="/admin/dashboard/attribute">
+        <Link href="/admin/dashboard/attribute">
           <div
             className={`h-10 px-2 w-full flex flex-row gap-5 justify-start items-center cursor-pointer ${active === "/Routes/vmpage" ? "bg-red-500" : ""}`}
             onClick={() => handleClick("vm")}

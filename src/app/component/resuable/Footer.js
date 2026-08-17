@@ -135,14 +135,13 @@ const Footer = () => {
                 Bestsellers
               </li>
 
-              
               <li
                 onClick={() => router.push("/blogs")}
                 className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
               >
                 Blogs
               </li>
-                  <li
+              <li
                 onClick={() => router.push("/blogs")}
                 className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
               >
@@ -175,7 +174,7 @@ const Footer = () => {
             >
               <li>
                 <Link
-                  href="/policys/shippingPolicy"
+                  href="/policies/shipping-policy"
                   className="text-[#D9D2C5] hover:text-[#C5A880] text-sm transition-all"
                 >
                   Shipping Policy
@@ -184,7 +183,7 @@ const Footer = () => {
 
               <li>
                 <Link
-                  href="/policys/cancellationRefund"
+                  href="/policies/cancellation-refund-policy"
                   className="text-[#D9D2C5] hover:text-[#C5A880] text-sm transition-all"
                 >
                   Cancellation & Refund
@@ -193,7 +192,7 @@ const Footer = () => {
 
               <li>
                 <Link
-                  href="/policys/privacyPolicy"
+                  href="/policies/privacy-policy"
                   className="text-[#D9D2C5] hover:text-[#C5A880] text-sm transition-all"
                 >
                   Privacy Policy
@@ -202,7 +201,7 @@ const Footer = () => {
 
               <li>
                 <Link
-                  href="/policys/termsConditions"
+                  href="/policies/terms-conditions"
                   className="text-[#D9D2C5] hover:text-[#C5A880] text-sm transition-all"
                 >
                   Terms & Conditions

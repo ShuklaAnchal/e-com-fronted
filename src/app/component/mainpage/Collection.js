@@ -3,46 +3,14 @@
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import { useCategories } from "@/app/hooks/catgeoryHook";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
-const categories = [
-  {
-    _id: "1",
-    name: "Candles",
-    description: "Pure soy wax & crackling wood wicks",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-
-  {
-    _id: "2",
-    name: "Diffusers",
-    description: "Delicate botanicals & continuous throw",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/fa/24/0d/fa240df0d8ded9098812e770dc99f587.mp4",
-  },
-
-  {
-    _id: "3",
-    name: "Wooden Crafts",
-    description: "Meticulously carved heritage mandalas",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-
-  {
-    _id: "4",
-    name: "Gift Hampers",
-    description: "Luxury gifting experiences",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-];
-
 const Collection = () => {
   const router = useRouter();
+  const { categories } = useCategories();
 
   return (
     <section
@@ -104,20 +72,24 @@ const Collection = () => {
           </p>
         </div>
 
-   <div
-  className="
+        <div
+          className="
   grid
   grid-cols-2
   md:grid-cols-4
   gap-4
   md:gap-8
   "
->
-  {categories.map((item) => (
-    <div
-      key={item._id}
-      onClick={() => router.push(`/category/${item.name}`)}
-      className="
+        >
+          {categories.map((item) => (
+            <div
+              key={item._id}
+              onClick={() =>
+                router.push(
+                  `/category/${encodeURIComponent(item.name)}?categoryId=${item._id}`,
+                )
+              }
+              className="
       group shadow-md 
       rounded-xl
       cursor-pointer
@@ -129,26 +101,24 @@ const Collection = () => {
       duration-700
       hover:-translate-y-2
       "
-    >
+            >
+              {/* VIDEO */}
 
-      {/* VIDEO */}
-
-      <div
-        className="
+              <div
+                className="
         relative
         aspect-[1/1]
         overflow-hidden
         "
-      >
-
-        <video
-          src={item.video}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="
+              >
+                <video
+                  src={item.video}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="
           absolute
           inset-0
           w-full
@@ -159,13 +129,12 @@ const Collection = () => {
           duration-[1500ms]
           group-hover:scale-105
           "
-        />
+                />
 
+                {/* Overlay */}
 
-        {/* Overlay */}
-
-        <div
-          className="
+                <div
+                  className="
           absolute
           inset-0
           bg-gradient-to-t
@@ -173,13 +142,12 @@ const Collection = () => {
           via-black/20
           to-transparent
           "
-        />
+                />
 
+                {/* Title */}
 
-        {/* Title */}
-
-        <div
-          className="
+                <div
+                  className="
           absolute
           bottom-4
           left-4
@@ -187,23 +155,21 @@ const Collection = () => {
           md:bottom-8
           text-white
           "
-        >
-
-          <p
-            className="
+                >
+                  <p
+                    className="
             text-[8px]
             md:text-[10px]
             tracking-[0.3em]
             uppercase
             text-[#C5A880]
             "
-          >
-            Collection
-          </p>
+                  >
+                    Collection
+                  </p>
 
-
-          <h3
-            className="
+                  <h3
+                    className="
             mt-2
             text-lg
             md:text-3xl
@@ -212,27 +178,22 @@ const Collection = () => {
             tracking-[0.12em]
             font-light
             "
-          >
-            {item.name}
-          </h3>
+                  >
+                    {item.name}
+                  </h3>
+                </div>
+              </div>
 
-        </div>
+              {/* CONTENT */}
 
-      </div>
-
-
-
-      {/* CONTENT */}
-
-      <div
-        className="
+              <div
+                className="
         p-3
         md:p-8
         "
-      >
-
-        <p
-          className="
+              >
+                <p
+                  className="
           text-[11px]
           md:text-sm
           text-[#6C6C6C]
@@ -240,53 +201,45 @@ const Collection = () => {
           tracking-wide
           line-clamp-2
           "
-        >
-          {item.description}
-        </p>
+                >
+                  {item.description}
+                </p>
 
-
-
-        <div
-          className="
+                <div
+                  className="
           flex
           items-center
           justify-between
           mt-4
           md:mt-7
           "
-        >
-
-          <span
-            className="
+                >
+                  <span
+                    className="
             text-[8px]
             md:text-[10px]
             uppercase
             tracking-[0.3em]
             text-[#C5A880]
             "
-          >
-            Explore
-          </span>
+                  >
+                    Explore
+                  </span>
 
-
-          <span
-            className="
+                  <span
+                    className="
             text-[#C5A880]
             transition-transform
             group-hover:translate-x-2
             "
-          >
-            →
-          </span>
-
+                  >
+                    →
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
-      </div>
-
-    </div>
-  ))}
-
-</div>
       </div>
     </section>
   );

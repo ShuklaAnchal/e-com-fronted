@@ -10,17 +10,14 @@ import { useAttributes } from "@/app/hooks/attributeHook";
 
 import { attributeColumns } from "@/app/colums/attributeColumns";
 
-import { deleteCategory } from "@/app/store/action/categoryAction";
+import { deleteAttributeById } from "@/app/store/action/attributeAction";
 
 export default function AttributePage() {
   const dispatch = useDispatch();
 
   const { modal, openModal, closeModal } = useModal();
 
-  const {   attributes,
-    loading,
-    refreshAttributes, } = useAttributes();
-    
+  const { attributes, loading, refreshAttributes } = useAttributes();
 
   const handleEdit = (attributes) => {
     openModal(
@@ -34,7 +31,7 @@ export default function AttributePage() {
   };
 
   const handleView = (attributes) => {
-    console.log("View Category:", attributes);
+    console.log("View attributes:", attributes);
   };
 
   const handleDelete = async (attributes) => {
@@ -43,12 +40,12 @@ export default function AttributePage() {
     if (!confirmDelete) return;
 
     try {
-      await dispatch(deleteCategory(category._id));
+      await dispatch(deleteAttributeById(attributes._id));
 
       // Correct refresh function
-      await refreshCategories();
+      await refreshAttributes();
 
-      alert("Category deleted successfully");
+      alert("Attributes deleted successfully");
     } catch (error) {
       console.error(error);
     }

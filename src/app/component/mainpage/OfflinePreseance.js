@@ -1,10 +1,9 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 
 import "swiper/css";
-import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const moments = [
@@ -13,28 +12,28 @@ const moments = [
     title: "A Candle That Made My Home Special",
     person: "Ananya",
     video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957322/AQMl428t7WoSuzCTcp_Zd_FOChyHyt1xTyqaDjASHJ7sKZzcHKYeTZxUquFsVJxWzsLPs7AUJWr_uyTh3UollSKxjahwW-lhAiWfLLU.mp4",
   },
   {
     category: "Events",
     title: "Siyaas Festive Collection Launch",
     person: "Mumbai Pop-Up",
     video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957341/VID_20260816204415607.mp4",
   },
   {
     category: "Customer Love",
     title: "Perfect Gift For Every Occasion",
     person: "Priya",
     video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957448/AQNR_KECKSki6nv7UoUgSkCmKv-x38AD6H4sgwHRujqt43sca9OURZSlG6ZVOEPOqheHYvMZO-Ivq_GjbwCj52gcjqiiJhZqs0cHWLc.mp4",
   },
   {
     category: "Events",
     title: "Luxury Exhibition 2025",
     person: "Delhi",
     video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957715/AirBrushVideo1786879064978.mp4",
   },
   {
     category: "Customer Love",
@@ -54,20 +53,6 @@ const moments = [
     category: "Customer Love",
     title: "Perfect Gift For Every Occasion",
     person: "Priya",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-  {
-    category: "Events",
-    title: "Luxury Exhibition 2025",
-    person: "Delhi",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-  {
-    category: "Events",
-    title: "Luxury Exhibition 2025",
-    person: "Delhi",
     video:
       "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
   },
@@ -84,7 +69,9 @@ export default function MomentsWithSiyaas() {
   return (
     <section className="webprimarycolor overflow-visible w-full flex items-center justify-center">
       <div className="w-[90%] px-6">
-        {/* Header */}
+
+        {/* ================= HEADER ================= */}
+
         <div className="text-center mb-10">
           <p className="text-xs tracking-[0.5em] uppercase text-[#C5A880] mb-3 font-light">
             Siyaas Community
@@ -103,27 +90,30 @@ export default function MomentsWithSiyaas() {
           </p>
         </div>
 
-        {/* Video Layout */}
+        {/* ================= VIDEO SLIDER ================= */}
+
         <div className="relative">
           <Swiper
-            modules={[Navigation, Pagination]}
+            modules={[Pagination]}
             spaceBetween={24}
             slidesPerView={1.2}
-            // navigation
             pagination={{
               clickable: true,
               el: ".siyaas-pagination",
             }}
             onBeforeInit={(swiper) => {
-              swiper.params.pagination.el = ".siyaas-pagination";
+              swiper.params.pagination.el =
+                ".siyaas-pagination";
             }}
             breakpoints={{
               640: {
                 slidesPerView: 2,
               },
+
               768: {
                 slidesPerView: 3,
               },
+
               1280: {
                 slidesPerView: 5,
               },
@@ -133,105 +123,90 @@ export default function MomentsWithSiyaas() {
               <SwiperSlide key={index}>
                 <div
                   className="
-          group rounded-xl
-          relative
-          overflow-hidden
-          bg-[#FAF7F2]
-          border
-          border-[#C5A880]/20
-          "
+                    group
+                    relative
+                    overflow-hidden
+                    rounded-xl
+                    bg-[#FAF7F2]
+                    border
+                    border-[#C5A880]/20
+                  "
                 >
+
+                  {/* ================= VIDEO ================= */}
+
                   <video
                     src={item.video}
+                    autoPlay
                     muted
                     loop
                     playsInline
-                    preload="metadata"
+                    preload="auto"
                     className="
-            w-full
-            h-[430px]
-            object-cover
-            transition-transform
-            duration-[1200ms]
-            group-hover:scale-105
-            "
+                      block
+                      w-full
+                      h-[430px]
+                      object-cover
+                      transition-transform
+                      duration-[1200ms]
+                      group-hover:scale-105
+                    "
                   />
 
+                  {/* ================= GRADIENT ================= */}
+
                   <div
                     className="
-            absolute
-            inset-0
-            bg-gradient-to-t
-            from-black/80
-            via-black/20
-            to-transparent
-            "
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-gradient-to-t
+                      from-black/80
+                      via-black/20
+                      to-transparent
+                    "
                   />
 
-                  <div
-                    className="
-            absolute
-            inset-0
-            flex
-            items-center
-            justify-center
-            "
-                  >
-                    <div
-                      className="
-              w-16
-              h-16
-              rounded-full
-              border
-              border-white/50
-              backdrop-blur-md
-              flex
-              items-center
-              justify-center
-              text-white
-              text-xl
-              "
-                    >
-                      ▶
-                    </div>
-                  </div>
+                  {/* ================= TEXT ================= */}
 
                   <div
                     className="
-            absolute
-            bottom-8
-            left-7
-            text-white
-            "
+                      pointer-events-none
+                      absolute
+                      bottom-8
+                      left-7
+                      right-5
+                      text-white
+                    "
                   >
                     <p
                       className="
-            uppercase
-            tracking-[0.35em]
-            text-[10px]
-            text-[#C5A880]
-            "
+                        uppercase
+                        tracking-[0.35em]
+                        text-[10px]
+                        text-[#C5A880]
+                      "
                     >
                       {item.category}
                     </p>
 
                     <h3
                       className="
-            mt-3
-            font-serif
-            text-xl
-            leading-tight
-            "
+                        mt-3
+                        font-serif
+                        text-xl
+                        leading-tight
+                      "
                     >
                       {item.title}
                     </h3>
 
                     <p
                       className="
-            mt-2
-            text-sm
-            text-white/70
-            "
+                        mt-2
+                        text-sm
+                        text-white/70
+                      "
                     >
                       {item.person}
                     </p>
@@ -241,71 +216,40 @@ export default function MomentsWithSiyaas() {
             ))}
           </Swiper>
 
-          {/* Custom Pagination */}
+          {/* ================= PAGINATION ================= */}
+
           <div
             className="
-    siyaas-pagination
-    mt-10
-    flex
-    justify-center
-    gap-3
-  "
+              siyaas-pagination
+              mt-10
+              flex
+              justify-center
+              gap-3
+            "
           />
         </div>
 
-        {/* Brand Quote */}
+        {/* ================= QUOTE ================= */}
+
         <div className="max-w-5xl mx-auto text-center mt-10">
-          <p className="font-serif italic text-xl md:text-3xl font-extralight text-[#1A1A1A] leading-[35px] max-w-4xl mx-auto">
+          <p
+            className="
+              font-serif
+              italic
+              text-xl
+              md:text-3xl
+              font-extralight
+              text-[#1A1A1A]
+              leading-[35px]
+              max-w-4xl
+              mx-auto
+            "
+          >
             “Luxury is not simply what you see,
             <br />
             but what you feel long after the moment has passed.”
           </p>
-          </div>
-
-        {/* Brand Values */}
-        {/* <div className="grid md:grid-cols-3 gap-10 mt-32">
-          <div className="text-center border-t border-[#C5A880]/20 pt-8 px-4 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/50 hover:-translate-y-1">
-            <span className="block text-[#C5A880] text-xs uppercase tracking-[0.3em] font-light mb-3">
-              01 / Process
-            </span>
-            <h3 className="font-serif text-lg text-[#1A1A1A] mb-4 uppercase tracking-[0.1em]">
-              Handcrafted
-            </h3>
-
-            <p className="text-[#6C6C6C] text-xs leading-7 font-light font-sans tracking-wide">
-              Every creation is carefully poured and finished by hand to ensure
-              exceptional quality and attention to detail.
-            </p>
-          </div>
-
-          <div className="text-center border-t border-[#C5A880]/20 pt-8 px-4 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/50 hover:-translate-y-1">
-            <span className="block text-[#C5A880] text-xs uppercase tracking-[0.3em] font-light mb-3">
-              02 / Quality
-            </span>
-            <h3 className="font-serif text-lg text-[#1A1A1A] mb-4 uppercase tracking-[0.1em]">
-              Premium Fragrance
-            </h3>
-
-            <p className="text-[#6C6C6C] text-xs leading-7 font-light font-sans tracking-wide">
-              Thoughtfully curated fragrance compositions designed to elevate
-              the atmosphere of every space.
-            </p>
-          </div>
-
-          <div className="text-center border-t border-[#C5A880]/20 pt-8 px-4 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:border-[#C5A880]/50 hover:-translate-y-1">
-            <span className="block text-[#C5A880] text-xs uppercase tracking-[0.3em] font-light mb-3">
-              03 / Design
-            </span>
-            <h3 className="font-serif text-lg text-[#1A1A1A] mb-4 uppercase tracking-[0.1em]">
-              Timeless Design
-            </h3>
-
-            <p className="text-[#6C6C6C] text-xs leading-7 font-light font-sans tracking-wide">
-              Elegant forms and refined aesthetics created to complement modern
-              interiors and meaningful rituals.
-            </p>
-          </div>
-        </div> */}
+        </div>
       </div>
     </section>
   );

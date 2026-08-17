@@ -27,26 +27,47 @@ export const asyncfetchAddress = () => async (dispatch, getState) => {
 };
 
 
-export const AddAddress = (formData) => async (dispatch, getState) => {
-
+export const AddAddress = (addressData) => async (dispatch) => {
   try {
     const token = getToken();
-      console.log({token});
+
+    console.log("TOKEN:", token);
+    console.log("ADDRESS DATA:", addressData);
+
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
-        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     };
-    const { data } = await axios.post("/address/add-shippingaddress", formData, config);
+
+    const { data } = await axios.post(
+      "/address/add-shippingaddress",
+      addressData,
+      config
+    );
+
+    console.log("ADD ADDRESS RESPONSE:", data);
 
     dispatch(createAddress(data));
 
-    return { success: true, payload: data };
+    return {
+      success: true,
+      payload: data,
+    };
   } catch (error) {
+    console.error(
+      "ADD ADDRESS ERROR:",
+      error?.response?.data || error
+    );
+
     const message =
-      error?.response?.data?.error || "Failed to create Address";
+      error?.response?.data?.error ||
+      error?.response?.data?.message ||
+      "Failed to create Address";
+
     dispatch(iserror(message));
+
     return {
       success: false,
       message,
