@@ -16,8 +16,8 @@ const getToken = () => {
 
 export const asyncfetchAddress = () => async (dispatch, getState) => {
   try {
-    const { data } = await axios.get("/address/fetch-all-categories");
-    // console.log("Fetched products:", data.products);
+    const { data } = await axios.get("/address/fetch-userwise-shippingaddress");
+    console.log("Fetched products:", data);
     dispatch(fetchAddress(data.address));
     return data;
   } catch (error) {
