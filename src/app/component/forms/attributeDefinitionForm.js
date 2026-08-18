@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { useCategories } from "@/app/hooks/catgeoryHook";
@@ -12,14 +12,18 @@ import {
   updateAttributeDetails,
 } from "@/app/store/action/attributeAction";
 
-const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
+const CreateAttribute = ({
+  editData = null,
+  onClose,
+  refreshAttributes,
+}) => {
   const dispatch = useDispatch();
 
   const { categories } = useCategories();
 
-  // --------------------------------------------------
+  // ==================================================
   // INITIAL FORM
-  // --------------------------------------------------
+  // ==================================================
 
   const initialForm = {
     categoryId: "",
@@ -39,56 +43,62 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
 
   const [form, setForm] = useState(initialForm);
 
-  // --------------------------------------------------
+  // ==================================================
   // SUBCATEGORIES
-  // --------------------------------------------------
+  // ==================================================
 
   const [subcategories, setSubcategories] = useState([]);
-
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
 
-  // --------------------------------------------------
+  // ==================================================
   // OPTIONS
-  // --------------------------------------------------
+  // ==================================================
 
   const [options, setOptions] = useState([]);
 
-  // --------------------------------------------------
+  // ==================================================
   // LOADING
-  // --------------------------------------------------
+  // ==================================================
 
   const [loading, setLoading] = useState(false);
 
   // ==================================================
-  // FETCH SUBCATEGORIES BY CATEGORY
+  // FETCH SUBCATEGORIES
   // ==================================================
 
-  const loadSubcategories = async (categoryId) => {
-    if (!categoryId) {
-      setSubcategories([]);
-      return;
-    }
-
-    try {
-      setLoadingSubcategories(true);
-
-      const result = await dispatch(fetchSubcategorybyCategoryID(categoryId));
-
-      console.log("Subcategories response:", result);
-
-      if (result?.subcategories) {
-        setSubcategories(result.subcategories);
-      } else {
+  const loadSubcategories = useCallback(
+    async (categoryId) => {
+      if (!categoryId) {
         setSubcategories([]);
+        return;
       }
-    } catch (error) {
-      console.error("Failed to fetch subcategories:", error);
 
-      setSubcategories([]);
-    } finally {
-      setLoadingSubcategories(false);
-    }
-  };
+      try {
+        setLoadingSubcategories(true);
+
+        const result = await dispatch(
+          fetchSubcategorybyCategoryID(categoryId),
+        );
+
+        console.log("Subcategories response:", result);
+
+        if (result?.success && Array.isArray(result?.subcategories)) {
+          setSubcategories(result.subcategories);
+        } else if (Array.isArray(result?.subcategories)) {
+          setSubcategories(result.subcategories);
+        } else {
+          setSubcategories([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch subcategories:", error);
+
+        setSubcategories([]);
+      } finally {
+        setLoadingSubcategories(false);
+      }
+    },
+    [dispatch],
+  );
 
   // ==================================================
   // CATEGORY CHANGE
@@ -97,14 +107,15 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
   const handleCategoryChange = async (e) => {
     const categoryId = e.target.value;
 
-    // Update category and clear previous subcategory
+    // Update category
+    // Reset subcategory because category changed
     setForm((prev) => ({
       ...prev,
       categoryId,
       subCategoryId: "",
     }));
 
-    // Clear old subcategories immediately
+    // Remove previous subcategories
     setSubcategories([]);
 
     // Fetch new subcategories
@@ -122,9 +133,17 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
 
     setForm((prev) => ({
       ...prev,
-
       [name]: type === "checkbox" ? checked : value,
     }));
+
+    // Clear options if field type is not select/multiselect
+    if (
+      name === "fieldType" &&
+      value !== "select" &&
+      value !== "multiselect"
+    ) {
+      setOptions([]);
+    }
   };
 
   // ==================================================
@@ -136,10 +155,11 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
 
     setForm((prev) => ({
       ...prev,
-
       name: value,
-
-      slug: value.toLowerCase().trim().replace(/\s+/g, "-"),
+      slug: value
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-"),
     }));
   };
 
@@ -153,16 +173,18 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
 
   const updateOption = (index, value) => {
     setOptions((prev) => {
-      const temp = [...prev];
+      const updated = [...prev];
 
-      temp[index] = value;
+      updated[index] = value;
 
-      return temp;
+      return updated;
     });
   };
 
   const removeOption = (index) => {
-    setOptions((prev) => prev.filter((_, i) => i !== index));
+    setOptions((prev) =>
+      prev.filter((_, optionIndex) => optionIndex !== index),
+    );
   };
 
   // ==================================================
@@ -178,16 +200,34 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
       return;
     }
 
-    const categoryId = editData?.categoryId?._id || editData?.categoryId || "";
+    // ----------------------------------------------
+    // Get Category ID
+    // ----------------------------------------------
+
+    const categoryId =
+      editData?.categoryId?._id ||
+      editData?.categoryId ||
+      "";
+
+    // ----------------------------------------------
+    // Get Subcategory ID
+    // ----------------------------------------------
 
     const subCategoryId =
-      editData?.subCategoryId?._id || editData?.subCategoryId || "";
+      editData?.subCategoryId?._id ||
+      editData?.subCategoryId ||
+      "";
 
+    // ----------------------------------------------
     // Populate form
+    // ----------------------------------------------
+
     setForm({
       categoryId,
 
-      subCategoryId,
+      // If null -> ""
+      // This means "All Subcategories"
+      subCategoryId: subCategoryId || "",
 
       name: editData?.name || "",
 
@@ -205,28 +245,39 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
 
       searchable: editData?.searchable ?? false,
 
-      isVariantAttribute: editData?.isVariantAttribute ?? false,
+      isVariantAttribute:
+        editData?.isVariantAttribute ?? false,
 
       sortOrder: editData?.sortOrder ?? 0,
 
       isActive: editData?.isActive ?? true,
     });
 
+    // ----------------------------------------------
     // Existing options
+    // ----------------------------------------------
+
     if (
       editData?.fieldType === "select" ||
       editData?.fieldType === "multiselect"
     ) {
-      setOptions(Array.isArray(editData?.options) ? editData.options : []);
+      setOptions(
+        Array.isArray(editData?.options)
+          ? editData.options
+          : [],
+      );
     } else {
       setOptions([]);
     }
 
-    // Fetch subcategories for existing category
+    // ----------------------------------------------
+    // Load subcategories
+    // ----------------------------------------------
+
     if (categoryId) {
       loadSubcategories(categoryId);
     }
-  }, [editData]);
+  }, [editData, loadSubcategories]);
 
   // ==================================================
   // SUBMIT
@@ -237,35 +288,128 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
 
     if (loading) return;
 
+    // ----------------------------------------------
+    // Basic validation
+    // ----------------------------------------------
+
+    if (!form.categoryId) {
+      alert("Please select a category");
+      return;
+    }
+
+    if (!form.name.trim()) {
+      alert("Please enter attribute name");
+      return;
+    }
+
+    if (!form.fieldType) {
+      alert("Please select field type");
+      return;
+    }
+
+    // ----------------------------------------------
+    // Select options validation
+    // ----------------------------------------------
+
+    if (
+      form.fieldType === "select" ||
+      form.fieldType === "multiselect"
+    ) {
+      const cleanedOptions = options
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (cleanedOptions.length === 0) {
+        alert("Please add at least one option");
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
+      // ----------------------------------------------
+      // Prepare options
+      // ----------------------------------------------
+
+      const cleanedOptions =
+        form.fieldType === "select" ||
+        form.fieldType === "multiselect"
+          ? options
+              .map((item) => item.trim())
+              .filter(Boolean)
+          : [];
+
+      // ----------------------------------------------
+      // Prepare payload
+      // ----------------------------------------------
+
       const payload = {
-        ...form,
+        categoryId: form.categoryId,
+
+        // Empty subcategory means:
+        // Attribute applies to all subcategories
+        subCategoryId: form.subCategoryId || null,
+
+        name: form.name.trim(),
+
+        slug: form.slug.trim(),
+
+        fieldType: form.fieldType,
+
+        options: cleanedOptions,
+
+        unit: form.unit?.trim() || "",
+
+        placeholder: form.placeholder?.trim() || "",
+
+        requiredField: Boolean(form.requiredField),
+
+        filterable: Boolean(form.filterable),
+
+        searchable: Boolean(form.searchable),
+
+        isVariantAttribute: Boolean(
+          form.isVariantAttribute,
+        ),
 
         sortOrder: Number(form.sortOrder) || 0,
 
-        options:
-          form.fieldType === "select" || form.fieldType === "multiselect"
-            ? options.map((item) => item.trim()).filter(Boolean)
-            : [],
+        isActive: Boolean(form.isActive),
       };
 
       console.log("Attribute payload:", payload);
 
       let result;
 
+      // ==================================================
       // UPDATE
+      // ==================================================
+
       if (editData?._id) {
-        result = await dispatch(updateAttributeDetails(editData._id, payload));
+        result = await dispatch(
+          updateAttributeDetails(
+            editData._id,
+            payload,
+          ),
+        );
       }
 
+      // ==================================================
       // CREATE
+      // ==================================================
+
       else {
-        result = await dispatch(createNewAttribute(payload));
+        result = await dispatch(
+          createNewAttribute(payload),
+        );
       }
 
       console.log("Attribute result:", result);
+
+      // ==================================================
+      // SUCCESS
+      // ==================================================
 
       if (result?.success) {
         alert(
@@ -274,20 +418,43 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
             : "Attribute created successfully",
         );
 
+        // Reset
         setForm(initialForm);
         setOptions([]);
         setSubcategories([]);
 
-        await refreshAttributes?.();
+        // Refresh attribute list
+        if (refreshAttributes) {
+          await refreshAttributes();
+        }
 
-        onClose?.();
-      } else {
-        alert(result?.message || "Something went wrong");
+        // Close modal/form
+        if (onClose) {
+          onClose();
+        }
+      }
+
+      // ==================================================
+      // ERROR
+      // ==================================================
+
+      else {
+        alert(
+          result?.message ||
+            "Something went wrong",
+        );
       }
     } catch (error) {
-      console.error("Attribute save failed:", error);
+      console.error(
+        "Attribute save failed:",
+        error,
+      );
 
-      alert(error?.message || "Something went wrong");
+      alert(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong",
+      );
     } finally {
       setLoading(false);
     }
@@ -297,7 +464,8 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
   // INPUT CLASS
   // ==================================================
 
-  const inputClass = "border p-2 w-full rounded-lg";
+  const inputClass =
+    "border p-2 w-full rounded-lg";
 
   // ==================================================
   // UI
@@ -306,132 +474,212 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
   return (
     <div className="max-w-xl mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">
-        {editData ? "Update Attribute" : "Create Attribute"}
+        {editData
+          ? "Update Attribute"
+          : "Create Attribute"}
       </h1>
 
-      <form onSubmit={submitHandler} className="space-y-4">
-        {/* ==========================================
+      <form
+        onSubmit={submitHandler}
+        className="space-y-4"
+      >
+        {/* ==================================================
             CATEGORY
-        ========================================== */}
+        ================================================== */}
 
-        <select
-          className={inputClass}
-          value={form.categoryId}
-          onChange={handleCategoryChange}
-          required
-          disabled={loading}
-        >
-          <option value="">Select Category</option>
+        <div>
+          <label className="block font-medium mb-1">
+            Category
+          </label>
 
-          {categories?.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.name}
+          <select
+            className={inputClass}
+            value={form.categoryId}
+            onChange={handleCategoryChange}
+            required
+            disabled={loading}
+          >
+            <option value="">
+              Select Category
             </option>
-          ))}
-        </select>
 
-        {/* ==========================================
+            {categories?.map((cat) => (
+              <option
+                key={cat._id}
+                value={cat._id}
+              >
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* ==================================================
             SUBCATEGORY
-        ========================================== */}
+        ================================================== */}
 
-        <select
-          className={inputClass}
-          name="subCategoryId"
-          value={form.subCategoryId}
-          onChange={handleChange}
-          disabled={loading || loadingSubcategories || !form.categoryId}
-          required
-        >
-          <option value="">
-            {loadingSubcategories
-              ? "Loading Subcategories..."
-              : "Select Sub Category"}
-          </option>
+        <div>
+          <label className="block font-medium mb-1">
+            Sub Category
+          </label>
 
-          {subcategories?.map((sub) => (
-            <option key={sub._id} value={sub._id}>
-              {sub.name}
+          <select
+            className={inputClass}
+            name="subCategoryId"
+            value={form.subCategoryId}
+            onChange={handleChange}
+            disabled={
+              loading ||
+              loadingSubcategories ||
+              !form.categoryId
+            }
+          >
+            <option value="">
+              {loadingSubcategories
+                ? "Loading Subcategories..."
+                : "All Subcategories"}
             </option>
-          ))}
-        </select>
 
-        {/* ==========================================
+            {subcategories?.map((sub) => (
+              <option
+                key={sub._id}
+                value={sub._id}
+              >
+                {sub.name}
+              </option>
+            ))}
+          </select>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Select "All Subcategories" if this
+            attribute applies to the entire category.
+          </p>
+        </div>
+
+        {/* ==================================================
             NAME
-        ========================================== */}
+        ================================================== */}
 
-        <input
-          className={inputClass}
-          placeholder="Attribute Name"
-          value={form.name}
-          onChange={handleNameChange}
-          required
-          disabled={loading}
-        />
+        <div>
+          <label className="block font-medium mb-1">
+            Attribute Name
+          </label>
 
-        {/* ==========================================
+          <input
+            className={inputClass}
+            placeholder="e.g. Brand, Flavor, Weight"
+            value={form.name}
+            onChange={handleNameChange}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        {/* ==================================================
             SLUG
-        ========================================== */}
+        ================================================== */}
 
-        <input
-          className={inputClass}
-          placeholder="Slug"
-          name="slug"
-          value={form.slug}
-          onChange={handleChange}
-          required
-          disabled={loading}
-        />
+        <div>
+          <label className="block font-medium mb-1">
+            Slug
+          </label>
 
-        {/* ==========================================
+          <input
+            className={inputClass}
+            placeholder="attribute-slug"
+            name="slug"
+            value={form.slug}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        {/* ==================================================
             FIELD TYPE
-        ========================================== */}
+        ================================================== */}
 
-        <select
-          className={inputClass}
-          name="fieldType"
-          value={form.fieldType}
-          onChange={handleChange}
-          required
-          disabled={loading}
-        >
-          <option value="">Select Field Type</option>
+        <div>
+          <label className="block font-medium mb-1">
+            Field Type
+          </label>
 
-          <option value="text">Text</option>
+          <select
+            className={inputClass}
+            name="fieldType"
+            value={form.fieldType}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          >
+            <option value="">
+              Select Field Type
+            </option>
 
-          <option value="textarea">Textarea</option>
+            <option value="text">
+              Text
+            </option>
 
-          <option value="number">Number</option>
+            <option value="textarea">
+              Textarea
+            </option>
 
-          <option value="boolean">Boolean</option>
+            <option value="number">
+              Number
+            </option>
 
-          <option value="select">Select</option>
+            <option value="boolean">
+              Boolean
+            </option>
 
-          <option value="multiselect">Multi Select</option>
+            <option value="select">
+              Select
+            </option>
 
-          <option value="date">Date</option>
-        </select>
+            <option value="multiselect">
+              Multi Select
+            </option>
 
-        {/* ==========================================
+            <option value="date">
+              Date
+            </option>
+          </select>
+        </div>
+
+        {/* ==================================================
             OPTIONS
-        ========================================== */}
+        ================================================== */}
 
-        {(form.fieldType === "select" || form.fieldType === "multiselect") && (
+        {(form.fieldType === "select" ||
+          form.fieldType === "multiselect") && (
           <div>
-            <p className="font-semibold mb-2">Options</p>
+            <p className="font-semibold mb-2">
+              Options
+            </p>
 
             {options.map((item, index) => (
-              <div key={index} className="flex gap-2 mb-2">
+              <div
+                key={index}
+                className="flex gap-2 mb-2"
+              >
                 <input
                   className={`${inputClass} flex-1`}
                   value={item}
                   placeholder={`Option ${index + 1}`}
-                  onChange={(e) => updateOption(index, e.target.value)}
+                  onChange={(e) =>
+                    updateOption(
+                      index,
+                      e.target.value,
+                    )
+                  }
                   disabled={loading}
                 />
 
                 <button
                   type="button"
-                  onClick={() => removeOption(index)}
+                  onClick={() =>
+                    removeOption(index)
+                  }
                   className="bg-red-500 text-white px-3 rounded"
                   disabled={loading}
                 >
@@ -451,110 +699,136 @@ const CreateAttribute = ({ editData = null, onClose, refreshAttributes }) => {
           </div>
         )}
 
-        {/* ==========================================
+        {/* ==================================================
             UNIT
-        ========================================== */}
+        ================================================== */}
 
-        <input
-          className={inputClass}
-          placeholder="Unit (kg, cm, inch)"
-          name="unit"
-          value={form.unit}
-          onChange={handleChange}
-          disabled={loading}
-        />
+        <div>
+          <label className="block font-medium mb-1">
+            Unit
+          </label>
 
-        {/* ==========================================
+          <input
+            className={inputClass}
+            placeholder="e.g. kg, cm, inch"
+            name="unit"
+            value={form.unit}
+            onChange={handleChange}
+            disabled={loading}
+          />
+        </div>
+
+        {/* ==================================================
             PLACEHOLDER
-        ========================================== */}
+        ================================================== */}
 
-        <input
-          className={inputClass}
-          placeholder="Placeholder"
-          name="placeholder"
-          value={form.placeholder}
-          onChange={handleChange}
-          disabled={loading}
-        />
+        <div>
+          <label className="block font-medium mb-1">
+            Placeholder
+          </label>
 
-        {/* ==========================================
+          <input
+            className={inputClass}
+            placeholder="Enter placeholder text"
+            name="placeholder"
+            value={form.placeholder}
+            onChange={handleChange}
+            disabled={loading}
+          />
+        </div>
+
+        {/* ==================================================
             SORT ORDER
-        ========================================== */}
+        ================================================== */}
 
-        <input
-          type="number"
-          className={inputClass}
-          placeholder="Sort Order"
-          name="sortOrder"
-          value={form.sortOrder}
-          onChange={handleChange}
-          disabled={loading}
-        />
+        <div>
+          <label className="block font-medium mb-1">
+            Sort Order
+          </label>
 
-        {/* ==========================================
+          <input
+            type="number"
+            className={inputClass}
+            placeholder="Sort Order"
+            name="sortOrder"
+            value={form.sortOrder}
+            onChange={handleChange}
+            disabled={loading}
+            min="0"
+          />
+        </div>
+
+        {/* ==================================================
             FLAGS
-        ========================================== */}
+        ================================================== */}
 
-        <div className="space-y-2">
-          <label className="block">
+        <div className="space-y-3">
+
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               name="requiredField"
               checked={form.requiredField}
               onChange={handleChange}
               disabled={loading}
-            />{" "}
-            Required Field
+            />
+
+            <span>Required Field</span>
           </label>
 
-          <label className="block">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               name="filterable"
               checked={form.filterable}
               onChange={handleChange}
               disabled={loading}
-            />{" "}
-            Filterable
+            />
+
+            <span>Filterable</span>
           </label>
 
-          <label className="block">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               name="searchable"
               checked={form.searchable}
               onChange={handleChange}
               disabled={loading}
-            />{" "}
-            Searchable
+            />
+
+            <span>Searchable</span>
           </label>
 
-          <label className="block">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               name="isVariantAttribute"
               checked={form.isVariantAttribute}
               onChange={handleChange}
               disabled={loading}
-            />{" "}
-            Variant Attribute
+            />
+
+            <span>Variant Attribute</span>
           </label>
 
-          <label className="block">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               name="isActive"
               checked={form.isActive}
               onChange={handleChange}
               disabled={loading}
-            />{" "}
-            Active Attribute
+            />
+
+            <span>Active Attribute</span>
           </label>
+
         </div>
 
-        {/* ==========================================
+        {/* ==================================================
             SUBMIT
-        ========================================== */}
+        ================================================== */}
 
         <button
           type="submit"
