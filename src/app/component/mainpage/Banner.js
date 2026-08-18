@@ -48,8 +48,8 @@ const Banner = () => {
           "
         >
           <Image
-            src="/banner.png"
-            alt="Clean Vegan Perfumes"
+            src="/banner-hand.png"
+            alt="CUSTOM CANDLES AVAILABLE"
             fill
             priority
             sizes="
@@ -108,7 +108,7 @@ const Banner = () => {
               text-gray-700
             "
           >
-            IFRA CERTIFIED
+           PERSONALISED GIFTING
           </h4>
 
           {/* Main Heading */}
@@ -129,7 +129,7 @@ const Banner = () => {
               max-w-[500px]
             "
           >
-            CLEAN VEGAN PERFUMES
+           CUSTOM CANDLES AVAILABLE
           </h1>
 
           {/* Description */}
@@ -148,8 +148,7 @@ const Banner = () => {
               font-light
             "
           >
-            Consciously crafted without phthalates, parabens, and harmful
-            toxins for a skin-safe fragrance experience, every day.
+            Make every occasion unforgettable with our personalised hidden-message candles. Whether it’s a sweet 'Happy Rakhi,' a special name, or a secret note, our handcrafted soy wax candles let you express your feelings uniquely. The perfect blend of luxury fragrance and a custom surprise for your loved ones.
           </p>
 
           {/* Button */}
@@ -185,7 +184,7 @@ const Banner = () => {
                 active:scale-95
               "
             >
-              Discover Now
+             CUSTOMISE YOURS
             </button>
           </div>
         </div>

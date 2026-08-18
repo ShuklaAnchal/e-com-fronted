@@ -13,133 +13,153 @@ const Hero = () => {
         relative
         w-full
         min-h-screen
-        flex
-        items-center
-        justify-center
         overflow-hidden
         bg-luxury-dark
       "
     >
-      {/* Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Full Background Image */}
+      <div className="absolute inset-0">
         <img
           src="/Herebanner.png"
-          alt="Hero Background Banner"
+          alt="SIYAAS Candle Banner"
           className="
-            absolute
-            inset-0
             w-full
             h-full
             object-cover
             object-center
-            opacity-65
           "
         />
       </div>
 
-      {/* Overlay */}
+      {/* Very Light Overlay */}
       <div
-        className="h-full w-full
+        className="
           absolute
           inset-0
-          bg-black/20
+          bg-black/5
           z-[1]
         "
       />
 
       {/* Hero Content */}
       <div
-        className=" relative z-10 w-full max-w-5xl mx-auto px-5 sm:px-8 text-end
-    flex flex-col items-end justify-center  min-h-screen pb-12 sm:pb-16 md:pb-20"
+        className="
+          relative
+          z-10
+          min-h-screen
+          w-full
+          flex
+          items-center
+          justify-end
+          px-6
+          sm:px-10
+          md:px-16
+          lg:px-20
+          xl:px-28
+          pt-16
+          pb-10
+        "
       >
-        <p
-          className=" font-serif
-      tracking-[0.3em]
-      sm:tracking-[0.4em]
-      md:tracking-[0.2em]
-      text-[10px]
-      sm:text-xs
-      md:text-[20px]
-      font-semibold
-      mb-4
-      sm:mb-5
-      uppercase
-      text-[#FBF7F0]
-    "
-        >
-          THIS FESTIVE SEASON
-        </p>
-
-        <h1
+        <div
           className="
-      font-serif
-      font-extralight
-      text-4xl
-      sm:text-5xl
-      md:text-7xl
-      lg:text-8xl
-      mb-5
-      sm:mb-6
-      text-luxury-cream
-      tracking-normal
-      leading-[0.9]
-      text-center
-      max-w-4xl
-    "
+            w-full
+            max-w-[680px]
+            text-left
+            mr-0
+            lg:mr-[2%]
+            xl:mr-[-5%]
+          "
         >
-          Little Luxuries, Handmade
-        </h1>
 
-        <p
-          className="
-       font-serif
-      text-base
-      sm:text-xl
-      md:text-2xl
-      mb-8
-      sm:mb-10
-      md:mb-12
-      text-luxury-cream/90
-      max-w-4xl
-      mx-auto
-      font-light
-      text-center
-    "
-        >
-          Hand-poured 100% natural soy wax scented candles
-          <br />
-          for every mood
-        </p>
+          {/* Festive Season */}
+          <p
+            className="
+              font-serif
+              uppercase
+              text-[#9a703b]
+              text-base
+              sm:text-lg
+              md:text-xl
+              lg:text-[26px]
+              font-semibold
+              tracking-wide
+              mb-6
+            "
+          >
+            THIS FESTIVE SEASON
+          </p>
 
-        <button
-          onClick={() => router.push("/products")}
-          className="
-      bg-luxury-gold
-      border
-      border-luxury-gold/40
-      text-luxury-cream
-      px-7
-      sm:px-10
-      md:px-12
-      py-3.5
-      sm:py-4
-      text-[10px]
-      sm:text-xs
-      uppercase
-      tracking-[0.18em]
-      sm:tracking-[0.25em]
-      font-light
-      transition-all
-      duration-700
-      hover:bg-luxury-gold
-      hover:text-luxury-dark
-      shadow-2xl
-      cursor-pointer
-      hover:scale-105
-    "
-        >
-          Explore Collection
-        </button>
+          {/* Main Heading */}
+          <h1
+            className="
+              font-serif
+              text-[#29221d]
+              text-5xl
+              sm:text-6xl
+              md:text-7xl
+              font-semibold
+              lg:text-[76px]
+              xl:text-[82px]
+              leading-[0.95]
+              tracking-[-0.02em]
+              mb-7
+            "
+          >
+            Little Luxuries,
+            <br />
+            Handmade
+          </h1>
+
+          {/* Description */}
+          <p
+            className="
+              font-sans
+              font-normal
+              text-[#665d55]
+              text-base
+              sm:text-lg
+              md:text-xl
+              lg:text-[25px]
+              leading-[1.45]
+              max-w-[600px]
+              mb-9
+            "
+          >
+            Hand-poured 100% natural soy wax
+            <br />
+            scented candles for every mood
+          </p>
+
+          {/* CTA */}
+          <button
+            onClick={() => router.push("/products")}
+            className="
+              bg-[#9a703b]
+              border
+              border-[#9a703b]
+              text-white
+              px-8
+              sm:px-10
+              md:px-12
+              py-3.5
+              sm:py-4
+              text-[10px]
+              sm:text-xs
+              uppercase
+              tracking-[0.22em]
+              font-light
+              transition-all
+              duration-500
+              hover:bg-[#29221d]
+              hover:border-[#29221d]
+              hover:scale-105
+              shadow-lg
+              cursor-pointer
+            "
+          >
+            Explore Collection
+          </button>
+        </div>
       </div>
     </section>
   );
