@@ -10,16 +10,16 @@ const Trending = () => {
   const collections = [
     {
       id: 1,
-      image: "/banner.png",
+      image: "/tranding-2.png",
       title: "TRY & BUY",
       description: "Bestsellers now in minis",
       link: "/products",
     },
     {
       id: 2,
-      image: "/banner.png",
-      title: "BRIDGERTON",
-      description: "Enjoy FLAT 30% OFF",
+      image: "/tranding-2.png",
+      title: "Candles",
+      description: "Vanilla scented candles",
       link: "/collections/bridgerton",
     },
   ];

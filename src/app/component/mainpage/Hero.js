@@ -24,13 +24,13 @@ const Hero = () => {
           src="/Herebanner.png"
           alt="SIYAAS Candle Banner"
           className="
-      hidden
-      sm:block
-      w-full
-      h-full
-      object-cover
-      object-center
-    "
+            hidden
+            sm:block
+            w-full
+            h-full
+            object-cover
+            object-center
+          "
         />
 
         {/* Mobile Banner */}
@@ -38,13 +38,13 @@ const Hero = () => {
           src="/mobile-view-herebanner.png"
           alt="SIYAAS Candle Mobile Banner"
           className="
-      block
-      sm:hidden
-      w-full
-      h-full
-      object-cover
-      object-center
-    "
+            block
+            sm:hidden
+            w-full
+            h-full
+            object-cover
+            object-center
+          "
         />
       </div>
 
@@ -59,126 +59,165 @@ const Hero = () => {
       />
 
       {/* Hero Content */}
-      <div
-        className="
-          relative
-          z-10
-          min-h-screen
-          w-full
-          flex
-          items-center
-          justify-end
-          px-6
-          sm:px-10
-          md:px-16
-          lg:px-20
-          xl:px-28
-          pt-16
-          pb-10
-        "
-      >
-        <div
-          className="
-            w-full
-            max-w-[680px]
-            text-left
-            mr-0
-            lg:mr-[2%]  
-            xl:mr-[-5%]
-            lg:h-full
-            h-[50%]
-          "
-        >
-          {/* Festive Season */}
-          <p
-            className="
-              font-serif
-              uppercase
-              text-[#9a703b]
-              text-base
-              sm:text-lg
-              md:text-xl
-              lg:text-[26px]
-              font-semibold
-              tracking-wide
-              mb-6
-            "
-          >
-            THIS FESTIVE SEASON
-          </p>
+   {/* Hero Content */}
+<div
+  className="
+    relative
+    z-10
+    min-h-screen
+    w-full
+    flex
+    items-center
+    justify-end
 
-          {/* Main Heading */}
-          <h1
-            className="
-              font-serif
-              text-[#29221d]
-              text-5xl
-              sm:text-6xl
-              md:text-7xl
-              font-semibold
-              lg:text-[76px]
-              xl:text-[82px]
-              leading-[0.95]
-              tracking-[-0.02em]
-              mb-7
-            "
-          >
-            Little Luxuries,
-            <br />
-            Handmade
-          </h1>
+    /* MOBILE ONLY */
+    px-5
+    pt-0
+    pb-24
 
-          {/* Description */}
-          <p
-            className="
-              font-sans
-              font-normal
-              text-[#665d55]
-              text-base
-              sm:text-lg
-              md:text-xl
-              lg:text-[25px]
-              leading-[1.45]
-              max-w-[600px]
-              mb-9
-            "
-          >
-            Hand-poured 100% natural soy wax
-            <br />
-            scented candles for every mood
-          </p>
+    /* DESKTOP - ORIGINAL */
+    sm:px-10
+    md:px-16
+    lg:px-20
+    xl:px-28
+  "
+>
+  <div
+    className="
+      w-full
+      max-w-[680px]
 
-          {/* CTA */}
-          <button
-            onClick={() => router.push("/products")}
-            className="
-              bg-[#9a703b]
-              border
-              border-[#9a703b]
-              text-white
-              px-8
-              sm:px-10
-              md:px-12
-              py-3.5
-              sm:py-4
-              text-[10px]
-              sm:text-xs
-              uppercase
-              tracking-[0.22em]
-              font-light
-              transition-all
-              duration-500
-              hover:bg-[#29221d]
-              hover:border-[#29221d]
-              hover:scale-105
-              shadow-lg
-              cursor-pointer
-            "
-          >
-            Explore Collection
-          </button>
-        </div>
-      </div>
+      /* =========================
+         MOBILE LUXURY POSITION
+         ========================= */
+      text-center
+      mr-0
+      mb-0
+      mt-[-27vh]
+      lg:mt-36
+      /* =========================
+         DESKTOP - DO NOT CHANGE
+         ========================= */
+      lg:text-left
+      lg:mr-[2%]
+      xl:mr-[-5%]
+      lg:mb-0
+      lg:mt-0
+    "
+  >
+    {/* Festive Season */}
+    <p
+      className="
+        font-serif
+        uppercase
+        text-[#8b6034]
+        font-medium
+
+        /* MOBILE */
+        text-[10px]
+        tracking-[0.28em]
+        mb-3
+
+        /* DESKTOP - ORIGINAL */
+        sm:text-2xl
+        md:text-xl
+        lg:text-[26px]
+        lg:font-semibold
+        lg:tracking-wide
+        lg:mb-6
+      "
+    >
+      THIS FESTIVE SEASON
+    </p>
+
+    {/* Main Heading */}
+    <h1
+      className="
+        font-serif
+        text-[#3a2a22]
+        font-medium
+        tracking-[-0.025em]
+
+        /* MOBILE */
+        text-[37px]
+        leading-[0.98]
+        mb-4
+
+        /* DESKTOP - ORIGINAL */
+        sm:text-6xl
+        md:text-7xl
+        lg:text-[76px]
+        xl:text-[82px]
+        lg:font-semibold
+        lg:leading-[0.95]
+        lg:mb-7
+      "
+    >
+      Little Luxuries,
+      <br />
+      Handmade
+    </h1>
+
+    {/* Description */}
+    <p
+      className="
+       hidden
+    sm:block
+
+    font-sans
+    font-normal
+    text-[#665d55]
+    text-base
+    sm:text-lg
+    md:text-xl
+    lg:text-[25px]
+    leading-[1.45]
+    max-w-[600px]
+    mb-9
+      "
+    >
+      Hand-poured 100% natural soy wax
+      <br />
+      scented candles for every mood
+    </p>
+
+    {/* CTA */}
+    <button
+      onClick={() => router.push("/products")}
+      className="
+        bg-[#9a703b]
+        border
+        border-[#9a703b]
+        text-white
+        uppercase
+        font-light
+        transition-all
+        duration-500
+        hover:bg-[#29221d]
+        hover:border-[#29221d]
+        hover:scale-105
+        shadow-md
+        cursor-pointer
+
+        /* MOBILE */
+        px-7
+        py-3
+        text-[9px]
+        tracking-[0.24em]
+
+        /* DESKTOP - ORIGINAL */
+        sm:px-10
+        md:px-12
+        sm:py-4
+        sm:text-xs
+        sm:tracking-[0.22em]
+      "
+    >
+      Explore Collection
+    </button>
+  </div>
+</div>
+
     </section>
   );
 };
