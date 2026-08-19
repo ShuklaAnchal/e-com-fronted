@@ -17,17 +17,34 @@ const Hero = () => {
         bg-luxury-dark
       "
     >
-      {/* Full Background Image */}
+      {/* Responsive Background Image */}
       <div className="absolute inset-0">
+        {/* Desktop / Tablet Banner */}
         <img
           src="/Herebanner.png"
           alt="SIYAAS Candle Banner"
           className="
-            w-full
-            h-full
-            object-cover
-            object-center
-          "
+      hidden
+      sm:block
+      w-full
+      h-full
+      object-cover
+      object-center
+    "
+        />
+
+        {/* Mobile Banner */}
+        <img
+          src="/mobile-view-herebanner.png"
+          alt="SIYAAS Candle Mobile Banner"
+          className="
+      block
+      sm:hidden
+      w-full
+      h-full
+      object-cover
+      object-center
+    "
         />
       </div>
 
@@ -66,11 +83,12 @@ const Hero = () => {
             max-w-[680px]
             text-left
             mr-0
-            lg:mr-[2%]
+            lg:mr-[2%]  
             xl:mr-[-5%]
+            lg:h-full
+            h-[50%]
           "
         >
-
           {/* Festive Season */}
           <p
             className="

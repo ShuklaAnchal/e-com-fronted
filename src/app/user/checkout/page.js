@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 
 import { fetchCart } from "@/app/store/action/cartAction";
+import {useAddress} from "@/app/hooks/addressHook";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -16,6 +17,9 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [placingOrder, setPlacingOrder] = useState(false);
 
+  const { address, refreshAddress } = useAddress();
+ console.log({address});
+ 
   const [formData, setFormData] = useState({
     fullName: "",
     mobile: "",
