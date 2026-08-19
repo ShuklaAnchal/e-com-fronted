@@ -17,7 +17,14 @@ export default function CatgoryPage() {
 
   const { modal, openModal, closeModal } = useModal();
 
-  const { categories, loading, refreshCategories } = useCategories();
+  const {
+    categories,
+    loading,
+    pagination,
+    nextPage,
+    previousPage,
+    refreshCategories,
+  } = useCategories();
 
   const handleEdit = (category) => {
     openModal(
@@ -65,7 +72,7 @@ export default function CatgoryPage() {
   }
 
   return (
-    <div className="p-8 bg-[#F8F4F1] h-full">
+    <div className="p-8 bg-[#F8F4F1]">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-[#5C4033]">
           Category Management
@@ -88,7 +95,14 @@ export default function CatgoryPage() {
         </button>
       </div>
 
-      <Table columns={columns} data={categories || []} />
+      <Table
+        columns={columns}
+        data={categories || []}
+        pagination={pagination}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+        loading={loading}
+      />
 
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}

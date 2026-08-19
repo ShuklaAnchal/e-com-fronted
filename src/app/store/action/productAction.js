@@ -17,16 +17,51 @@ const getToken = () => {
   return null;
 };
 
-export const asyncfetchproduct = () => async (dispatch, getState) => {
-  try {
-    const { data } = await axios.get("/products/fetch-AllProducts-user");
-    dispatch(fetchProduct(data.products));
-    return data;
-  } catch (error) {
-    console.error("Error in fetcing product:", error.message);
-    dispatch(iserror(error.message));
-  }
-};
+// FETCH PRODUCTS WITH BACKEND PAGINATION
+export const asyncfetchproduct =
+  ({ page = 1, limit = 8 } = {}) =>
+  async (dispatch) => {
+    try {
+      const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      console.log("Fetching products...");
+      console.log("Page:", page);
+      console.log("Limit:", limit);
+
+      const { data } = await axios.get(
+        `/products/fetch-AllProducts-user?page=${page}&limit=${limit}`,
+        config,
+      );
+
+      console.log("Product API Response:", data);
+
+      // Store only current page products
+      dispatch(fetchProduct(data.products || []));
+
+      return data;
+    } catch (error) {
+      console.error(
+        "Error in fetching products:",
+        error.response?.data || error.message,
+      );
+
+      dispatch(
+        iserror(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch products",
+        ),
+      );
+
+      return null;
+    }
+  };
 
 export const fetchProductbyID = (id) => async (dispatch) => {
   try {

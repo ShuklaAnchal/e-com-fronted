@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex">
+    <div className="flex overflow-hidden">
       <ProtectedRoute type="admin">
         <AdminNavbar />
 

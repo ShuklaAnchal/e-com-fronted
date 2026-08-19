@@ -19,29 +19,49 @@ const getToken = () => {
 };
 
 // FETCH ALL ATTRIBUTES
-export const asyncFetchAttributes = () => async (dispatch) => {
-  try {
+// FETCH ATTRIBUTES WITH PAGINATION
+export const asyncFetchAttributes =
+  ({ page = 1, limit = 8 } = {}) =>
+  async (dispatch) => {
+    try {
+      const token = getToken();
 
-     const token = getToken();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    console.log("Fetching attributes...");
-    console.log("Token:", token);
-    
-    const { data } = await axios.get("/attribute/fetch-all", config);
-    console.log({ data });
+      console.log("Fetching attributes...");
+      console.log("Page:", page);
+      console.log("Limit:", limit);
+      console.log("Token:", token);
 
-    dispatch(fetchAttributes(data.attributes));
+      const { data } = await axios.get(
+        `/attribute/fetch-all?page=${page}&limit=${limit}`,
+        config,
+      );
 
-    return data;
-  } catch (error) {
-    dispatch(iserror(error.response?.data?.message || error.message));
-  }
-};
+      console.log("Attribute API Response:", data);
+
+      // Store only current page attributes
+      dispatch(fetchAttributes(data.attributes || []));
+
+      return data;
+    } catch (error) {
+      console.error("Fetch attributes error:", error.response?.data || error);
+
+      dispatch(
+        iserror(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch attributes",
+        ),
+      );
+
+      return null;
+    }
+  };
 
 // FETCH ATTRIBUTE BY ID
 export const fetchAllAttribute = (id) => async (dispatch) => {
@@ -54,11 +74,12 @@ export const fetchAllAttribute = (id) => async (dispatch) => {
   }
 };
 
-
 // FETCH ATTRIBUTE BY ID
 export const fetchAttributeByCatgeoryID = (id) => async (dispatch) => {
   try {
-    const { data } = await axios.get(`/attribute/fetchAttributesByCatgory/${id}`);
+    const { data } = await axios.get(
+      `/attribute/fetchAttributesByCatgory/${id}`,
+    );
     dispatch(fetchCategoryAttribute(data.attribute));
     return data;
   } catch (error) {
@@ -66,19 +87,18 @@ export const fetchAttributeByCatgeoryID = (id) => async (dispatch) => {
   }
 };
 
-
 // FETCH ATTRIBUTE BY ID
 export const fetchAttributeBySubCatgeoryID = (id) => async (dispatch) => {
   try {
-    const { data } = await axios.get(`/attribute/fetchAttributesBySubcategory/${id}`);
+    const { data } = await axios.get(
+      `/attribute/fetchAttributesBySubcategory/${id}`,
+    );
     dispatch(fetchSubcategoryAttribute(data.attribute));
     return data;
   } catch (error) {
     dispatch(iserror(error.response?.data?.message || error.message));
   }
 };
-
-
 
 // CREATE ATTRIBUTE
 export const createNewAttribute = (attributeData) => async (dispatch) => {
@@ -117,9 +137,9 @@ export const createNewAttribute = (attributeData) => async (dispatch) => {
   }
 };
 
-
 // UPDATE ATTRIBUTE
-export const updateAttributeDetails = (id, attributeData) => async (dispatch) => {
+export const updateAttributeDetails =
+  (id, attributeData) => async (dispatch) => {
     try {
       const token = getToken();
       const config = {
@@ -149,7 +169,6 @@ export const updateAttributeDetails = (id, attributeData) => async (dispatch) =>
       };
     }
   };
-
 
 // DELETE ATTRIBUTE
 export const deleteAttributeById = (id) => async (dispatch) => {

@@ -15,8 +15,14 @@ export default function ProductPage() {
   const dispatch = useDispatch();
 
   const { modal, openModal, closeModal } = useModal();
-
-  const { products, loading, refreshProducts } = useProducts();
+const {
+  products,
+  loading,
+  pagination,
+  nextPage,
+  previousPage,
+  refreshProducts,
+} = useProducts();
 
   const handleAddVariant = (product) => {
     openModal(
@@ -95,8 +101,15 @@ export default function ProductPage() {
       </div>
 
       {/* Table */}
-      <Table columns={columns} data={products} />
-
+  {/* Table */}
+      <Table
+        columns={columns}
+        data={products || []}
+        pagination={pagination}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+        loading={loading}
+      />
       {/* Global Modal */}
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}

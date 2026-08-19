@@ -17,8 +17,15 @@ export default function AttributePage() {
 
   const { modal, openModal, closeModal } = useModal();
 
-  const { attributes, loading, refreshAttributes } = useAttributes();
-
+const {
+  attributes,
+  loading,
+  pagination,
+  nextPage,
+  previousPage,
+  refreshAttributes,
+} = useAttributes();
+ 
   const handleEdit = (attributes) => {
     openModal(
       "Edit Category",
@@ -85,7 +92,14 @@ export default function AttributePage() {
         </button>
       </div>
 
-      <Table columns={columns} data={attributes || []} />
+     <Table
+  columns={columns}
+  data={attributes || []}
+  pagination={pagination}
+  onNextPage={nextPage}
+  onPreviousPage={previousPage}
+  loading={loading}
+/>
 
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}

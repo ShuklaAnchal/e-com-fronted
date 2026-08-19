@@ -14,17 +14,51 @@ const getToken = () => {
   return null;
 };
 
-export const asyncfetchcategory = () => async (dispatch, getState) => {
-  try {
-    const { data } = await axios.get("/categorys/fetch-all-categories");
-    // console.log("Fetched products:", data.products);
-    dispatch(fetchCategory(data.products));
-    return data;
-  } catch (error) {
-    console.error("Error in fetcing product:", error.message);
-    dispatch(iserror(error.message));
-  }
-};
+// FETCH CATEGORIES WITH PAGINATION
+export const asyncfetchcategory =
+  ({ page = 1, limit = 8 } = {}) =>
+  async (dispatch) => {
+    try {
+      const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      console.log("Fetching categories...");
+      console.log("Page:", page);
+      console.log("Limit:", limit);
+
+      const { data } = await axios.get(
+        `/categorys/fetch-all-categories?page=${page}&limit=${limit}`,
+        config,
+      );
+
+      console.log("Category API Response:", data);
+
+      // Current page categories
+      dispatch(fetchCategory(data.products || []));
+
+      return data;
+    } catch (error) {
+      console.error(
+        "Error in fetching categories:",
+        error.response?.data || error.message,
+      );
+
+      dispatch(
+        iserror(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch categories",
+        ),
+      );
+
+      return null;
+    }
+  };
 
 //fetch the product by the id
 export const fetchCategorybyID = (id) => async (dispatch, getState) => {
