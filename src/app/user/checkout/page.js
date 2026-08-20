@@ -1,43 +1,90 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { fetchCart } from "@/app/store/action/cartAction";
-import {useAddress} from "@/app/hooks/addressHook";
+import { AddAddress } from "@/app/store/action/addressAction";
+
+import {
+  createOrder,
+  createRazorpayOrder,
+  verifyPayment,
+} from "@/app/store/action/orderAction";
+
+import { useAddress } from "@/app/hooks/addressHook";
+
+import CheckoutHeader from "@/app/component/checkout/CheckoutHeader";
+import ContactInformation from "@/app/component/checkout/CheckoutContact";
+import DeliveryAddress from "@/app/component/checkout/DeliveryAddress";
+import PaymentMethod from "@/app/component/checkout/PaymentMethod";
+import OrderSummary from "@/app/component/checkout/OrderSummary";
+
+const INITIAL_FORM = {
+  name: "",
+  mobileNumber: "",
+  pincode: "",
+  locality: "",
+  addressline: "",
+  city: "",
+  state: "",
+  landmark: "",
+  alternateNumber: "",
+  addressType: "Home",
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { cartItems, loading } = useSelector((state) => state.cart);
+  /* =====================================================
+     CART
+  ===================================================== */
+
+  const { cartItems = [], loading: cartLoading } = useSelector(
+    (state) => state.cart || {},
+  );
+
+  /* =====================================================
+     ADDRESS
+  ===================================================== */
+
+  const { address, loading: addressLoading, refreshAddress } = useAddress();
+
+  const savedAddresses = address || [];
+
+  /* =====================================================
+     PAGE STATE
+  ===================================================== */
 
   const [mounted, setMounted] = useState(false);
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
 
-  const { address, refreshAddress } = useAddress();
- console.log({address});
- 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    mobile: "",
-    email: "",
-    address: "",
-    landmark: "",
-    pincode: "",
-    city: "",
-    state: "",
-    addressType: "Home",
-  });
+  /* =====================================================
+     ADDRESS STATE
+  ===================================================== */
+
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+
+  const [formData, setFormData] = useState(INITIAL_FORM);
+
+  /* =====================================================
+     PAYMENT
+  ===================================================== */
 
   const [paymentMethod, setPaymentMethod] = useState("UPI");
+
+  /* =====================================================
+     INITIALIZATION
+  ===================================================== */
 
   useEffect(() => {
     setMounted(true);
 
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("token");
 
     if (!token || token === "undefined" || token === "null") {
       router.push("/login?redirect=/user/checkout");
@@ -47,167 +94,836 @@ export default function CheckoutPage() {
     dispatch(fetchCart());
   }, [dispatch, router]);
 
-  /*
-   * Calculate cart values
-   */
-  const subtotal = useMemo(() => {
+  /* =====================================================
+     GET ADDRESS ID
+  ===================================================== */
+
+  const getAddressId = (item) => {
+    return item?.id || item?._id || item?.addressId || null;
+  };
+
+  /* =====================================================
+     SET FORM FROM SAVED ADDRESS
+  ===================================================== */
+
+  const setFormFromAddress = (savedAddress) => {
+    if (!savedAddress) return;
+
+    setFormData({
+      name: savedAddress.name || savedAddress.fullName || "",
+
+      mobileNumber: savedAddress.mobileNumber || savedAddress.mobile || "",
+
+      pincode: savedAddress.pincode || "",
+
+      locality: savedAddress.locality || "",
+
+      addressline: savedAddress.addressline || savedAddress.address || "",
+
+      city: savedAddress.city || "",
+
+      state: savedAddress.state || "",
+
+      landmark: savedAddress.landmark || "",
+
+      alternateNumber: savedAddress.alternateNumber || "",
+
+      addressType: savedAddress.addressType || "Home",
+    });
+  };
+
+  /* =====================================================
+     AUTO SELECT FIRST ADDRESS
+  ===================================================== */
+
+  useEffect(() => {
+    if (addressLoading) return;
+
+    if (savedAddresses.length === 0) {
+      setSelectedAddressId(null);
+      setShowNewAddressForm(true);
+      return;
+    }
+
+    if (showNewAddressForm) return;
+
+    if (selectedAddressId) return;
+
+    const firstAddress = savedAddresses[0];
+
+    const id = getAddressId(firstAddress);
+
+    if (!id) return;
+
+    setSelectedAddressId(id);
+
+    setFormFromAddress(firstAddress);
+  }, [addressLoading, savedAddresses, selectedAddressId, showNewAddressForm]);
+
+  /* =====================================================
+     SELECTED ADDRESS
+  ===================================================== */
+
+  const selectedAddress = useMemo(() => {
+    if (!selectedAddressId) {
+      return null;
+    }
+
     return (
-      cartItems?.reduce(
-        (total, item) =>
-          total + Number(item.price || 0) * Number(item.quantity || 0),
-        0,
-      ) || 0
+      savedAddresses.find((item) => getAddressId(item) === selectedAddressId) ||
+      null
     );
-  }, [cartItems]);
+  }, [savedAddresses, selectedAddressId]);
 
-  const mrpTotal = useMemo(() => {
-    return (
-      cartItems?.reduce(
-        (total, item) =>
-          total +
-          Number(item.mrp || item.price || 0) * Number(item.quantity || 0),
-        0,
-      ) || 0
-    );
-  }, [cartItems]);
+  /* =====================================================
+     CLEAR ADDRESS FORM
+  ===================================================== */
 
-  const discount = Math.max(mrpTotal - subtotal, 0);
+  const clearAddressForm = () => {
+    setFormData({
+      ...INITIAL_FORM,
+    });
+  };
 
-  /*
-   * For now shipping is free.
-   * Change this when your backend provides shipping calculation.
-   */
-  const shipping = 0;
+  /* =====================================================
+     SELECT SAVED ADDRESS
+  ===================================================== */
 
-  const total = subtotal + shipping;
+  const handleSelectAddress = (savedAddress) => {
+    const id = getAddressId(savedAddress);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+    if (!id) {
+      console.error("Address ID not found:", savedAddress);
+      return;
+    }
 
-    setFormData((prev) => ({
-      ...prev,
+    setSelectedAddressId(id);
+
+    setFormFromAddress(savedAddress);
+
+    setShowNewAddressForm(false);
+  };
+
+  /* =====================================================
+     ADD NEW ADDRESS
+  ===================================================== */
+
+  const handleAddNewAddress = () => {
+    setSelectedAddressId(null);
+
+    clearAddressForm();
+
+    setShowNewAddressForm(true);
+  };
+
+  /* =====================================================
+     USE SAVED ADDRESS
+  ===================================================== */
+
+  const handleUseSavedAddress = () => {
+    if (savedAddresses.length === 0) {
+      return;
+    }
+
+    handleSelectAddress(savedAddresses[0]);
+  };
+
+  /* =====================================================
+     INPUT CHANGE
+  ===================================================== */
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
       [name]: value,
     }));
   };
 
-  const handlePlaceOrder = async (e) => {
-    e.preventDefault();
+  /* =====================================================
+     ADDRESS TYPE
+  ===================================================== */
+
+  const handleAddressTypeChange = (type) => {
+    setFormData((previous) => ({
+      ...previous,
+      addressType: type,
+    }));
+  };
+
+  /* =====================================================
+     VALIDATE ADDRESS
+  ===================================================== */
+
+  const validateAddress = () => {
+    if (!formData.name.trim()) {
+      alert("Please enter your name.");
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(formData.mobileNumber)) {
+      alert("Please enter a valid 10 digit mobile number.");
+      return false;
+    }
+
+    if (!/^\d{6}$/.test(formData.pincode)) {
+      alert("Please enter a valid 6 digit pincode.");
+      return false;
+    }
+
+    if (!formData.locality.trim()) {
+      alert("Please enter your locality.");
+      return false;
+    }
+
+    if (!formData.addressline.trim()) {
+      alert("Please enter your complete address.");
+      return false;
+    }
+
+    if (!formData.city.trim()) {
+      alert("Please enter your city.");
+      return false;
+    }
+
+    if (!formData.state.trim()) {
+      alert("Please enter your state.");
+      return false;
+    }
+
+    if (
+      formData.alternateNumber &&
+      !/^\d{10}$/.test(formData.alternateNumber)
+    ) {
+      alert("Please enter a valid alternate number.");
+      return false;
+    }
+
+    return true;
+  };
+
+  /* =====================================================
+     SAVE NEW ADDRESS
+  ===================================================== */
+
+  const handleSaveNewAddress = async () => {
+    if (!validateAddress()) {
+      return;
+    }
+
+    try {
+      setSavingAddress(true);
+
+      const result = await dispatch(AddAddress(formData));
+
+      console.log("ADD ADDRESS RESULT:", result);
+
+      if (!result?.success) {
+        alert(result?.message || "Unable to save address.");
+        return;
+      }
+
+      await refreshAddress();
+
+      setShowNewAddressForm(false);
+
+      /*
+       * refreshAddress updates savedAddresses.
+       * We don't manually select an ID here.
+       * The auto-selection effect will select
+       * an address if necessary.
+       */
+    } catch (error) {
+      console.error("SAVE ADDRESS ERROR:", error);
+
+      alert("Something went wrong while saving the address.");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  /* =====================================================
+     CART SUBTOTAL
+  ===================================================== */
+
+  const subtotal = useMemo(() => {
+    return (
+      cartItems.reduce((total, item) => {
+        const price = Number(item?.price || 0);
+
+        const quantity = Number(item?.quantity || 0);
+
+        return total + price * quantity;
+      }, 0) || 0
+    );
+  }, [cartItems]);
+
+  /* =====================================================
+     MRP TOTAL
+  ===================================================== */
+
+  const mrpTotal = useMemo(() => {
+    return (
+      cartItems.reduce((total, item) => {
+        const mrp = Number(
+          item?.mrp || item?.variantDetails?.pricing?.mrp || item?.price || 0,
+        );
+
+        const quantity = Number(item?.quantity || 0);
+
+        return total + mrp * quantity;
+      }, 0) || 0
+    );
+  }, [cartItems]);
+
+  /* =====================================================
+     DISCOUNT
+  ===================================================== */
+
+  const discount = Math.max(mrpTotal - subtotal, 0);
+
+  /* =====================================================
+     SHIPPING
+  ===================================================== */
+
+  const shippingCost = 0;
+
+  /* =====================================================
+     TAX
+  ===================================================== */
+
+  const tax = 0;
+
+  /* =====================================================
+     FINAL TOTAL
+  ===================================================== */
+
+  const total = useMemo(() => {
+    return subtotal - discount + shippingCost + tax;
+  }, [subtotal, discount, shippingCost, tax]);
+
+  /* =====================================================
+     CREATE SHIPPING ADDRESS
+  ===================================================== */
+
+  const buildShippingAddress = () => {
+    if (selectedAddress) {
+      return {
+        addressId: getAddressId(selectedAddress),
+
+        name: selectedAddress.name || selectedAddress.fullName || "",
+
+        mobileNumber:
+          selectedAddress.mobileNumber || selectedAddress.mobile || "",
+
+        pincode: selectedAddress.pincode || "",
+
+        locality: selectedAddress.locality || "",
+
+        addressline:
+          selectedAddress.addressline || selectedAddress.address || "",
+
+        city: selectedAddress.city || "",
+
+        state: selectedAddress.state || "",
+
+        landmark: selectedAddress.landmark || "",
+
+        alternateNumber: selectedAddress.alternateNumber || "",
+
+        addressType: selectedAddress.addressType || "Home",
+      };
+    }
+
+    return {
+      ...formData,
+      addressId: null,
+    };
+  };
+
+  /* =====================================================
+     CREATE RAZORPAY SCRIPT
+  ===================================================== */
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window === "undefined") {
+        resolve(false);
+        return;
+      }
+
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement("script");
+
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+
+      script.onload = () => {
+        resolve(true);
+      };
+
+      script.onerror = () => {
+        resolve(false);
+      };
+
+      document.body.appendChild(script);
+    });
+  };
+
+  /* =====================================================
+     OPEN RAZORPAY
+  ===================================================== */
+
+  const openRazorpay = async ({ orderId, razorpayOrder }) => {
+    const isLoaded = await loadRazorpayScript();
+
+    if (!isLoaded) {
+      throw new Error("Razorpay SDK failed to load.");
+    }
+
+    /*
+     * Your backend response may use different
+     * property names. Adjust these according
+     * to your /payment/create-order response.
+     */
+
+    const razorpayOrderId =
+      razorpayOrder?.id ||
+      razorpayOrder?.order?.id ||
+      razorpayOrder?.razorpayOrder?.id;
+
+    const razorpayAmount =
+      razorpayOrder?.amount ||
+      razorpayOrder?.order?.amount ||
+      razorpayOrder?.razorpayOrder?.amount;
+
+    const razorpayCurrency =
+      razorpayOrder?.currency || razorpayOrder?.order?.currency || "INR";
+
+    if (!razorpayOrderId) {
+      console.error("RAZORPAY RESPONSE:", razorpayOrder);
+
+      throw new Error("Razorpay order ID was not received from server.");
+    }
+
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+
+      amount: razorpayAmount || Math.round(total * 100),
+
+      currency: razorpayCurrency,
+
+      name: "DingwaniFoods",
+
+      description: `Payment for Order ${orderId}`,
+
+      order_id: razorpayOrderId,
+
+      handler: async function (response) {
+        try {
+          setPlacingOrder(true);
+
+          console.log("RAZORPAY SUCCESS:", response);
+
+          const verificationData = {
+            orderID: orderId,
+
+            razorpay_order_id: response.razorpay_order_id,
+
+            razorpay_payment_id: response.razorpay_payment_id,
+
+            razorpay_signature: response.razorpay_signature,
+          };
+
+          const verifyResult = await dispatch(verifyPayment(verificationData));
+
+          console.log("PAYMENT VERIFY RESULT:", verifyResult);
+
+          if (!verifyResult?.success) {
+            alert(verifyResult?.message || "Payment verification failed.");
+            return;
+          }
+
+          /*
+           * Payment is successfully verified.
+           */
+
+          router.push(`/user/order-success/${orderId}`);
+        } catch (error) {
+          console.error("PAYMENT VERIFICATION ERROR:", error);
+
+          alert(error?.message || "Payment verification failed.");
+        } finally {
+          setPlacingOrder(false);
+        }
+      },
+
+      prefill: {
+        name: formData.name || "",
+
+        contact: formData.mobileNumber || "",
+      },
+
+      notes: {
+        orderId: String(orderId),
+      },
+
+      theme: {
+        color: "#C9A227",
+      },
+
+      modal: {
+        ondismiss: function () {
+          setPlacingOrder(false);
+
+          console.log("Razorpay payment window closed.");
+        },
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+
+    razorpay.on("payment.failed", function (response) {
+      console.error("RAZORPAY PAYMENT FAILED:", response);
+
+      alert(response?.error?.description || "Payment failed.");
+
+      setPlacingOrder(false);
+    });
+
+    razorpay.open();
+  };
+
+  /* =====================================================
+     PLACE ORDER
+  ===================================================== */
+
+  const handlePlaceOrder = async (event) => {
+    event.preventDefault();
+
+    if (placingOrder) {
+      return;
+    }
+
+    /* ---------------------------------------------
+       CART VALIDATION
+    --------------------------------------------- */
 
     if (!cartItems || cartItems.length === 0) {
       alert("Your cart is empty.");
       return;
     }
 
+    /* ---------------------------------------------
+       ADDRESS VALIDATION
+    --------------------------------------------- */
+
     if (
-      !formData.fullName ||
-      !formData.mobile ||
-      !formData.address ||
-      !formData.pincode ||
-      !formData.city ||
-      !formData.state
+      savedAddresses.length > 0 &&
+      !selectedAddressId &&
+      !showNewAddressForm
     ) {
-      alert("Please complete your delivery address.");
+      alert("Please select a delivery address.");
+      return;
+    }
+
+    if (showNewAddressForm) {
+      if (!validateAddress()) {
+        return;
+      }
+    }
+
+    /* ---------------------------------------------
+       PAYMENT METHOD
+    --------------------------------------------- */
+
+    if (!paymentMethod) {
+      alert("Please select a payment method.");
       return;
     }
 
     try {
       setPlacingOrder(true);
 
-      /*
-       * IMPORTANT:
-       * Connect your existing order API/action here.
-       *
-       * Do NOT trust subtotal/total calculated on frontend.
-       * Your backend should recalculate:
-       * - product price
-       * - variant price
-       * - stock
-       * - discount
-       * - GST
-       * - shipping
-       * - final total
-       */
+      /* ==========================================
+         SHIPPING ADDRESS
+      ========================================== */
+
+      const shippingAddress = buildShippingAddress();
+
+      /* ==========================================
+         PRODUCTS
+
+         IMPORTANT:
+
+         Backend expects:
+
+         products: [
+           {
+             product,
+             variant,
+             quantity
+           }
+         ]
+
+         The backend calculates the price
+         itself from ProductVariant.
+      ========================================== */
+
+      const products = cartItems.map((item) => {
+        const productId =
+          item?.productId || item?.product || item?.product?._id;
+
+        const variantId =
+          item?.variantId || item?.variant || item?.variant?._id;
+
+        return {
+          product: productId,
+
+          variant: variantId,
+
+          quantity: Number(item?.quantity || 0),
+        };
+      });
+
+      /* ==========================================
+         CHECK PRODUCT / VARIANT IDS
+      ========================================== */
+
+      const invalidProduct = products.find(
+        (item) => !item.product || !item.variant || item.quantity <= 0,
+      );
+
+      if (invalidProduct) {
+        console.error("INVALID CART ITEM:", invalidProduct);
+
+        alert(
+          "Some cart products are invalid. Please remove them and add them again.",
+        );
+
+        setPlacingOrder(false);
+
+        return;
+      }
+
+      /* ==========================================
+         FINAL ORDER PAYLOAD
+
+         MATCHES YOUR BACKEND CONTROLLER
+      ========================================== */
 
       const orderPayload = {
-        items: cartItems.map((item) => ({
-          productId: item.product,
-          variantId: item.variantId || item.variant,
-          quantity: item.quantity,
-        })),
+        products,
 
-        shippingAddress: {
-          fullName: formData.fullName,
-          mobile: formData.mobile,
-          email: formData.email,
-          address: formData.address,
-          landmark: formData.landmark,
-          pincode: formData.pincode,
-          city: formData.city,
-          state: formData.state,
-          addressType: formData.addressType,
-        },
+        shippingAddress,
 
-        paymentMethod,
+        discount: Number(discount) || 0,
+
+        shippingCost: Number(shippingCost) || 0,
+
+        tax: Number(tax) || 0,
       };
 
-      console.log("Order Payload:", orderPayload);
+      console.log("FINAL ORDER PAYLOAD:", orderPayload);
 
-      /*
-       * Example:
-       *
-       * const response = await dispatch(
-       *   createOrderAction(orderPayload)
-       * ).unwrap();
-       *
-       * Then:
-       *
-       * router.push(`/user/order-success/${response.order.id}`);
-       */
+      /* ==========================================
+         STEP 1
+         CREATE ORDER IN DATABASE
+      ========================================== */
 
-      if (paymentMethod === "COD") {
-        alert("COD order flow is ready to connect with your order API.");
-      } else {
-        alert(
-          `${paymentMethod} payment flow is ready to connect with Razorpay.`,
+      const orderResult = await dispatch(createOrder(orderPayload));
+
+      console.log("CREATE ORDER RESULT:", orderResult);
+
+      if (!orderResult?.success) {
+        throw new Error(orderResult?.message || "Unable to create order.");
+      }
+
+      /* ==========================================
+         GET CREATED ORDER
+      ========================================== */
+
+      const createdOrder = orderResult?.payload?.order;
+
+      if (!createdOrder) {
+        console.error("CREATE ORDER RESPONSE:", orderResult);
+
+        throw new Error(
+          "Order was created but order details were not returned.",
         );
       }
+
+      const orderId = createdOrder?._id || createdOrder?.id;
+
+      if (!orderId) {
+        throw new Error("Order ID was not received.");
+      }
+
+      /*
+       * Backend calculates the final amount.
+       * Use that value rather than trusting
+       * the frontend total.
+       */
+
+      const orderAmount = Number(createdOrder?.totalPrice || total || 0);
+
+      if (orderAmount <= 0) {
+        throw new Error("Invalid order amount.");
+      }
+
+      /* ==========================================
+         CASH ON DELIVERY
+      ========================================== */
+
+      if (paymentMethod === "COD") {
+        router.push(`/user/order-success/${orderId}`);
+
+        return;
+      }
+
+      /* ==========================================
+         ONLINE PAYMENT
+      ========================================== */
+
+      const razorpayResult = await dispatch(
+        createRazorpayOrder(orderId, orderAmount),
+      );
+
+      console.log("RAZORPAY ORDER RESULT:", razorpayResult);
+
+      if (!razorpayResult?.success) {
+        throw new Error(
+          razorpayResult?.message || "Unable to create Razorpay order.",
+        );
+      }
+
+      /* ==========================================
+         STEP 3
+         OPEN RAZORPAY
+      ========================================== */
+
+      await openRazorpay({
+        orderId,
+        razorpayOrder: razorpayResult?.payload,
+      });
     } catch (error) {
-      console.error("Place order error:", error);
+      console.error("PLACE ORDER ERROR:", error);
+
       alert(error?.message || "Unable to place order.");
-    } finally {
+
       setPlacingOrder(false);
     }
   };
+
+  /* =====================================================
+     HYDRATION
+  ===================================================== */
 
   if (!mounted) {
     return null;
   }
 
-  if (loading) {
+  /* =====================================================
+     CART LOADING
+  ===================================================== */
+
+  if (cartLoading) {
     return (
-      <div className="min-h-screen bg-luxury-cream flex items-center justify-center">
-        <p className="text-luxury-gold tracking-[0.25em] uppercase text-sm animate-pulse">
-          Loading Checkout...
-        </p>
+      <div
+        className="
+          min-h-screen
+          bg-luxury-cream
+          flex
+          items-center
+          justify-center
+        "
+      >
+        <div className="text-center">
+          <div
+            className="
+              mx-auto
+              w-6
+              h-6
+              rounded-full
+              border-2
+              border-luxury-gold
+              border-t-transparent
+              animate-spin
+            "
+          />
+
+          <p
+            className="
+              mt-4
+              text-xs
+              uppercase
+              tracking-[0.25em]
+              text-luxury-gold
+            "
+          >
+            Loading Checkout...
+          </p>
+        </div>
       </div>
     );
   }
 
+  /* =====================================================
+     EMPTY CART
+  ===================================================== */
+
   if (!cartItems || cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-luxury-cream pt-32 flex items-center justify-center px-4">
+      <div
+        className="
+          min-h-screen
+          bg-luxury-cream
+          flex
+          items-center
+          justify-center
+          px-4
+        "
+      >
         <div className="text-center">
-          <h1 className="font-serif text-3xl text-luxury-dark mb-4">
+          <h1
+            className="
+              font-serif
+              text-3xl
+              text-luxury-dark
+              mb-4
+            "
+          >
             Your Cart Is Empty
           </h1>
 
-          <p className="text-[#6C6C6C] mb-8">
+          <p
+            className="
+              text-[#6C6C6C]
+              mb-8
+            "
+          >
             Add products to your cart before proceeding to checkout.
           </p>
 
           <button
+            type="button"
             onClick={() => router.push("/products")}
-            className="bg-luxury-dark text-luxury-gold px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-luxury-gold hover:text-luxury-dark transition-all duration-300"
+            className="
+              bg-luxury-dark
+              text-luxury-gold
+              px-8
+              py-4
+              text-xs
+              uppercase
+              tracking-[0.2em]
+              hover:bg-luxury-gold
+              hover:text-luxury-dark
+              transition-all
+            "
           >
             Continue Shopping
           </button>
@@ -216,495 +932,108 @@ export default function CheckoutPage() {
     );
   }
 
+  /* =====================================================
+     PAGE
+  ===================================================== */
+
   return (
-    <div className="min-h-screen bg-luxury-cream pt-28 pb-20">
-      {/* Header */}
-      <div className="border-b border-luxury-gold/20 bg-[#FAF7F2]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-luxury-gold mb-2">
-                Secure Checkout
-              </p>
-
-              <h1 className="font-serif text-3xl md:text-4xl text-luxury-dark uppercase tracking-[0.08em]">
-                Checkout
-              </h1>
-            </div>
-
-            <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[#777]">
-              <span className="text-luxury-gold">Cart</span>
-
-              <span>—</span>
-
-              <span className="text-luxury-dark font-medium">Checkout</span>
-
-              <span>—</span>
-
-              <span>Payment</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div
+      className="
+        min-h-screen
+        bg-luxury-cream
+        pt-28
+        pb-20
+      "
+    >
+      <CheckoutHeader />
 
       <form onSubmit={handlePlaceOrder}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* LEFT SIDE */}
-            <div className="lg:col-span-7 space-y-8">
-              {/* Contact Information */}
-              <section className="bg-[#FAF7F2] border border-luxury-gold/20 p-6 md:p-8">
-                <div className="mb-7">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold mb-2">
-                    Step 01
-                  </p>
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            px-4
+            sm:px-6
+            lg:px-8
+            mt-10
+          "
+        >
+          <div
+            className="
+              grid
+              grid-cols-1
+              lg:grid-cols-12
+              gap-8
+              lg:gap-10
+            "
+          >
+            {/* =================================================
+                LEFT SIDE
+            ================================================= */}
 
-                  <h2 className="font-serif text-2xl text-luxury-dark uppercase tracking-[0.08em]">
-                    Contact Information
-                  </h2>
-                </div>
+            <div
+              className="
+                lg:col-span-7
+                space-y-8
+              "
+            >
+              <ContactInformation formData={formData} onChange={handleChange} />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <InputField
-                    label="Full Name"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    required
-                  />
+              <DeliveryAddress
+                addresses={savedAddresses}
+                loading={addressLoading}
+                selectedAddressId={selectedAddressId}
+                showNewAddressForm={showNewAddressForm}
+                formData={formData}
+                savingAddress={savingAddress}
+                onSelectAddress={handleSelectAddress}
+                onAddNewAddress={handleAddNewAddress}
+                onUseSavedAddress={handleUseSavedAddress}
+                onChange={handleChange}
+                onAddressTypeChange={handleAddressTypeChange}
+                onSaveAddress={handleSaveNewAddress}
+              />
 
-                  <InputField
-                    label="Mobile Number"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={handleChange}
-                    placeholder="Enter mobile number"
-                    type="tel"
-                    required
-                  />
-
-                  <div className="md:col-span-2">
-                    <InputField
-                      label="Email Address"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter email address"
-                      type="email"
-                    />
-                  </div>
-                </div>
-              </section>
-
-              {/* Delivery Address */}
-              <section className="bg-[#FAF7F2] border border-luxury-gold/20 p-6 md:p-8">
-                <div className="mb-7">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold mb-2">
-                    Step 02
-                  </p>
-
-                  <h2 className="font-serif text-2xl text-luxury-dark uppercase tracking-[0.08em]">
-                    Delivery Address
-                  </h2>
-                </div>
-
-                <div className="space-y-5">
-                  <InputField
-                    label="Address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="House / Flat / Building / Street"
-                    required
-                  />
-
-                  <InputField
-                    label="Landmark"
-                    name="landmark"
-                    value={formData.landmark}
-                    onChange={handleChange}
-                    placeholder="Nearby landmark (optional)"
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <InputField
-                      label="Pincode"
-                      name="pincode"
-                      value={formData.pincode}
-                      onChange={handleChange}
-                      placeholder="Pincode"
-                      inputMode="numeric"
-                      required
-                    />
-
-                    <InputField
-                      label="City"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="City"
-                      required
-                    />
-
-                    <InputField
-                      label="State"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleChange}
-                      placeholder="State"
-                      required
-                    />
-                  </div>
-
-                  {/* Address Type */}
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-[0.2em] text-luxury-gold-dark mb-3">
-                      Address Type
-                    </label>
-
-                    <div className="flex gap-3">
-                      {["Home", "Work"].map((type) => (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              addressType: type,
-                            }))
-                          }
-                          className={`px-6 py-3 text-xs uppercase tracking-widest border transition-all ${
-                            formData.addressType === type
-                              ? "bg-luxury-dark text-luxury-gold border-luxury-dark"
-                              : "bg-transparent text-luxury-dark border-luxury-gold/30 hover:border-luxury-gold"
-                          }`}
-                        >
-                          {type}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Payment */}
-              <section className="bg-[#FAF7F2] border border-luxury-gold/20 p-6 md:p-8">
-                <div className="mb-7">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold mb-2">
-                    Step 03
-                  </p>
-
-                  <h2 className="font-serif text-2xl text-luxury-dark uppercase tracking-[0.08em]">
-                    Payment Method
-                  </h2>
-                </div>
-
-                <div className="space-y-3">
-                  <PaymentOption
-                    value="UPI"
-                    title="UPI"
-                    description="Pay securely using UPI"
-                    selected={paymentMethod === "UPI"}
-                    onChange={setPaymentMethod}
-                  />
-
-                  <PaymentOption
-                    value="CARD"
-                    title="Credit / Debit Card"
-                    description="Secure card payment"
-                    selected={paymentMethod === "CARD"}
-                    onChange={setPaymentMethod}
-                  />
-
-                  <PaymentOption
-                    value="NET_BANKING"
-                    title="Net Banking"
-                    description="Pay through your bank"
-                    selected={paymentMethod === "NET_BANKING"}
-                    onChange={setPaymentMethod}
-                  />
-
-                  <PaymentOption
-                    value="COD"
-                    title="Cash on Delivery"
-                    description="Pay when your order arrives"
-                    selected={paymentMethod === "COD"}
-                    onChange={setPaymentMethod}
-                  />
-                </div>
-              </section>
-
-              {/* Trust */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <TrustItem
-                  title="Secure Payment"
-                  description="Encrypted checkout"
-                />
-
-                <TrustItem
-                  title="Safe Delivery"
-                  description="Carefully packed"
-                />
-
-                <TrustItem
-                  title="Easy Support"
-                  description="We're here to help"
-                />
-              </div>
+              <PaymentMethod
+                paymentMethod={paymentMethod}
+                onChange={setPaymentMethod}
+              />
             </div>
 
-            {/* RIGHT SIDE */}
-            <div className="lg:col-span-5">
-              <div className="lg:sticky lg:top-28">
-                <section className="bg-[#FAF7F2] border border-luxury-gold/20 p-6 md:p-8">
-                  <div className="flex items-center justify-between border-b border-luxury-gold/20 pb-5 mb-6">
-                    <h2 className="font-serif text-2xl text-luxury-dark uppercase tracking-[0.08em]">
-                      Your Order
-                    </h2>
+            {/* =================================================
+                RIGHT SIDE
+            ================================================= */}
 
-                    <button
-                      type="button"
-                      onClick={() => router.push("/user/cart")}
-                      className="text-[10px] uppercase tracking-widest text-luxury-gold hover:text-luxury-dark transition-colors"
-                    >
-                      Edit Cart
-                    </button>
-                  </div>
-
-                  {/* Products */}
-                  <div className="space-y-5 max-h-[420px] overflow-y-auto pr-2">
-                    {cartItems.map((item, index) => (
-                      <div
-                        key={`${item.product}-${index}`}
-                        className="flex gap-4 border-b border-luxury-gold/10 pb-5"
-                      >
-                        <div className="relative w-20 h-24 flex-shrink-0 bg-luxury-dark/5 border border-luxury-gold/10 overflow-hidden">
-                          <Image
-                            src={item.image || "/candle.png"}
-                            alt={item.name || "Product"}
-                            fill
-                            className="object-cover"
-                          />
-
-                          <span className="absolute top-1 right-1 bg-luxury-dark text-white text-[9px] min-w-5 h-5 flex items-center justify-center">
-                            {item.quantity}
-                          </span>
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-serif text-sm text-luxury-dark uppercase tracking-wide">
-                            {item.name}
-                          </h3>
-
-                          {item.variantLabel && (
-                            <p className="text-[9px] text-luxury-gold uppercase tracking-widest mt-1">
-                              {item.variantLabel}
-                            </p>
-                          )}
-
-                          <div className="flex items-center gap-2 mt-3">
-                            <span className="text-sm text-luxury-dark">
-                              Rs. {Number(item.price || 0).toFixed(2)}
-                            </span>
-
-                            {item.mrp &&
-                              Number(item.mrp) > Number(item.price) && (
-                                <span className="text-xs text-gray-400 line-through">
-                                  Rs. {Number(item.mrp).toFixed(2)}
-                                </span>
-                              )}
-                          </div>
-                        </div>
-
-                        <div className="text-sm font-medium text-luxury-dark">
-                          Rs.{" "}
-                          {(
-                            Number(item.price || 0) * Number(item.quantity || 0)
-                          ).toFixed(2)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Price Details */}
-                  <div className="mt-7 space-y-4">
-                    <PriceRow
-                      label="MRP Total"
-                      value={`Rs. ${mrpTotal.toFixed(2)}`}
-                    />
-
-                    {discount > 0 && (
-                      <PriceRow
-                        label="Discount"
-                        value={`- Rs. ${discount.toFixed(2)}`}
-                        green
-                      />
-                    )}
-
-                    <PriceRow
-                      label="Subtotal"
-                      value={`Rs. ${subtotal.toFixed(2)}`}
-                    />
-
-                    <PriceRow
-                      label="Shipping"
-                      value={shipping === 0 ? "FREE" : `Rs. ${shipping}`}
-                      green
-                    />
-                  </div>
-
-                  {/* Total */}
-                  <div className="border-t border-luxury-gold/20 mt-6 pt-6 flex justify-between items-center">
-                    <div>
-                      <p className="font-serif text-lg text-luxury-dark uppercase tracking-wide">
-                        Total
-                      </p>
-
-                      <p className="text-[9px] uppercase tracking-widest text-[#777] mt-1">
-                        Inclusive of applicable taxes
-                      </p>
-                    </div>
-
-                    <p className="font-serif text-2xl text-luxury-dark">
-                      Rs. {total.toFixed(2)}
-                    </p>
-                  </div>
-
-                  {/* Place Order */}
-                  <button
-                    type="submit"
-                    disabled={placingOrder}
-                    className="w-full mt-7 bg-luxury-dark text-luxury-gold py-5 text-xs uppercase tracking-[0.25em] hover:bg-luxury-gold hover:text-luxury-dark transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {placingOrder
-                      ? "Processing..."
-                      : paymentMethod === "COD"
-                        ? "Place Order"
-                        : "Continue to Payment"}
-                  </button>
-
-                  <div className="mt-5 text-center">
-                    <p className="text-[9px] text-[#777] uppercase tracking-widest leading-relaxed">
-                      By placing your order, you agree to our
-                      <br />
-                      Terms & Conditions and Privacy Policy.
-                    </p>
-                  </div>
-                </section>
-              </div>
+            <div
+              className="
+                lg:col-span-5
+              "
+            >
+              <OrderSummary
+                cartItems={cartItems}
+                mrpTotal={mrpTotal}
+                discount={discount}
+                subtotal={subtotal}
+                shipping={shippingCost}
+                total={total}
+                selectedAddress={selectedAddress}
+                formData={formData}
+                showNewAddressForm={showNewAddressForm}
+                paymentMethod={paymentMethod}
+                placingOrder={placingOrder}
+                addressLoading={addressLoading}
+                savingAddress={savingAddress}
+                onEditCart={() => router.push("/user/cart")}
+                onChangeAddress={() =>
+                  document.getElementById("delivery-address")?.scrollIntoView({
+                    behavior: "smooth",
+                  })
+                }
+              />
             </div>
           </div>
         </div>
       </form>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------
-   Input Field
-------------------------------------------------------- */
-
-function InputField({
-  label,
-  name,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  required = false,
-  inputMode,
-}) {
-  return (
-    <div>
-      <label className="block text-[10px] uppercase tracking-[0.2em] text-luxury-gold-dark mb-2">
-        {label}
-        {required && <span className="text-red-400 ml-1">*</span>}
-      </label>
-
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        inputMode={inputMode}
-        className="w-full bg-transparent border border-luxury-gold/25 px-4 py-3.5 text-sm text-luxury-dark placeholder:text-gray-400 outline-none focus:border-luxury-gold transition-colors"
-      />
-    </div>
-  );
-}
-
-/* -------------------------------------------------------
-   Payment Option
-------------------------------------------------------- */
-
-function PaymentOption({ value, title, description, selected, onChange }) {
-  return (
-    <label
-      className={`flex items-center gap-4 p-4 border cursor-pointer transition-all ${
-        selected
-          ? "border-luxury-gold bg-luxury-gold/5"
-          : "border-luxury-gold/15 hover:border-luxury-gold/40"
-      }`}
-    >
-      <input
-        type="radio"
-        name="paymentMethod"
-        value={value}
-        checked={selected}
-        onChange={() => onChange(value)}
-        className="accent-[#C5A880]"
-      />
-
-      <div className="flex-1">
-        <p className="text-sm text-luxury-dark font-medium">{title}</p>
-
-        <p className="text-[10px] text-[#777] mt-1">{description}</p>
-      </div>
-
-      {selected && (
-        <span className="text-[9px] uppercase tracking-widest text-luxury-gold">
-          Selected
-        </span>
-      )}
-    </label>
-  );
-}
-
-/* -------------------------------------------------------
-   Price Row
-------------------------------------------------------- */
-
-function PriceRow({ label, value, green = false }) {
-  return (
-    <div className="flex justify-between items-center text-sm">
-      <span className="text-[#6C6C6C] font-light tracking-wide">{label}</span>
-
-      <span
-        className={`tracking-wide ${
-          green ? "text-green-600" : "text-luxury-dark"
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------
-   Trust Item
-------------------------------------------------------- */
-
-function TrustItem({ title, description }) {
-  return (
-    <div className="border border-luxury-gold/15 bg-[#FAF7F2] p-4 text-center">
-      <p className="text-[10px] uppercase tracking-widest text-luxury-dark">
-        {title}
-      </p>
-
-      <p className="text-[9px] text-[#777] mt-1">{description}</p>
     </div>
   );
 }

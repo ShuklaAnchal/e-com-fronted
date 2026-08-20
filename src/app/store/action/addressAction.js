@@ -94,7 +94,7 @@ export const editAddressdetailes =
         config
       );
 
-      dispatch(editCategory(result.data));
+      dispatch(editAddress(result.data));
       return { success: true, payload: result.data };
     } catch (error) {
       dispatch(
@@ -117,8 +117,8 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
         Authorization: `Bearer ${token}`, // attach token in headers
       },
     };
-    const response = await axios.delete(`/categorys/delete-category/${id}`, config);
-    dispatch(removeCategory(response.data));
+    const response = await axios.delete(`/address/delete-shippingAddres/${id}`, config);
+    dispatch(removeAddress(response.data));
     return { success: true, payload: response.data };
   } catch (error) {
     dispatch(

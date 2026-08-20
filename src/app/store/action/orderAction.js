@@ -86,28 +86,100 @@ export const fetchOrderbyID = (id) => async (dispatch, getState) => {
   }
 };
 
-export const createCategory = (formData) => async (dispatch, getState) => {
-  console.log({ formData });
+export const createOrder = (formData) => async (dispatch) => {
+  console.log("CREATE ORDER PAYLOAD:", formData);
 
   try {
     const token = getToken();
+
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
-        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     };
-    const { data } = await axios.post("/orders/user-order", formData, config);
+
+    const { data } = await axios.post(
+      "/order/user-order",
+      formData,
+      config
+    );
 
     dispatch(createneworder(data));
 
-    return { success: true, payload: data };
+    return {
+      success: true,
+      payload: data,
+    };
   } catch (error) {
-    const message = error?.response?.data?.error || "Failed to create Order";
+    console.error(
+      "CREATE ORDER ERROR:",
+      error?.response?.data || error
+    );
+
+    const message =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      "Failed to create Order";
+
     dispatch(iserror(message));
+
     return {
       success: false,
       message,
+    };
+  }
+};
+
+// Optional: separate action if you want to handle Razorpay separately
+export const createRazorpayOrder =
+  (orderID, orderAmount) => async (dispatch, getState) => {
+    // console.log({ orderAmount });
+    // console.log({ orderID });
+
+    try {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      const { data } = await axios.post(
+        "/payment/create-order",
+        { orderID, orderAmount },
+        config,
+      );
+      // console.log({ data });
+
+      return { success: true, payload: data };
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Error",
+      };
+    }
+  };
+
+// New: verify payment action (same structure)
+export const verifyPayment = (paymentData) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    const { data } = await axios.post(
+      "/payment/verify-payment",
+      paymentData,
+      config,
+    );
+
+    return { success: true, payload: data };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Payment verification failed",
     };
   }
 };

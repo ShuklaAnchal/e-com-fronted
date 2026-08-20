@@ -59,9 +59,9 @@ const Hero = () => {
       />
 
       {/* Hero Content */}
-   {/* Hero Content */}
-<div
-  className="
+      {/* Hero Content */}
+      <div
+        className="
     relative
     z-10
     min-h-screen
@@ -81,9 +81,9 @@ const Hero = () => {
     lg:px-20
     xl:px-28
   "
->
-  <div
-    className="
+      >
+        <div
+          className="
       w-full
       max-w-[680px]
 
@@ -104,10 +104,10 @@ const Hero = () => {
       lg:mb-0
       lg:mt-0
     "
-  >
-    {/* Festive Season */}
-    <p
-      className="
+        >
+          {/* Festive Season */}
+          <p
+            className="
         font-serif
         uppercase
         text-[#8b6034]
@@ -126,13 +126,13 @@ const Hero = () => {
         lg:tracking-wide
         lg:mb-6
       "
-    >
-      THIS FESTIVE SEASON
-    </p>
+          >
+            THIS FESTIVE SEASON
+          </p>
 
-    {/* Main Heading */}
-    <h1
-      className="
+          {/* Main Heading */}
+          <h1
+            className="
         font-serif
         text-[#3a2a22]
         font-medium
@@ -152,15 +152,15 @@ const Hero = () => {
         lg:leading-[0.95]
         lg:mb-7
       "
-    >
-      Little Luxuries,
-      <br />
-      Handmade
-    </h1>
+          >
+            Little Luxuries,
+            <br />
+            Handmade
+          </h1>
 
-    {/* Description */}
-    <p
-      className="
+          {/* Description */}
+          <p
+            className="
        hidden
     sm:block
 
@@ -175,16 +175,16 @@ const Hero = () => {
     max-w-[600px]
     mb-9
       "
-    >
-      Hand-poured 100% natural soy wax
-      <br />
-      scented candles for every mood
-    </p>
+          >
+            Hand-poured 100% natural soy wax
+            <br />
+            scented candles for every mood
+          </p>
 
-    {/* CTA */}
-    <button
-      onClick={() => router.push("/products")}
-      className="
+          {/* CTA */}
+          <button
+            onClick={() => router.push("/products")}
+            className="
         bg-[#9a703b]
         border
         border-[#9a703b]
@@ -212,12 +212,11 @@ const Hero = () => {
         sm:text-xs
         sm:tracking-[0.22em]
       "
-    >
-      Explore Collection
-    </button>
-  </div>
-</div>
-
+          >
+            Explore Collection
+          </button>
+        </div>
+      </div>
     </section>
   );
 };
