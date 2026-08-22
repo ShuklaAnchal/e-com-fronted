@@ -9,8 +9,8 @@ const Products = () => {
   const router = useRouter();
 
   const { products = [], loading, refreshProducts } = useProducts();
-   console.log({products});
-   
+  console.log({ products });
+
   // --------------------------------------------------
   // SAFE IMAGE URL HELPER
   // --------------------------------------------------
@@ -162,7 +162,6 @@ const Products = () => {
               text-2xl
               sm:text-4xl
               md:text-5xl
-              font-serif
               font-extralight
               text-center
               mb-2
@@ -179,7 +178,6 @@ const Products = () => {
           <p
             className="
               text-center
-              font-serif
               text-luxury-dark
               text-[12px]
               sm:text-[15px]
@@ -225,11 +223,10 @@ rounded-[14px] sm:rounded-[18px]  md:rounded-[20px] shadow-[0_5px_20px_rgba(40,3
 ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)] hover:-translate-y-1"
               >
                 <div
-                  className="
+                  className=" font-sans
     relative
     aspect-square
     overflow-hidden
-    bg-[#F8F5F0]
     rounded-t-[14px]
     sm:rounded-t-[18px]
     md:rounded-t-[20px]
@@ -377,7 +374,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                   )}
                 </div>
 
-                <div className="px-4 pb-3">
+                <div className="px-4 pb-3 mt-2">
                   {/* --------------------------------------------------
                     PRODUCT NAME
                 -------------------------------------------------- */}
@@ -386,8 +383,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                     text-[9px]
                     sm:text-xs
                     md:text-sm
-                    font-serif
-                    font-light
+                    font-medium
                     tracking-[0.1em]
                     sm:tracking-[0.16em]
                     text-luxury-dark
@@ -407,9 +403,9 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                     DESCRIPTION
                 -------------------------------------------------- */}
                   <p
-                    className="text-[8px] sm:text-[10px] md:text-[11px]
+                    className="text-[10px] sm:text-[12px] md:text-[15px]
                     text-[#777]
-                    font-light
+                    font-normal
                     leading-[1.4]
                     line-clamp-2
                     min-h-[10px]
@@ -450,7 +446,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                       {product.mrp > product.price && (
                         <span
                           className="
-                          text-[7px]
+                          text-[10px]
                           sm:text-[10px]
 
                           text-[#999]
@@ -466,7 +462,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                       {/* SELLING PRICE */}
                       <span
                         className="
-                        text-[9px]
+                        text-[12px]
                         sm:text-xs
 
                         text-luxury-dark
@@ -507,7 +503,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                     className={` mt-2.5 sm:mt-4 w-full border py-2 sm:py-2.5 md:py-3
 text-[7px] sm:text-[9px]   md:text-[10px] uppercase
 tracking-[0.1em]  sm:tracking-[0.18em] transition-all duration-500
-font-light rounded-[10px]
+font-normal rounded-[10px]
  ${
    product.inStock
      ? `
