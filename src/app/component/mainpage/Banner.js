@@ -31,7 +31,7 @@ const Banner = () => {
             BANNER IMAGE
         -------------------------------------------------- */}
         <div
-          className="
+          className="rounded-[20px]
             relative
             w-full
             sm:w-[90%]
@@ -57,7 +57,7 @@ const Banner = () => {
               (max-width: 1024px) 80vw,
               48vw
             "
-            className="
+            className="rounded-[20px]
               object-cover
               object-center
               transition-transform

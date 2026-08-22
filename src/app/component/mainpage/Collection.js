@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { useCategories } from "@/app/hooks/catgeoryHook";
+import Image from "next/image";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -12,6 +13,8 @@ const Collection = () => {
   const router = useRouter();
   const { categories } = useCategories();
 
+  console.log({categories});
+  
   return (
     <section
       className="
@@ -20,7 +23,7 @@ const Collection = () => {
       flex
       justify-center
       "
-    >
+    > 
       <div
         className="
         w-[94%]
@@ -111,7 +114,7 @@ const Collection = () => {
         overflow-hidden
         "
               >
-                <video
+                {/* <video
                   src={item.video}
                   autoPlay
                   muted
@@ -129,8 +132,20 @@ const Collection = () => {
           duration-[1500ms]
           group-hover:scale-105
           "
-                />
+                /> */}
 
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  fill
+                  className="
+    rounded-xl
+    object-cover
+    transition-transform
+    duration-[1500ms]
+    group-hover:scale-105
+  "
+                />
                 {/* Overlay */}
 
                 <div

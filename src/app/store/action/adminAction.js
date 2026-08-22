@@ -55,8 +55,6 @@ export const fetchCurrentAdmin = () => async (dispatch) => {
     // Axios interceptor should attach adminToken/userToken
     const { data } = await axios.post("/currentadmin");
 
-    console.log("Current User Response:", data);
-
     const currentUser = data.admin ?? data.user;
 
     if (!currentUser) {
@@ -101,7 +99,6 @@ export const fetchCurrentUser = () => async (dispatch) => {
   try {
     // URL must start with /admin so the axios interceptor attaches adminToken
     const { data } = await axios.post("/currentadmin");
-    console.log("Current User:", data);
     dispatch(
       currentAdmin({
         user: data.user,

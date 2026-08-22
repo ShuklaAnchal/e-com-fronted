@@ -205,10 +205,12 @@ export const createProductVarient = (productId, formData) => async (dispatch, ge
 
 
 //fetch category wise products 
-export const fetchCategoryWiseProducts= (id) => async (dispatch) => {
+export const fetchCategoryWiseProducts= (categoryId) => async (dispatch) => {
   try {
+    console.log({categoryId});
+    
     const { data } = await axios.get(
-      `/products/fetch-catgeory-wise-products/${id}`
+      `/products/fetch-catgeory-wise-products/${categoryId}`
     );
 
     dispatch(catgeorywiseProducts(data));

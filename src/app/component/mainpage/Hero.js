@@ -100,7 +100,7 @@ const Hero = () => {
          ========================= */
       lg:text-left
       lg:mr-[2%]
-      xl:mr-[-5%]
+      xl:mr-[-12%]
       lg:mb-0
       lg:mt-0
     "

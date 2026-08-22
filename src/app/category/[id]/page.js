@@ -17,9 +17,7 @@ const CategoryProductsPage = () => {
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
 
-  const categoryName = params?.id
-    ? decodeURIComponent(params.id)
-    : "";
+  const categoryName = params?.id ? decodeURIComponent(params.id) : "";
 
   const categoryId = searchParams.get("categoryId");
 
@@ -40,10 +38,9 @@ const CategoryProductsPage = () => {
       try {
         setLoading(true);
         setError("");
+        console.log({ categoryId });
 
-        const result = await dispatch(
-          fetchCategoryWiseProducts(categoryId)
-        )
+        const result = await dispatch(fetchCategoryWiseProducts(categoryId));
 
         console.log("API Result:", result);
 
@@ -53,21 +50,11 @@ const CategoryProductsPage = () => {
 
         setCategoryProducts(result.products);
 
-        console.log(
-          "Saved Products:",
-          result
-        );
-
+        console.log("Saved Products:", result);
       } catch (error) {
-        console.error(
-          "Failed to fetch products:",
-          error
-        );
+        console.error("Failed to fetch products:", error);
 
-        setError(
-          error?.message ||
-            "Failed to fetch products"
-        );
+        setError(error?.message || "Failed to fetch products");
 
         setCategoryProducts([]);
       } finally {
@@ -79,16 +66,13 @@ const CategoryProductsPage = () => {
   }, [categoryId, dispatch]);
 
   console.log([categoryProducts]);
-  
+
   // ============================================
   // DEBUG SAVED DATA
   // ============================================
 
   useEffect(() => {
-    console.log(
-      "Products stored in state:",
-      categoryProducts
-    );
+    console.log("Products stored in state:", categoryProducts);
   }, [categoryProducts]);
 
   // ============================================
@@ -102,20 +86,18 @@ const CategoryProductsPage = () => {
   };
 
   return (
-    <div>
+    <div className="webprimarycolor">
       <MarqueeBar />
 
       <Header />
 
-      <main className="h-auto bg-luxury-cream mt-32">
-
+      <main className="h-auto webprimarycolor mt-32 bg-red-500">
         {/* ======================================
             CATEGORY HEADER
         ====================================== */}
 
         <div className="pt-0 pb-16 px-6">
           <div className="max-w-7xl mx-auto text-center">
-
             <p className="text-xs tracking-[0.4em] text-luxury-gold font-light mb-1 uppercase">
               Collection
             </p>
@@ -125,10 +107,9 @@ const CategoryProductsPage = () => {
             </h1>
 
             <p className="font-serif italic text-luxury-gold-dark/70 text-lg tracking-wider font-light max-w-2xl mx-auto">
-              Discover pieces carefully curated for this
-              collection, embodying our signature craftsmanship.
+              Discover pieces carefully curated for this collection, embodying
+              our signature craftsmanship.
             </p>
-
           </div>
         </div>
 
@@ -138,7 +119,6 @@ const CategoryProductsPage = () => {
 
         <section className="pb-16">
           <div className="container mx-auto px-6 max-w-7xl">
-
             {/* LOADING */}
 
             {loading && (
@@ -154,136 +134,271 @@ const CategoryProductsPage = () => {
             {!loading && error && (
               <div className="text-center py-20">
                 <p className="font-serif text-2xl text-red-500">
-                  {error}
+                  {error.message}
                 </p>
               </div>
             )}
 
             {/* PRODUCTS */}
 
-            {!loading &&
-              !error &&
-              categoryProducts.length > 0 && (
+            {!loading && !error && categoryProducts.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-8">
+                {categoryProducts.map((product, index) => {
+                  const mainImage =
+                    product.images?.[0] || "/placeholder-product.png";
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-8">
+                  const hoverImage = product.images?.[1] || mainImage;
 
-                  {categoryProducts.map(
-                    (product, index) => (
+                  // ============================================
+                  // PRICE
+                  // ============================================
+
+                  const sellingPrice =
+                    product.sellingPrice ||
+                    product.price ||
+                    product.pricing?.sellingPrice ||
+                    product.variants?.[0]?.pricing?.sellingPrice ||
+                    0;
+
+                  const mrp =
+                    product.mrp ||
+                    product.pricing?.mrp ||
+                    product.variants?.[0]?.pricing?.mrp ||
+                    0;
+
+                  // ============================================
+                  // STOCK
+                  // ============================================
+
+                  const inStock =
+                    product.inStock !== undefined
+                      ? product.inStock
+                      : product.variants?.some(
+                          (variant) => variant.inStock !== false,
+                        );
+
+                  return (
+                    <div
+                      key={product._id}
+                      onClick={() => router.push(`/products/${product._id}`)}
+                      className="
+        group
+        flex
+        flex-col
+        text-center
+        cursor-pointer
+        bg-white/40
+        backdrop-blur-[2px]
+        border
+        border-[#C5A880]/15
+        rounded-[14px]
+        sm:rounded-[18px]
+        md:rounded-[20px]
+        shadow-[0_5px_20px_rgba(40,30,20,0.05)]
+        transition-all
+        duration-500
+        ease-out
+        hover:border-[#C5A880]/40
+        hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)]
+        hover:-translate-y-1
+        overflow-hidden
+      "
+                      style={{
+                        animationDelay: `${index * 100}ms`,
+                      }}
+                    >
+                      {/* ==========================================
+          IMAGE CONTAINER
+      =========================================== */}
 
                       <div
-                        key={product._id}
-                        onClick={() =>
-                          openProduct(product._id)
-                        }
                         className="
-                          text-center
-                          cursor-pointer
-                          group
-                          flex
-                          flex-col
-                          border
-                          border-[#C5A880]/10
-                          lg:p-2
-                          p-1
-                          bg-[#FAF7F2]
-                          transition-all
-                          duration-700
-                          hover:border-[#C5A880]/40
-                          hover:shadow-[0_20px_50px_rgba(197,168,128,0.06)]
-                          hover:-translate-y-1.5
-                        "
-                        style={{
-                          animationDelay:
-                            `${index * 100}ms`,
-                        }}
+          relative
+          aspect-square
+          overflow-hidden
+          bg-[#F8F5F0]
+          rounded-t-[14px]
+          sm:rounded-t-[18px]
+          md:rounded-t-[20px]
+        "
                       >
-
-                        {/* IMAGE */}
+                        {/* ========================================
+            PRODUCT BADGES
+        ========================================= */}
 
                         <div
                           className="
-                            w-full
-                            aspect-[4/5]
-                            overflow-hidden
-                            relative
-                            mb-2
-                            border
-                            border-[#C5A880]/5
-                            bg-luxury-dark/5
-                          "
+            absolute
+            top-2
+            left-2
+            sm:top-3
+            sm:left-3
+            z-20
+            flex
+            flex-col
+            items-start
+            gap-1
+          "
                         >
+                          {/* NEW */}
 
-                          {product.images?.[0] ? (
+                          <span
+                            className="
+              bg-[#121212]/90
+              text-white
+              px-2
+              sm:px-3
+              py-1
+              sm:py-1.5
+              text-[7px]
+              sm:text-[9px]
+              uppercase
+              tracking-[0.15em]
+              sm:tracking-[0.2em]
+              font-medium
+              rounded-[3px]
+              shadow-sm
+            "
+                          >
+                            NEW
+                          </span>
 
-                            <Image
-                              src={product.images[0]}
-                              alt={
-                                product.name ||
-                                "Product"
-                              }
-                              fill
-                              sizes="
-                                (max-width: 768px) 50vw,
-                                25vw
-                              "
-                              className="
-                                object-cover
-                                transition-transform
-                                duration-[1.2s]
-                                group-hover:scale-105
-                              "
-                            />
+                          {/* RAKHI SPECIAL */}
 
-                          ) : (
-
-                            <div className="w-full h-full flex items-center justify-center">
-                              <span className="text-gray-400 text-sm">
-                                No Image
-                              </span>
-                            </div>
-
-                          )}
-
-                          {/* SECOND IMAGE */}
-
-                          {product.images?.[1] && (
-
-                            <Image
-                              src={product.images[1]}
-                              alt={`${product.name} Hover`}
-                              fill
-                              sizes="
-                                (max-width: 768px) 50vw,
-                                25vw
-                              "
-                              className="
-                                object-cover
-                                opacity-0
-                                transition-opacity
-                                duration-700
-                                group-hover:opacity-100
-                              "
-                            />
-
-                          )}
-
+                          <span
+                            className="
+              bg-[#C5A880]
+              text-[#121212]
+              px-2
+              sm:px-3
+              py-1
+              sm:py-1.5
+              text-[7px]
+              sm:text-[9px]
+              uppercase
+              tracking-[0.12em]
+              sm:tracking-[0.18em]
+              font-medium
+              rounded-[3px]
+              shadow-sm
+            "
+                          >
+                            Rakhi Special
+                          </span>
                         </div>
 
-                        {/* NAME */}
+                        {/* ========================================
+            MAIN IMAGE
+        ========================================= */}
+
+                        <Image
+                          src={mainImage}
+                          alt={product.name || "Product"}
+                          fill
+                          sizes="
+            (max-width: 500px) 50vw,
+            (max-width: 768px) 33vw,
+            25vw
+          "
+                          className="
+            object-contain
+            p-1
+            sm:p-2
+            transition-transform
+            duration-700
+            ease-out
+            group-hover:scale-[1.04]
+          "
+                        />
+
+                        {/* ========================================
+            HOVER IMAGE
+        ========================================= */}
+
+                        {product.images?.[1] && (
+                          <Image
+                            src={hoverImage}
+                            alt={`${product.name || "Product"} Hover`}
+                            fill
+                            sizes="
+              (max-width: 640px) 50vw,
+              (max-width: 768px) 33vw,
+              25vw
+            "
+                            className="
+              object-contain
+              p-1
+              sm:p-2
+              opacity-0
+              transition-opacity
+              duration-500
+              group-hover:opacity-100
+            "
+                          />
+                        )}
+
+                        {/* ========================================
+            OUT OF STOCK
+        ========================================= */}
+
+                        {!inStock && (
+                          <div
+                            className="
+              absolute
+              inset-0
+              z-10
+              bg-black/30
+              flex
+              items-center
+              justify-center
+            "
+                          >
+                            <span
+                              className="
+                bg-white/90
+                px-2
+                sm:px-4
+                py-1.5
+                sm:py-2
+                text-[7px]
+                sm:text-[10px]
+                uppercase
+                tracking-[0.12em]
+                sm:tracking-[0.15em]
+                text-black
+              "
+                            >
+                              Out of Stock
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ==========================================
+          PRODUCT CONTENT
+      =========================================== */}
+
+                      <div className="px-3 sm:px-4 pb-3">
+                        {/* PRODUCT NAME */}
 
                         <h3
                           className="
-                            text-xs
-                            md:text-sm
-                            font-serif
-                            tracking-[0.2em]
-                            text-luxury-dark
-                            mb-2
-                            uppercase
-                            font-light
-                            truncate
-                            group-hover:text-luxury-gold
-                          "
+            text-[9px]
+            sm:text-xs
+            md:text-sm
+            font-serif
+            font-light
+            tracking-[0.1em]
+            sm:tracking-[0.16em]
+            text-luxury-dark
+            mb-1
+            sm:mb-2
+            uppercase
+            truncate
+            transition-colors
+            duration-300
+            group-hover:text-luxury-gold
+          "
                         >
                           {product.name}
                         </h3>
@@ -292,128 +407,157 @@ const CategoryProductsPage = () => {
 
                         <p
                           className="
-                            text-[11px]
-                            text-[#6C6C6C]
-                            mb-1
-                            font-light
-                            leading-relaxed
-                            line-clamp-2
-                            min-h-[2.5rem]
-                            font-sans
-                            tracking-wide
-                          "
+            text-[8px]
+            sm:text-[10px]
+            md:text-[11px]
+            text-[#777]
+            font-light
+            leading-[1.4]
+            line-clamp-2
+            min-h-[10px]
+            font-sans
+            tracking-wide
+            px-0.5
+            sm:px-1
+          "
                         >
-                          {product.shortDescription ||
-                            product.description ||
-                            "Premium quality product"}
+                          {product.description || "Premium quality product"}
                         </p>
 
-                        {/* PRICE */}
+                        {/* ========================================
+            PRICE
+        ========================================= */}
 
-                        <div
-                          className="
-                            mt-auto
-                            pt-1
-                            border-t
-                            border-[#C5A880]/10
-                            flex
-                            items-baseline
-                            justify-center
-                            gap-2
-                          "
-                        >
+                        {sellingPrice > 0 ? (
+                          <div
+                            className="
+              flex
+              items-baseline
+              justify-center
+              gap-1
+              sm:gap-2
+              mt-2
+              sm:mt-3
+              pt-1.5
+              sm:pt-2
+              border-t
+              border-[#C5A880]/15
+            "
+                          >
+                            {/* MRP */}
 
-                          {product.mrp && (
+                            {mrp > sellingPrice && (
+                              <span
+                                className="
+                  text-[7px]
+                  sm:text-[10px]
+                  text-[#999]
+                  line-through
+                  font-light
+                "
+                              >
+                                Rs. {mrp}
+                              </span>
+                            )}
+
+                            {/* SELLING PRICE */}
+
                             <span
                               className="
-                                text-[#8E8E8E]
-                                line-through
-                                text-[10px]
-                              "
+                text-[9px]
+                sm:text-xs
+                text-luxury-dark
+                font-medium
+                tracking-wide
+              "
                             >
-                              Rs. {product.mrp}
+                              Rs. {sellingPrice}
                             </span>
-                          )}
+                          </div>
+                        ) : (
+                          <div className="mt-2 sm:mt-3">
+                            <span
+                              className="
+                text-[8px]
+                sm:text-xs
+                text-gray-500
+              "
+                            >
+                              Price unavailable
+                            </span>
+                          </div>
+                        )}
 
-                          <span
-                            className="
-                              text-luxury-dark
-                              font-medium
-                              tracking-wide
-                              text-xs
-                              font-sans
-                            "
-                          >
-                            Rs.{" "}
-
-                            {product.sellingPrice ||
-                              product.price ||
-                              product.pricing
-                                ?.sellingPrice ||
-                              product.variants?.[0]
-                                ?.pricing
-                                ?.sellingPrice ||
-                              "N/A"}
-                          </span>
-
-                        </div>
-
-                        {/* BUY NOW */}
+                        {/* ========================================
+            BUY NOW
+        ========================================= */}
 
                         <button
+                          disabled={!inStock}
                           onClick={(e) => {
                             e.stopPropagation();
 
-                            openProduct(
-                              product._id
-                            );
+                            if (inStock) {
+                              router.push(`/products/${product._id}`);
+                            }
                           }}
-                          className="
-                            mt-3
-                            w-full
-                            border
-                            border-[#C5A880]/50
-                            text-[#C5A880]
-                            text-[10px]
-                            uppercase
-                            tracking-[0.2em]
-                            py-3
-                            transition-all
-                            duration-500
-                            bg-transparent
-                            hover:bg-[#C5A880]
-                            hover:text-[#121212]
-                            font-light
-                            cursor-pointer
-                          "
+                          className={`
+            mt-2.5
+            sm:mt-4
+            w-full
+            border
+            py-2
+            sm:py-2.5
+            md:py-3
+            text-[7px]
+            sm:text-[9px]
+            md:text-[10px]
+            uppercase
+            tracking-[0.1em]
+            sm:tracking-[0.18em]
+            transition-all
+            duration-500
+            font-light
+            rounded-[10px]
+
+            ${
+              inStock
+                ? `
+                  border-[#C5A880]/50
+                  text-[#B08F5A]
+                  bg-transparent
+                  hover:bg-[#C5A880]
+                  hover:text-[#121212]
+                  cursor-pointer
+                `
+                : `
+                  border-gray-300
+                  text-gray-400
+                  cursor-not-allowed
+                `
+            }
+          `}
                         >
-                          Buy Now
+                          {inStock ? "Buy Now" : "Out of Stock"}
                         </button>
-
                       </div>
-                    )
-                  )}
-
-                </div>
-              )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* NO PRODUCTS */}
 
-            {!loading &&
-              !error &&
-              categoryProducts.length === 0 && (
+            {!loading && !error && categoryProducts.length === 0 && (
+              <div className="text-center py-20">
+                <p className="font-serif text-2xl text-luxury-dark font-light">
+                  No products found in this collection.
+                </p>
 
-                <div className="text-center py-20">
-
-                  <p className="font-serif text-2xl text-luxury-dark font-light">
-                    No products found in this collection.
-                  </p>
-
-                  <button
-                    onClick={() =>
-                      router.push("/products")
-                    }
-                    className="
+                <button
+                  onClick={() => router.push("/products")}
+                  className="
                       mt-8
                       border
                       border-luxury-dark
@@ -427,18 +571,15 @@ const CategoryProductsPage = () => {
                       hover:text-luxury-cream
                       transition-all
                     "
-                  >
-                    View All Products
-                  </button>
-
-                </div>
-              )}
-
+                >
+                  View All Products
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
         <Footer />
-
       </main>
     </div>
   );
