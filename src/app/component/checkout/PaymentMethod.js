@@ -8,19 +8,9 @@ export default function PaymentMethod({
 }) {
   const options = [
     {
-      value: "UPI",
+      value: "RAZORPAY",
       title: "UPI",
       description: "Pay securely using UPI",
-    },
-    {
-      value: "CARD",
-      title: "Credit / Debit Card",
-      description: "Secure card payment",
-    },
-    {
-      value: "NET_BANKING",
-      title: "Net Banking",
-      description: "Pay through your bank",
     },
     {
       value: "COD",
@@ -31,7 +21,6 @@ export default function PaymentMethod({
 
   return (
     <section className="bg-[#FAF7F2] border border-luxury-gold/20 p-5 sm:p-6 md:p-8">
-
       <div className="mb-7">
         <p className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold mb-2">
           Step 03
@@ -43,11 +32,8 @@ export default function PaymentMethod({
       </div>
 
       <div className="space-y-3">
-
         {options.map((option) => {
-
-          const selected =
-            paymentMethod === option.value;
+          const selected = paymentMethod === option.value;
 
           return (
             <label
@@ -67,20 +53,16 @@ export default function PaymentMethod({
                 }
               `}
             >
-
               <input
                 type="radio"
                 name="paymentMethod"
                 value={option.value}
                 checked={selected}
-                onChange={() =>
-                  onChange(option.value)
-                }
+                onChange={() => onChange(option.value)}
                 className="accent-[#C5A880]"
               />
 
               <div className="flex-1">
-
                 <p className="text-sm text-luxury-dark font-medium">
                   {option.title}
                 </p>
@@ -88,7 +70,6 @@ export default function PaymentMethod({
                 <p className="text-[10px] text-[#777] mt-1">
                   {option.description}
                 </p>
-
               </div>
 
               {selected && (
@@ -96,11 +77,9 @@ export default function PaymentMethod({
                   Selected
                 </span>
               )}
-
             </label>
           );
         })}
-
       </div>
     </section>
   );

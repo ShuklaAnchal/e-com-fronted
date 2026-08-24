@@ -16,6 +16,8 @@ export function useOrders() {
     setLoading(true);
 
     const allOrdersResult = await dispatch(asyncfetchAllOrders());
+    console.log({allOrdersResult});
+    
     if (allOrdersResult?.orders) {
       setAllOrders(allOrdersResult.orders);
     }

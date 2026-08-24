@@ -15,15 +15,15 @@ const montserrat = Montserrat({
   weight: ["200", "300", "400", "500", "600"],
 });
 
-// export const metadata = {
-//   title: "Siyaas | Handcrafted Soy Candles & Luxury Scents",
-//   description: "Experience the art of scented light with Siyaas. Handcrafted soy candles, diffusers, and luxury wooden crafts for every mood.",
-// };
-
 export const metadata = {
-  title: "React",
+  title: "Siyaas | Handcrafted Soy Candles & Luxury Scents",
   description: "Experience the art of scented light with Siyaas. Handcrafted soy candles, diffusers, and luxury wooden crafts for every mood.",
 };
+
+// export const metadata = {
+//   title: "React",
+//   description: "Experience the art of scented light with Siyaas. Handcrafted soy candles, diffusers, and luxury wooden crafts for every mood.",
+// };
 
 export default function RootLayout({ children }) {
   return (

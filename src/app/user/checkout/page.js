@@ -552,7 +552,7 @@ export default function CheckoutPage() {
            * Payment is successfully verified.
            */
 
-          router.push(`/user/order-success/${orderId}`);
+          router.push(`/user/order-success`);
         } catch (error) {
           console.error("PAYMENT VERIFICATION ERROR:", error);
 
@@ -726,6 +726,7 @@ export default function CheckoutPage() {
         shippingCost: Number(shippingCost) || 0,
 
         tax: Number(tax) || 0,
+        paymentMethod,
       };
 
       console.log("FINAL ORDER PAYLOAD:", orderPayload);
@@ -780,7 +781,7 @@ export default function CheckoutPage() {
       ========================================== */
 
       if (paymentMethod === "COD") {
-        router.push(`/user/order-success/${orderId}`);
+        router.push(`/user/order-success`);
 
         return;
       }

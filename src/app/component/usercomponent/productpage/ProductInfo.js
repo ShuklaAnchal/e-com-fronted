@@ -218,7 +218,7 @@ export default function ProductInfo({
           <input
             type="text"
             placeholder="Enter Pincode"
-            maxLength={4}
+            maxLength={6}
             value={pincode}
             onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
             className="flex-1 border rounded-lg px-2.5 py-1.5 outline-none focus:border-black"
