@@ -8,70 +8,12 @@ import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Footer from "@/app/component/resuable/Footer";
 
 import { useProducts } from "@/app/hooks/productHook";
+import { getMediaUrl } from "@/app/utils/mediaUrl";
 
 const ProductsPage = () => {
   const router = useRouter();
 
   const { products = [], loading } = useProducts();
-
-  // =========================================================
-  // SAFE IMAGE URL HELPER
-  // =========================================================
-
-  const getImageUrl = (imageUrl) => {
-    const placeholder = "/placeholder-product.png";
-
-    // No image
-    if (!imageUrl || typeof imageUrl !== "string") {
-      return placeholder;
-    }
-
-    const trimmedUrl = imageUrl.trim();
-
-    // Invalid values
-    if (
-      !trimmedUrl ||
-      trimmedUrl === "undefined" ||
-      trimmedUrl === "null" ||
-      trimmedUrl.includes("/undefined") ||
-      trimmedUrl.includes("undefined/")
-    ) {
-      return placeholder;
-    }
-
-    // Already complete URL
-    if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
-      return trimmedUrl;
-    }
-
-    // Local/public image
-    if (trimmedUrl.startsWith("/")) {
-      // Placeholder
-      if (trimmedUrl.startsWith("/placeholder")) {
-        return trimmedUrl;
-      }
-
-      // Backend image
-      if (process.env.NEXT_PUBLIC_API_URL) {
-        return `${process.env.NEXT_PUBLIC_API_URL.replace(
-          /\/$/,
-          "",
-        )}${trimmedUrl}`;
-      }
-
-      return trimmedUrl;
-    }
-
-    // Relative backend image
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      return `${process.env.NEXT_PUBLIC_API_URL.replace(
-        /\/$/,
-        "",
-      )}/${trimmedUrl.replace(/^\//, "")}`;
-    }
-
-    return placeholder;
-  };
 
   // =========================================================
   // MAP API PRODUCT DATA
@@ -116,7 +58,9 @@ const ProductsPage = () => {
       // -------------------------------------------------------
 
       const defaultVariant =
-        product.variants?.find((variant) => variant?.isDefault) ||
+        product.variants?.find(
+          (variant) => variant?.isDefault,
+        ) ||
         product.variants?.[0] ||
         null;
 
@@ -127,9 +71,11 @@ const ProductsPage = () => {
       return {
         ...product,
 
-        image: getImageUrl(primaryImage),
+        // Centralized media URL
+        image: getMediaUrl(primaryImage),
 
-        hoverImage: getImageUrl(hoverImage),
+        // Centralized media URL
+        hoverImage: getMediaUrl(hoverImage),
 
         description:
           product.shortDescription ||
@@ -140,9 +86,11 @@ const ProductsPage = () => {
 
         price: defaultVariant?.pricing?.sellingPrice || 0,
 
-        inStock: defaultVariant?.inventory?.inStock ?? false,
+        inStock:
+          defaultVariant?.inventory?.inStock ?? false,
 
-        stockQuantity: defaultVariant?.inventory?.stockQuantity || 0,
+        stockQuantity:
+          defaultVariant?.inventory?.stockQuantity || 0,
       };
     });
 
@@ -154,6 +102,7 @@ const ProductsPage = () => {
     return (
       <div className="min-h-screen bg-white">
         <MarqueeBar />
+
         <Header />
 
         <main className="pt-40 pb-20">
@@ -175,6 +124,7 @@ const ProductsPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+
       {/* =====================================================
           TOP MARQUEE
       ===================================================== */}
@@ -192,6 +142,7 @@ const ProductsPage = () => {
       ===================================================== */}
 
       <main className="h-auto bg-white">
+
         {/* ===================================================
             PAGE HEADER
         =================================================== */}
@@ -205,6 +156,7 @@ const ProductsPage = () => {
               animate-fade-up
             "
           >
+
             {/* Small Heading */}
 
             <p
@@ -259,9 +211,10 @@ const ProductsPage = () => {
                 leading-relaxed
               "
             >
-              Discover our complete range of meticulously formulated aromatics
-              and artisanal creations.
+              Discover our complete range of meticulously
+              formulated aromatics and artisanal creations.
             </p>
+
           </div>
         </div>
 
@@ -279,6 +232,7 @@ const ProductsPage = () => {
               max-w-8xl
             "
           >
+
             {/* =================================================
                 NO PRODUCTS
             ================================================= */}
@@ -297,6 +251,7 @@ const ProductsPage = () => {
                 </p>
               </div>
             ) : (
+
               /* =================================================
                  PRODUCT GRID
               ================================================= */
@@ -313,14 +268,20 @@ const ProductsPage = () => {
                   lg:gap-8
                 "
               >
+
                 {mappedProducts.map((product) => (
+
                   /* ===========================================
                      PRODUCT CARD
                   =========================================== */
 
                   <div
                     key={product._id}
-                    onClick={() => router.push(`/products/${product._id}`)}
+                    onClick={() =>
+                      router.push(
+                        `/products/${product._id}`,
+                      )
+                    }
                     className="
                       group
                       flex
@@ -344,6 +305,7 @@ const ProductsPage = () => {
                       overflow-hidden
                     "
                   >
+
                     {/* =======================================
                         IMAGE AREA
                     ======================================= */}
@@ -357,6 +319,7 @@ const ProductsPage = () => {
                         bg-[#faf8f4]
                       "
                     >
+
                       {/* RAKHI SPECIAL */}
 
                       <div className="absolute top-2 left-2 z-20">
@@ -386,8 +349,13 @@ const ProductsPage = () => {
                       {/* PRIMARY IMAGE */}
 
                       <Image
-                        src={product.image || "/placeholder-product.png"}
-                        alt={product.name || "Product"}
+                        src={
+                          product.image ||
+                          "/placeholder-product.png"
+                        }
+                        alt={
+                          product.name || "Product"
+                        }
                         fill
                         sizes="
                           (max-width: 500px) 44vw,
@@ -407,29 +375,27 @@ const ProductsPage = () => {
 
                       {/* HOVER IMAGE */}
 
-                      <Image
-                        src={
-                          product.hoverImage ||
-                          product.image ||
-                          "/placeholder-product.png"
-                        }
-                        alt={`${product.name || "Product"} Hover`}
-                        fill
-                        sizes="
-                          (max-width: 640px) 44vw,
-                          (max-width: 768px) 30vw,
-                          20vw
-                        "
-                        className="
-                          object-contain
-                          p-1
-                          sm:p-2
-                          opacity-0
-                          transition-opacity
-                          duration-500
-                          group-hover:opacity-100
-                        "
-                      />
+                      {product.hoverImage && (
+                        <Image
+                          src={product.hoverImage}
+                          alt={`${product.name || "Product"} Hover`}
+                          fill
+                          sizes="
+                            (max-width: 640px) 44vw,
+                            (max-width: 768px) 30vw,
+                            20vw
+                          "
+                          className="
+                            object-contain
+                            p-1
+                            sm:p-2
+                            opacity-0
+                            transition-opacity
+                            duration-500
+                            group-hover:opacity-100
+                          "
+                        />
+                      )}
 
                       {/* OUT OF STOCK */}
 
@@ -462,6 +428,7 @@ const ProductsPage = () => {
                           </span>
                         </div>
                       )}
+
                     </div>
 
                     {/* =======================================
@@ -469,6 +436,7 @@ const ProductsPage = () => {
                     ======================================= */}
 
                     <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
+
                       {/* PRODUCT NAME */}
 
                       <h3
@@ -517,7 +485,8 @@ const ProductsPage = () => {
 
                       {/* PRICE */}
 
-                      {product.mrp > 0 && product.price > 0 ? (
+                      {product.mrp > 0 &&
+                      product.price > 0 ? (
                         <div
                           className="
                             flex
@@ -533,9 +502,11 @@ const ProductsPage = () => {
                             border-[#C5A880]/15
                           "
                         >
+
                           {/* MRP */}
 
-                          {product.mrp > product.price && (
+                          {product.mrp >
+                            product.price && (
                             <span
                               className="
                                 text-[7px]
@@ -562,6 +533,7 @@ const ProductsPage = () => {
                           >
                             Rs. {product.price}
                           </span>
+
                         </div>
                       ) : (
                         <div className="mt-2 sm:mt-3">
@@ -585,7 +557,9 @@ const ProductsPage = () => {
                           e.stopPropagation();
 
                           if (product.inStock) {
-                            router.push(`/products/${product._id}`);
+                            router.push(
+                              `/products/${product._id}`,
+                            );
                           }
                         }}
                         className={`
@@ -625,13 +599,19 @@ const ProductsPage = () => {
                           }
                         `}
                       >
-                        {product.inStock ? "Buy Now" : "Out of Stock"}
+                        {product.inStock
+                          ? "Buy Now"
+                          : "Out of Stock"}
                       </button>
+
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
+
           </div>
         </section>
 
@@ -640,6 +620,7 @@ const ProductsPage = () => {
         =================================================== */}
 
         <Footer />
+
       </main>
     </div>
   );

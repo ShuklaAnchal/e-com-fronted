@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Footer from "@/app/component/resuable/Footer";
-
+import { getMediaUrl } from "@/app/utils/mediaUrl";
 import { fetchCategoryWiseProducts } from "@/app/store/action/productAction";
 
 const CategoryProductsPage = () => {
@@ -144,10 +144,13 @@ const CategoryProductsPage = () => {
             {!loading && !error && categoryProducts.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-8">
                 {categoryProducts.map((product, index) => {
-                  const mainImage =
-                    product.images?.[0] || "/placeholder-product.png";
+                  const mainImage = product.images?.[0]
+                    ? getMediaUrl(product.images[0])
+                    : "/placeholder-product.png";
 
-                  const hoverImage = product.images?.[1] || mainImage;
+                  const hoverImage = product.images?.[1]
+                    ? getMediaUrl(product.images[1])
+                    : mainImage;
 
                   // ============================================
                   // PRICE

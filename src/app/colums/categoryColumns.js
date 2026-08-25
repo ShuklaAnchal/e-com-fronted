@@ -1,9 +1,9 @@
-
 import { createColumnHelper } from "@tanstack/react-table";
 import Link from "next/link";
 import Image from "next/image";
 
 import ActionDropdown from "../component/table/ActionDropdown";
+import { getMediaUrl } from "@/app/utils/mediaUrl";
 
 const columnHelper = createColumnHelper();
 
@@ -31,14 +31,17 @@ export const categoryColumns = ({
     cell: ({ row, getValue }) => {
       const category = row.original;
 
+      // Convert relative image path into complete URL
+      const imageUrl = getMediaUrl(category?.image);
+
       return (
         <div className="flex items-center gap-3">
 
           {/* Category Image */}
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-gray-100">
-            {category?.image ? (
+            {imageUrl ? (
               <Image
-                src={category.image}
+                src={imageUrl}
                 alt={category?.name || "Category"}
                 fill
                 className="object-cover"
@@ -53,7 +56,7 @@ export const categoryColumns = ({
 
           {/* Category Name */}
           <Link
-            href={`/admin/dashboard/category  /${category?._id}`}
+            href={`/admin/dashboard/category/${category?._id}`}
             className="font-medium text-[#5C4033] transition hover:underline"
           >
             {getValue() || "-"}
@@ -114,4 +117,3 @@ export const categoryColumns = ({
     ),
   }),
 ];
-
