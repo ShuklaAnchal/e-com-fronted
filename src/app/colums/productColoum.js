@@ -6,12 +6,7 @@ import { getMediaUrl } from "@/app/utils/mediaUrl";
 
 const columnHelper = createColumnHelper();
 
-export const productColumns = ({
-  onEdit,
-  onView,
-  onDelete,
-  onAddVariant,
-}) => [
+export const productColumns = ({ onEdit, onView, onDelete, onAddVariant }) => [
   // ==========================================
   // SR NO
   // ==========================================
@@ -35,12 +30,8 @@ export const productColumns = ({
 
       const primaryImage =
         product.media?.find(
-          (item) =>
-            item.mediaType === "image" && item.isPrimary,
-        ) ||
-        product.media?.find(
-          (item) => item.mediaType === "image",
-        );
+          (item) => item.mediaType === "image" && item.isPrimary,
+        ) || product.media?.find((item) => item.mediaType === "image");
 
       // Centralized media URL
       const imageUrl = getMediaUrl(primaryImage?.url);
@@ -67,9 +58,7 @@ export const productColumns = ({
               {getValue()}
             </Link>
 
-            <p className="text-xs text-gray-500">
-              {product.slug}
-            </p>
+            <p className="text-xs text-gray-500">{product.slug}</p>
           </div>
         </div>
       );
@@ -84,9 +73,7 @@ export const productColumns = ({
     header: "Brand",
 
     cell: ({ getValue }) => (
-      <span className="font-medium">
-        {getValue() || "-"}
-      </span>
+      <span className="font-medium">{getValue() || "-"}</span>
     ),
   }),
 
@@ -104,14 +91,10 @@ export const productColumns = ({
 
       return (
         <div>
-          <p className="font-medium">
-            {product.category?.name || "-"}
-          </p>
+          <p className="font-medium">{product.category?.name || "-"}</p>
 
           {product.subCategory?.name && (
-            <p className="text-xs text-gray-500">
-              {product.subCategory.name}
-            </p>
+            <p className="text-xs text-gray-500">{product.subCategory.name}</p>
           )}
         </div>
       );
@@ -131,17 +114,11 @@ export const productColumns = ({
       const variants = row.original.variants || [];
 
       if (!variants.length) {
-        return (
-          <span className="text-gray-400">
-            No variant
-          </span>
-        );
+        return <span className="text-gray-400">No variant</span>;
       }
 
       const defaultVariant =
-        variants.find(
-          (variant) => variant.isDefault,
-        ) || variants[0];
+        variants.find((variant) => variant.isDefault) || variants[0];
 
       const pricing = defaultVariant?.pricing;
 
@@ -152,20 +129,13 @@ export const productColumns = ({
       return (
         <div>
           <p className="font-medium">
-            ₹
-            {Number(
-              pricing.sellingPrice || 0,
-            ).toLocaleString("en-IN")}
+            ₹{Number(pricing.sellingPrice || 0).toLocaleString("en-IN")}
           </p>
 
           {pricing.mrp &&
-            Number(pricing.mrp) >
-              Number(pricing.sellingPrice) && (
+            Number(pricing.mrp) > Number(pricing.sellingPrice) && (
               <p className="text-xs text-gray-400 line-through">
-                ₹
-                {Number(
-                  pricing.mrp,
-                ).toLocaleString("en-IN")}
+                ₹{Number(pricing.mrp).toLocaleString("en-IN")}
               </p>
             )}
         </div>
@@ -187,10 +157,7 @@ export const productColumns = ({
 
       const totalStock = variants.reduce(
         (total, variant) =>
-          total +
-          Number(
-            variant.inventory?.stockQuantity || 0,
-          ),
+          total + Number(variant.inventory?.stockQuantity || 0),
         0,
       );
 
@@ -239,21 +206,17 @@ export const productColumns = ({
       const status = getValue();
 
       const statusClasses = {
-        published:
-          "bg-green-100 text-green-700",
+        published: "bg-green-100 text-green-700",
 
-        draft:
-          "bg-yellow-100 text-yellow-700",
+        draft: "bg-yellow-100 text-yellow-700",
 
-        inactive:
-          "bg-red-100 text-red-700",
+        inactive: "bg-red-100 text-red-700",
       };
 
       return (
         <span
           className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-            statusClasses[status] ||
-            "bg-gray-100 text-gray-600"
+            statusClasses[status] || "bg-gray-100 text-gray-600"
           }`}
         >
           {status || "Unknown"}
@@ -269,11 +232,7 @@ export const productColumns = ({
   columnHelper.display({
     id: "actions",
 
-    header: () => (
-      <div className="flex justify-center">
-        Action
-      </div>
-    ),
+    header: () => <div className="flex justify-center">Action</div>,
 
     cell: ({ row }) => (
       <div className="flex justify-center">
@@ -281,9 +240,7 @@ export const productColumns = ({
           onEdit={() => onEdit(row.original)}
           onView={() => onView(row.original)}
           onDelete={() => onDelete(row.original)}
-          onAddVariant={() =>
-            onAddVariant(row.original)
-          }
+          onAddVariant={() => onAddVariant(row.original)}
         />
       </div>
     ),

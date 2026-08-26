@@ -43,7 +43,10 @@ function ContentBlock({ block }) {
       );
     case "tip":
       return (
-        <div className="my-10 rounded-2xl border border-luxury-gold/20 px-8 py-7" style={{backgroundColor: "rgba(197,168,128,0.06)"}}>
+        <div
+          className="my-10 rounded-2xl border border-luxury-gold/20 px-8 py-7"
+          style={{ backgroundColor: "rgba(197,168,128,0.06)" }}
+        >
           <p className="text-xs uppercase tracking-[0.35em] text-luxury-gold mb-3 font-medium">
             {block.title}
           </p>
@@ -66,7 +69,7 @@ function RelatedCard({ blog }) {
           src={blog.image}
           alt={blog.title}
           fill
-          className="object-cover group-hover:scale-110 transition duration-500"
+          className="object-contain group-hover:scale-110 transition duration-500"
         />
       </div>
       <div>
@@ -103,15 +106,14 @@ export default function BlogDetailPage({ params }) {
       <MarqueeBar />
       <Header />
 
-      <main className="flex-1 pt-24 md:pt-32">
-
+      <main className="flex-1 pt-18 md:pt-18">
         <div className="relative h-[55vh] md:h-[70vh] w-full overflow-hidden">
           <Image
             src={blog.image}
             alt={blog.title}
             fill
             priority
-            className="object-cover"
+            className="object-contain"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
           <div className="absolute inset-0 flex flex-col justify-end pb-14 px-6 max-w-5xl mx-auto w-full left-1/2 -translate-x-1/2">
@@ -140,7 +142,6 @@ export default function BlogDetailPage({ params }) {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="flex flex-col lg:flex-row gap-16">
-
             <article className="lg:flex-1 min-w-0">
               <Link
                 href="/blogs"
@@ -165,8 +166,12 @@ export default function BlogDetailPage({ params }) {
                   <FaUser className="text-luxury-gold text-lg" />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-luxury-gold mb-1">Written by</p>
-                  <p className="font-serif text-luxury-dark text-lg">{blog.author}</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-luxury-gold mb-1">
+                    Written by
+                  </p>
+                  <p className="font-serif text-luxury-dark text-lg">
+                    {blog.author}
+                  </p>
                 </div>
               </div>
             </article>
@@ -181,7 +186,9 @@ export default function BlogDetailPage({ params }) {
                   <div className="mb-10">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="h-px flex-1 bg-luxury-gold/20" />
-                      <p className="text-[11px] uppercase tracking-[0.35em] text-luxury-gold whitespace-nowrap">More Articles</p>
+                      <p className="text-[11px] uppercase tracking-[0.35em] text-luxury-gold whitespace-nowrap">
+                        More Articles
+                      </p>
                       <div className="h-px flex-1 bg-luxury-gold/20" />
                     </div>
                     <div className="space-y-2">
@@ -193,9 +200,15 @@ export default function BlogDetailPage({ params }) {
                 )}
 
                 <div className="rounded-3xl bg-luxury-dark p-8 text-center">
-                  <p className="text-luxury-gold text-[10px] tracking-[0.4em] uppercase mb-4">The Candle Studio</p>
-                  <h3 className="font-serif text-white text-xl mb-4 leading-snug">Explore Our Luxury Collection</h3>
-                  <p className="text-white/50 text-sm mb-7 leading-6">Handcrafted soy candles made with the finest fragrance oils.</p>
+                  <p className="text-luxury-gold text-[10px] tracking-[0.4em] uppercase mb-4">
+                    The Candle Studio
+                  </p>
+                  <h3 className="font-serif text-white text-xl mb-4 leading-snug">
+                    Explore Our Luxury Collection
+                  </h3>
+                  <p className="text-white/50 text-sm mb-7 leading-6">
+                    Handcrafted soy candles made with the finest fragrance oils.
+                  </p>
                   <Link
                     href="/products"
                     className="inline-flex items-center gap-2 bg-luxury-gold text-white text-sm px-6 py-3 rounded-full hover:bg-luxury-gold-dark transition-colors duration-300 group"
@@ -213,7 +226,9 @@ export default function BlogDetailPage({ params }) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-5 mb-12">
               <div className="h-px w-16 bg-luxury-gold" />
-              <p className="text-[11px] uppercase tracking-[0.4em] text-luxury-gold">Continue Reading</p>
+              <p className="text-[11px] uppercase tracking-[0.4em] text-luxury-gold">
+                Continue Reading
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {blogs
@@ -226,11 +241,20 @@ export default function BlogDetailPage({ params }) {
                     className="group block overflow-hidden rounded-3xl border border-luxury-gold/10 hover:border-luxury-gold/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
                   >
                     <div className="relative h-52 overflow-hidden">
-                      <Image src={b.image} alt={b.title} fill className="object-cover transition duration-700 group-hover:scale-110" />
+                      <Image
+                        src={b.image}
+                        alt={b.title}
+                        fill
+                        className="object-fill transition duration-700 group-hover:scale-110"
+                      />
                     </div>
                     <div className="p-6">
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-luxury-gold mb-3">{b.category}</p>
-                      <h3 className="font-serif text-luxury-dark text-lg leading-snug group-hover:text-luxury-gold transition-colors">{b.title}</h3>
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-luxury-gold mb-3">
+                        {b.category}
+                      </p>
+                      <h3 className="font-serif text-luxury-dark text-lg leading-snug group-hover:text-luxury-gold transition-colors">
+                        {b.title}
+                      </h3>
                       <div className="flex items-center gap-4 mt-4 text-xs text-gray-400">
                         <span>{b.date}</span>
                         <span>&#183;</span>
@@ -242,7 +266,6 @@ export default function BlogDetailPage({ params }) {
             </div>
           </div>
         </section>
-
       </main>
 
       <Footer />

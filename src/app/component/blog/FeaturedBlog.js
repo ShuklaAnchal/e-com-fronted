@@ -34,7 +34,7 @@ export default function FeaturedBlog({ blog }) {
             alt={blog.title}
             width={800}
             height={700}
-            className="w-full h-[320px] sm:h-[450px] lg:h-[560px] object-cover transition duration-700 group-hover:scale-105"
+            className="w-full h-[320px] sm:h-[450px] lg:h-[450px] object-fill transition duration-700 group-hover:scale-105"
           />
 
           <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition duration-500"></div>

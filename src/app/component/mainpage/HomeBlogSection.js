@@ -75,7 +75,7 @@ export default function HomeBlogSection() {
                     src={blog.image}
                     alt={blog.title}
                     fill
-                    className="object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+                    className="object-fill transition-transform duration-[1200ms] group-hover:scale-110"
                   />
                   {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />

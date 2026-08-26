@@ -24,7 +24,7 @@ export default function BlogCard({ blog }) {
             src={blog.image}
             alt={blog.title}
             fill
-            className="object-cover transition duration-700 group-hover:scale-110"
+            className="object-fill transition duration-700 group-hover:scale-110"
           />
 
         </div>

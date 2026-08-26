@@ -4,10 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { getMediaUrl } from "@/app/utils/mediaUrl";
 
-export default function ProductGallery({
-  product,
-  variants = [],
-}) {
+export default function ProductGallery({ product, variants = [] }) {
   // =========================================================
   // BUILD MEDIA LIST
   // =========================================================
@@ -50,10 +47,7 @@ export default function ProductGallery({
           if (url) {
             allMedia.push({
               ...item,
-              type:
-                item.mediaType ||
-                item.type ||
-                "image",
+              type: item.mediaType || item.type || "image",
               url,
             });
           }
@@ -98,10 +92,7 @@ export default function ProductGallery({
           if (url) {
             allMedia.push({
               ...item,
-              type:
-                item.mediaType ||
-                item.type ||
-                "image",
+              type: item.mediaType || item.type || "image",
               url,
             });
           }
@@ -115,11 +106,7 @@ export default function ProductGallery({
 
     const uniqueMedia = allMedia.filter(
       (item, index, self) =>
-        index ===
-        self.findIndex(
-          (mediaItem) =>
-            mediaItem.url === item.url,
-        ),
+        index === self.findIndex((mediaItem) => mediaItem.url === item.url),
     );
 
     return uniqueMedia;
@@ -131,8 +118,7 @@ export default function ProductGallery({
 
   const [activeMedia, setActiveMedia] = useState(null);
 
-  const selectedMedia =
-    activeMedia || media[0];
+  const selectedMedia = activeMedia || media[0];
 
   // =========================================================
   // NO MEDIA
@@ -154,13 +140,9 @@ export default function ProductGallery({
             justify-center
           "
         >
-          <div className="text-6xl mb-5">
-            🛍️
-          </div>
+          <div className="text-6xl mb-5">🛍️</div>
 
-          <p className="text-gray-500">
-            Product image not available
-          </p>
+          <p className="text-gray-500">Product image not available</p>
         </div>
       </div>
     );
@@ -172,7 +154,6 @@ export default function ProductGallery({
 
   return (
     <div className="w-full space-y-5 lg:sticky lg:top-32">
-
       {/* =====================================================
           MAIN MEDIA
       ===================================================== */}
@@ -206,9 +187,7 @@ export default function ProductGallery({
         ) : (
           <Image
             src={selectedMedia.url}
-            alt={
-              product?.name || "Product"
-            }
+            alt={product?.name || "Product"}
             fill
             priority
             sizes="
@@ -233,16 +212,13 @@ export default function ProductGallery({
         "
       >
         {media.map((item, index) => {
-          const isSelected =
-            selectedMedia?.url === item.url;
+          const isSelected = selectedMedia?.url === item.url;
 
           return (
             <button
               key={`${item.url}-${index}`}
               type="button"
-              onClick={() =>
-                setActiveMedia(item)
-              }
+              onClick={() => setActiveMedia(item)}
               className={`
                 relative
                 flex-shrink-0
@@ -253,11 +229,7 @@ export default function ProductGallery({
                 border-2
                 transition-all
 
-                ${
-                  isSelected
-                    ? "border-black"
-                    : "border-gray-200"
-                }
+                ${isSelected ? "border-black" : "border-gray-200"}
               `}
             >
               {/* =========================================
@@ -302,9 +274,7 @@ export default function ProductGallery({
                         shadow
                       "
                     >
-                      <span className="text-black text-sm ml-0.5">
-                        ▶
-                      </span>
+                      <span className="text-black text-sm ml-0.5">▶</span>
                     </div>
                   </div>
                 </>
