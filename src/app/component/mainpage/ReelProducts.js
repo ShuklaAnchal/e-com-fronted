@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
-
-
 const ReelProducts = () => {
   const router = useRouter();
 
@@ -20,68 +18,68 @@ const ReelProducts = () => {
     {
       _id: "demo1",
       name: "Vanilla Soy Candle",
-      price: 799,
+      // price: 799,
       video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/2a/c1/6e/2ac16ebbdb7cb8b3d65a3d0cf1e44d42.mp4",
+        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787757759/IMG_5033.mov",
       },
     },
     {
       _id: "demo2",
       name: "Lavender Collection",
-      price: 999,
+      // price: 999,
       video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/c0/e5/03/c0e5039f7f97c6669f58fa7eddfa43c9.mp4",
+        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787757511/VID_20260620_135122.mp4",
       },
     },
     {
       _id: "demo3",
       name: "Luxury Amber Candle",
-      price: 1299,
+      // price: 1299,
       video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787753351/IMG_E5481.mov",
       },
     },
     {
       _id: "demo4",
       name: "Rose Essence",
-      price: 899,
+      // price: 899,
       video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787652123/IMG_5318.mov",
       },
     },
     {
       _id: "demo5",
       name: "Luxury Collection",
-      price: 1499,
+      // price: 1499,
       video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/2a/c1/6e/2ac16ebbdb7cb8b3d65a3d0cf1e44d42.mp4",
+        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787651474/IMG_5294.mov",
       },
     },
     {
       _id: "demo6",
       name: "Signature Collection",
-      price: 1499,
+      // price: 1499,
       video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787651867/IMG_5250.mov",
       },
     },
-    {
-      _id: "demo7",
-      name: "Signature Collection",
-      price: 1499,
-      video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-      },
-    },
+    // {
+    //   _id: "demo7",
+    //   name: "Signature Collection",
+    //   price: 1499,
+    //   video: {
+    //     url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+    //   },
+    // },
 
-    {
-      _id: "demo8",
-      name: "Signature Collection",
-      price: 1499,
-      video: {
-        url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-      },
-    },
+    // {
+    //   _id: "demo8",
+    //   name: "Signature Collection",
+    //   price: 1499,
+    //   video: {
+    //     url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+    //   },
+    // },
   ];
 
   useEffect(() => {
@@ -113,7 +111,7 @@ const ReelProducts = () => {
       }
     });
   };
- 
+
   return (
     <>
       <section className=" w-full webprimarycolor flex justify-center">
@@ -197,10 +195,11 @@ const ReelProducts = () => {
                         }}
                         src={item.video.url}
                         muted
+                        autoPlay
                         loop
                         playsInline
                         preload="metadata"
-                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 "
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                         onClick={() =>
                           setActiveVideo({
                             url: item.video.url,
@@ -218,9 +217,9 @@ const ReelProducts = () => {
                         {item.name}
                       </h3>
 
-                      <p className="-1 text-[12px] sm:text-[14px] font-light">
+                      {/* <p className="-1 text-[12px] sm:text-[14px] font-light">
                         Rs. {item.price}
-                      </p>
+                      </p> */}
 
                       <button
                         onClick={() => router.push(`/products/${item._id}`)}

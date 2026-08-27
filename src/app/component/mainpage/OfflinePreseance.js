@@ -8,61 +8,61 @@ import "swiper/css/pagination";
 
 const moments = [
   {
-    category: "Customer Love",
+    category: "Events",
     title: "A Candle That Made My Home Special",
-    person: "Ananya",
+    person: "Bhopal",
     video:
       "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957322/AQMl428t7WoSuzCTcp_Zd_FOChyHyt1xTyqaDjASHJ7sKZzcHKYeTZxUquFsVJxWzsLPs7AUJWr_uyTh3UollSKxjahwW-lhAiWfLLU.mp4",
   },
   {
     category: "Events",
     title: "Siyaas Festive Collection Launch",
-    person: "Mumbai Pop-Up",
+    person: "Bhopal",
     video:
       "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957341/VID_20260816204415607.mp4",
   },
   {
-    category: "Customer Love",
-    title: "Perfect Gift For Every Occasion",
-    person: "Priya",
+    category: "Event",
+    title: "Hack Nd Make Startup India",
+    person: "Bhopal",
     video:
       "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957448/AQNR_KECKSki6nv7UoUgSkCmKv-x38AD6H4sgwHRujqt43sca9OURZSlG6ZVOEPOqheHYvMZO-Ivq_GjbwCj52gcjqiiJhZqs0cHWLc.mp4",
   },
   {
     category: "Events",
-    title: "Luxury Exhibition 2025",
-    person: "Delhi",
+    title: "Jamming By The Koun Active Hai",
+    person: "Bhopal",
     video:
       "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957715/AirBrushVideo1786879064978.mp4",
   },
   {
     category: "Customer Love",
     title: "A Candle That Made My Home Special",
-    person: "Ananya",
+    person: "Bhopal",
     video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+      "https://res.cloudinary.com/mdbmovuw/video/upload/v1787074648/promationvideo.mp4",
   },
-  {
-    category: "Events",
-    title: "Siyaas Festive Collection Launch",
-    person: "Mumbai Pop-Up",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-  {
-    category: "Customer Love",
-    title: "Perfect Gift For Every Occasion",
-    person: "Priya",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
-  {
-    category: "Events",
-    title: "Luxury Exhibition 2025",
-    person: "Delhi",
-    video:
-      "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-  },
+  // {
+  //   category: "Events",
+  //   title: "Siyaas Festive Collection Launch",
+  //   person: "Bhopal",
+  //   video:
+  //     "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+  // },
+  // {
+  //   category: "Customer Love",
+  //   title: "Perfect Gift For Every Occasion",
+  //   person: "Priya",
+  //   video:
+  //     "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+  // },
+  // {
+  //   category: "Events",
+  //   title: "Luxury Exhibition 2025",
+  //   person: "Delhi",
+  //   video:
+  //     "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
+  // },
 ];
 
 export default function MomentsWithSiyaas() {

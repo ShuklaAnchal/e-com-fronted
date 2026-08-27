@@ -12,10 +12,17 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
       },
 
-      // Keep your existing DigitalOcean configuration here
+      // DigitalOcean Spaces
       {
         protocol: "https",
         hostname: "your-space.your-region.digitaloceanspaces.com",
+        pathname: "/**",
+      },
+
+      // Google Review Images
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
         pathname: "/**",
       },
     ],
