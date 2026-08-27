@@ -407,41 +407,68 @@ export default function CheckoutPage() {
      CREATE SHIPPING ADDRESS
   ===================================================== */
 
+  /* =====================================================
+   CREATE SHIPPING ADDRESS DATA
+===================================================== */
+
   const buildShippingAddress = () => {
+    // Existing saved address
     if (selectedAddress) {
       return {
         addressId: getAddressId(selectedAddress),
 
         name: selectedAddress.name || selectedAddress.fullName || "",
 
-        mobileNumber:
+        mobileNumber: String(
           selectedAddress.mobileNumber || selectedAddress.mobile || "",
+        ),
 
-        pincode: selectedAddress.pincode || "",
+        alternateNumber: String(selectedAddress.alternateNumber || ""),
+
+        pincode: String(selectedAddress.pincode || ""),
 
         locality: selectedAddress.locality || "",
 
         addressline:
           selectedAddress.addressline || selectedAddress.address || "",
 
+        landmark: selectedAddress.landmark || "",
+
         city: selectedAddress.city || "",
 
         state: selectedAddress.state || "",
 
-        landmark: selectedAddress.landmark || "",
-
-        alternateNumber: selectedAddress.alternateNumber || "",
-
         addressType: selectedAddress.addressType || "Home",
+
+        country: "India",
       };
     }
 
+    // New address
     return {
-      ...formData,
-      addressId: null,
+      name: formData.name.trim(),
+
+      mobileNumber: String(formData.mobileNumber || ""),
+
+      alternateNumber: String(formData.alternateNumber || ""),
+
+      pincode: String(formData.pincode || ""),
+
+      locality: formData.locality.trim(),
+
+      addressline: formData.addressline.trim(),
+
+      landmark: formData.landmark?.trim() || "",
+
+      city: formData.city.trim(),
+
+      state: formData.state.trim(),
+
+      addressType: formData.addressType || "Home",
+
+      country: "India",
     };
   };
-
   /* =====================================================
      CREATE RAZORPAY SCRIPT
   ===================================================== */
@@ -530,12 +557,9 @@ export default function CheckoutPage() {
           console.log("RAZORPAY SUCCESS:", response);
 
           const verificationData = {
-            orderID: orderId,
-
+            orderId: orderId,
             razorpay_order_id: response.razorpay_order_id,
-
             razorpay_payment_id: response.razorpay_payment_id,
-
             razorpay_signature: response.razorpay_signature,
           };
 
@@ -599,8 +623,8 @@ export default function CheckoutPage() {
   };
 
   /* =====================================================
-     PLACE ORDER
-  ===================================================== */
+   PLACE ORDER
+===================================================== */
 
   const handlePlaceOrder = async (event) => {
     event.preventDefault();
@@ -609,77 +633,83 @@ export default function CheckoutPage() {
       return;
     }
 
-    /* ---------------------------------------------
+    try {
+      /* =================================================
        CART VALIDATION
-    --------------------------------------------- */
+    ================================================= */
 
-    if (!cartItems || cartItems.length === 0) {
-      alert("Your cart is empty.");
-      return;
-    }
-
-    /* ---------------------------------------------
-       ADDRESS VALIDATION
-    --------------------------------------------- */
-
-    if (
-      savedAddresses.length > 0 &&
-      !selectedAddressId &&
-      !showNewAddressForm
-    ) {
-      alert("Please select a delivery address.");
-      return;
-    }
-
-    if (showNewAddressForm) {
-      if (!validateAddress()) {
+      if (!cartItems || cartItems.length === 0) {
+        alert("Your cart is empty.");
         return;
       }
-    }
 
-    /* ---------------------------------------------
-       PAYMENT METHOD
-    --------------------------------------------- */
+      /* =================================================
+       ADDRESS VALIDATION
+    ================================================= */
 
-    if (!paymentMethod) {
-      alert("Please select a payment method.");
-      return;
-    }
+      let shippingAddressId = null;
+      let shippingAddress = null;
 
-    try {
+      /*
+       * EXISTING SAVED ADDRESS
+       */
+      if (!showNewAddressForm) {
+        if (!selectedAddressId) {
+          alert("Please select a delivery address.");
+          return;
+        }
+
+        if (!selectedAddress) {
+          alert("Selected delivery address could not be found.");
+          return;
+        }
+
+        shippingAddressId = getAddressId(selectedAddress);
+
+        if (!shippingAddressId) {
+          alert("Selected address ID could not be found.");
+          return;
+        }
+
+        console.log("USING SAVED ADDRESS ID:", shippingAddressId);
+      }
+
+      /*
+       * NEW ADDRESS
+       */
+      if (showNewAddressForm) {
+        const isValid = validateAddress();
+
+        if (!isValid) {
+          return;
+        }
+
+        shippingAddress = buildShippingAddress();
+
+        console.log("USING NEW ADDRESS:", shippingAddress);
+      }
+
+      /* =================================================
+       PAYMENT VALIDATION
+    ================================================= */
+
+      if (!paymentMethod) {
+        alert("Please select a payment method.");
+        return;
+      }
+
       setPlacingOrder(true);
 
-      /* ==========================================
-         SHIPPING ADDRESS
-      ========================================== */
-
-      const shippingAddress = buildShippingAddress();
-
-      /* ==========================================
-         PRODUCTS
-
-         IMPORTANT:
-
-         Backend expects:
-
-         products: [
-           {
-             product,
-             variant,
-             quantity
-           }
-         ]
-
-         The backend calculates the price
-         itself from ProductVariant.
-      ========================================== */
+      /* =================================================
+       PRODUCTS
+    ================================================= */
 
       const products = cartItems.map((item) => {
         const productId =
-          item?.productId || item?.product || item?.product?._id;
+          item?.productId || item?.product?._id || item?.product;
 
         const variantId =
-          item?.variantId || item?.variant || item?.variant?._id;
+          item?.variantId || item?.variant?._id || item?.variant;
 
         return {
           product: productId,
@@ -690,19 +720,21 @@ export default function CheckoutPage() {
         };
       });
 
-      /* ==========================================
-         CHECK PRODUCT / VARIANT IDS
-      ========================================== */
+      console.log("ORDER PRODUCTS:", products);
+
+      /* =================================================
+       VALIDATE PRODUCTS
+    ================================================= */
 
       const invalidProduct = products.find(
         (item) => !item.product || !item.variant || item.quantity <= 0,
       );
 
       if (invalidProduct) {
-        console.error("INVALID CART ITEM:", invalidProduct);
+        console.error("INVALID CART PRODUCT:", invalidProduct);
 
         alert(
-          "Some cart products are invalid. Please remove them and add them again.",
+          "Some products in your cart are invalid. Please remove them and add them again.",
         );
 
         setPlacingOrder(false);
@@ -710,14 +742,30 @@ export default function CheckoutPage() {
         return;
       }
 
-      /* ==========================================
-         FINAL ORDER PAYLOAD
+      /* =================================================
+       BACKEND PAYMENT METHOD
+    ================================================= */
 
-         MATCHES YOUR BACKEND CONTROLLER
-      ========================================== */
+      const backendPaymentMethod = paymentMethod === "COD" ? "COD" : "RAZORPAY";
+
+      /* =================================================
+       FINAL ORDER PAYLOAD
+    ================================================= */
 
       const orderPayload = {
         products,
+
+        /*
+         * Existing address:
+         *
+         * shippingAddressId = selected MongoDB ID
+         *
+         * New address:
+         *
+         * shippingAddress = form data
+         */
+
+        shippingAddressId,
 
         shippingAddress,
 
@@ -726,69 +774,89 @@ export default function CheckoutPage() {
         shippingCost: Number(shippingCost) || 0,
 
         tax: Number(tax) || 0,
-        paymentMethod,
+
+        paymentMethod: backendPaymentMethod,
       };
+
+      console.log("================================");
 
       console.log("FINAL ORDER PAYLOAD:", orderPayload);
 
-      /* ==========================================
-         STEP 1
-         CREATE ORDER IN DATABASE
-      ========================================== */
+      console.log("SHIPPING ADDRESS ID:", shippingAddressId);
+
+      console.log("SHIPPING ADDRESS:", shippingAddress);
+
+      console.log("================================");
+
+      /* =================================================
+       CREATE ORDER
+    ================================================= */
 
       const orderResult = await dispatch(createOrder(orderPayload));
 
       console.log("CREATE ORDER RESULT:", orderResult);
 
+      /* =================================================
+       ORDER ERROR
+    ================================================= */
+
       if (!orderResult?.success) {
         throw new Error(orderResult?.message || "Unable to create order.");
       }
 
-      /* ==========================================
-         GET CREATED ORDER
-      ========================================== */
+      /* =================================================
+       CREATED ORDER
+    ================================================= */
 
-      const createdOrder = orderResult?.payload?.order;
+      const createdOrder = orderResult?.payload?.payload?.order;
 
       if (!createdOrder) {
-        console.error("CREATE ORDER RESPONSE:", orderResult);
+        console.error("INVALID CREATE ORDER RESPONSE:", orderResult);
 
         throw new Error(
           "Order was created but order details were not returned.",
         );
       }
 
+      console.log("CREATED ORDER:", createdOrder);
+
+      /* =================================================
+       ORDER ID
+    ================================================= */
+
       const orderId = createdOrder?._id || createdOrder?.id;
 
       if (!orderId) {
-        throw new Error("Order ID was not received.");
+        throw new Error("Order ID was not received from server.");
       }
 
-      /*
-       * Backend calculates the final amount.
-       * Use that value rather than trusting
-       * the frontend total.
-       */
+      /* =================================================
+       ORDER AMOUNT
+    ================================================= */
 
-      const orderAmount = Number(createdOrder?.totalPrice || total || 0);
+      const orderAmount = Number(createdOrder?.totalPrice || 0);
 
       if (orderAmount <= 0) {
-        throw new Error("Invalid order amount.");
+        throw new Error("Invalid order amount received from server.");
       }
 
-      /* ==========================================
-         CASH ON DELIVERY
-      ========================================== */
+      console.log("ORDER ID:", orderId);
 
-      if (paymentMethod === "COD") {
-        router.push(`/user/order-success`);
+      console.log("ORDER AMOUNT:", orderAmount);
+
+      /* =================================================
+       COD
+    ================================================= */
+
+      if (backendPaymentMethod === "COD") {
+        router.push(`/user/order-success?orderId=${orderId}`);
 
         return;
       }
 
-      /* ==========================================
-         ONLINE PAYMENT
-      ========================================== */
+      /* =================================================
+       RAZORPAY
+    ================================================= */
 
       const razorpayResult = await dispatch(
         createRazorpayOrder(orderId, orderAmount),
@@ -802,24 +870,33 @@ export default function CheckoutPage() {
         );
       }
 
-      /* ==========================================
-         STEP 3
-         OPEN RAZORPAY
-      ========================================== */
+      /* =================================================
+       OPEN RAZORPAY
+    ================================================= */
 
       await openRazorpay({
         orderId,
-        razorpayOrder: razorpayResult?.payload,
+
+        razorpayOrder: razorpayResult?.payload?.result,
       });
     } catch (error) {
+      console.error("================================");
+
       console.error("PLACE ORDER ERROR:", error);
 
-      alert(error?.message || "Unable to place order.");
+      console.error("RESPONSE:", error?.response?.data);
+
+      console.error("================================");
+
+      alert(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to place order.",
+      );
 
       setPlacingOrder(false);
     }
   };
-
   /* =====================================================
      HYDRATION
   ===================================================== */

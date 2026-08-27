@@ -108,13 +108,13 @@ export default function BlogDetailPage({ params }) {
 
       <main className="flex-1 pt-18 md:pt-18">
         <div className="relative h-[55vh] md:h-[70vh] w-full overflow-hidden">
-          <Image
+          {/* <Image
             src={blog.image}
             alt={blog.title}
             fill
             priority
             className="object-contain"
-          />
+          /> */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
           <div className="absolute inset-0 flex flex-col justify-end pb-14 px-6 max-w-5xl mx-auto w-full left-1/2 -translate-x-1/2">
             <span className="inline-block text-[11px] uppercase tracking-[0.35em] text-luxury-gold mb-5">

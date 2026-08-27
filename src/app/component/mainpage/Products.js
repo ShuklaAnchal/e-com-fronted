@@ -14,125 +14,154 @@ const Products = () => {
   // --------------------------------------------------
   // SAFE IMAGE URL HELPER
   // --------------------------------------------------
-  const getImageUrl = (imageUrl) => {
-    const placeholder = "/placeholder-product.png";
+ const getImageUrl = (imageUrl) => {
+  const placeholder = "/placeholder-product.png";
 
-    // No image
-    if (!imageUrl || typeof imageUrl !== "string") {
-      return placeholder;
-    }
+  if (!imageUrl || typeof imageUrl !== "string") {
+    return placeholder;
+  }
 
-    const trimmedUrl = imageUrl.trim();
+  const trimmedUrl = imageUrl.trim();
 
-    // Empty / invalid values
-    if (
-      !trimmedUrl ||
-      trimmedUrl === "undefined" ||
-      trimmedUrl === "null" ||
-      trimmedUrl.includes("/undefined") ||
-      trimmedUrl.includes("undefined/")
-    ) {
-      return placeholder;
-    }
+  if (
+    !trimmedUrl ||
+    trimmedUrl === "undefined" ||
+    trimmedUrl === "null" ||
+    trimmedUrl.includes("/undefined") ||
+    trimmedUrl.includes("undefined/")
+  ) {
+    return placeholder;
+  }
 
-    // Already a complete URL
-    if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+  // Full URL
+  if (
+    trimmedUrl.startsWith("http://") ||
+    trimmedUrl.startsWith("https://")
+  ) {
+    return trimmedUrl;
+  }
+
+  // Local Next.js public image
+  if (trimmedUrl.startsWith("/")) {
+    if (trimmedUrl.startsWith("/placeholder")) {
       return trimmedUrl;
     }
 
-    // Local/public image
-    if (trimmedUrl.startsWith("/")) {
-      // If it is already a local Next.js path
-      if (trimmedUrl.startsWith("/placeholder")) {
-        return trimmedUrl;
-      }
-
-      // API URL available
-      if (process.env.NEXT_PUBLIC_API_URL) {
-        return `${process.env.NEXT_PUBLIC_API_URL.replace(
-          /\/$/,
-          "",
-        )}${trimmedUrl}`;
-      }
-
-      return trimmedUrl;
-    }
-
-    // Relative API image path
     if (process.env.NEXT_PUBLIC_API_URL) {
       return `${process.env.NEXT_PUBLIC_API_URL.replace(
         /\/$/,
-        "",
-      )}/${trimmedUrl.replace(/^\//, "")}`;
+        ""
+      )}${trimmedUrl}`;
     }
 
-    // API URL is missing
-    return placeholder;
-  };
+    return trimmedUrl;
+  }
+
+  // Relative backend path
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return `${process.env.NEXT_PUBLIC_API_URL.replace(
+      /\/$/,
+      ""
+    )}/${trimmedUrl.replace(/^\/+/, "")}`;
+  }
+
+  return placeholder;
+};
 
   // --------------------------------------------------
   // CONVERT API PRODUCT STRUCTURE INTO UI STRUCTURE
   // --------------------------------------------------
-  const mappedProducts = products
-    .filter((product) => product.status === "published")
-    .map((product) => {
-      // --------------------------------------------------
-      // GET ONLY IMAGE MEDIA
-      // --------------------------------------------------
-      const imageMedia =
-        product.media?.filter((media) => media.mediaType === "image") || [];
+const mappedProducts = products
+  .filter((product) => product.status === "published")
+  .map((product) => {
+    // -----------------------------------------
+    // PRODUCT LEVEL IMAGES ONLY
+    // -----------------------------------------
+    const imageMedia =
+      Array.isArray(product.media)
+        ? product.media.filter(
+            (media) =>
+              media &&
+              media.mediaType === "image" &&
+              typeof media.url === "string" &&
+              media.url.trim() !== ""
+          )
+        : [];
 
-      // --------------------------------------------------
-      // PRIMARY IMAGE
-      // --------------------------------------------------
-      const primaryImage =
-        imageMedia.find((media) => media.isPrimary)?.url ||
-        imageMedia[0]?.url ||
-        null;
+    // -----------------------------------------
+    // PRIMARY PRODUCT IMAGE
+    // -----------------------------------------
+    const primaryMedia =
+      imageMedia.find((media) => media.isPrimary === true) ||
+      imageMedia[0];
 
-      // --------------------------------------------------
-      // HOVER IMAGE
-      // --------------------------------------------------
-      const hoverImage =
-        imageMedia.find((media) => !media.isPrimary)?.url ||
-        imageMedia[1]?.url ||
-        primaryImage ||
-        null;
+    // -----------------------------------------
+    // HOVER PRODUCT IMAGE
+    // -----------------------------------------
+    const hoverMedia =
+      imageMedia.find(
+        (media) =>
+          media.url !== primaryMedia?.url
+      ) || primaryMedia;
 
-      // --------------------------------------------------
-      // DEFAULT VARIANT
-      // --------------------------------------------------
-      const defaultVariant =
-        product.variants?.find((variant) => variant.isDefault) ||
-        product.variants?.[0];
+    // -----------------------------------------
+    // DEFAULT VARIANT
+    // -----------------------------------------
+    const defaultVariant =
+      product.variants?.find(
+        (variant) => variant.isDefault === true
+      ) || product.variants?.[0];
 
-      // --------------------------------------------------
-      // RETURN UI PRODUCT
-      // --------------------------------------------------
-      return {
-        ...product,
+    // -----------------------------------------
+    // PRICING
+    // -----------------------------------------
+    const mrp = Number(
+      defaultVariant?.pricing?.mrp || 0
+    );
 
-        // SAFE IMAGE URL
-        image: getImageUrl(primaryImage),
-        // SAFE HOVER IMAGE URL
-        hoverImage: getImageUrl(hoverImage),
-        // DESCRIPTION
-        description:
-          product.shortDescription ||
-          product.fullDescription ||
-          "Premium quality product",
+    const sellingPrice = Number(
+      defaultVariant?.pricing?.sellingPrice || 0
+    );
 
-        // PRICE
-        mrp: defaultVariant?.pricing?.mrp || 0,
+    // -----------------------------------------
+    // INVENTORY
+    // -----------------------------------------
+    const inStock =
+      defaultVariant?.inventory?.inStock === true;
 
-        price: defaultVariant?.pricing?.sellingPrice || 0,
+    const stockQuantity = Number(
+      defaultVariant?.inventory?.stockQuantity || 0
+    );
 
-        // INVENTORY
-        inStock: defaultVariant?.inventory?.inStock ?? false,
+    // -----------------------------------------
+    // FINAL UI PRODUCT
+    // -----------------------------------------
+    return {
+      ...product,
 
-        stockQuantity: defaultVariant?.inventory?.stockQuantity || 0,
-      };
-    });
+      // Product-level media
+      image: getImageUrl(primaryMedia?.url),
+      hoverImage: getImageUrl(hoverMedia?.url),
+
+      // Product information
+      description:
+        product.shortDescription ||
+        product.fullDescription ||
+        "Premium quality product",
+
+      // Variant pricing
+      mrp,
+      price: sellingPrice,
+
+      // Variant inventory
+      inStock,
+      stockQuantity,
+
+      // Optional useful values
+      variantId: defaultVariant?._id,
+      sku: defaultVariant?.sku,
+    };
+  });
 
   // --------------------------------------------------
   // LOADING
@@ -305,7 +334,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
       20vw
     "
                     className="
-      object-contain
+      object-contain rounded-[25px] border-none
       p-1
       sm:p-2
       transition-transform
@@ -330,7 +359,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
       20vw
     "
                     className="
-      object-contain
+      object-contain rounded-[25px]
       p-1
       sm:p-2
       opacity-0

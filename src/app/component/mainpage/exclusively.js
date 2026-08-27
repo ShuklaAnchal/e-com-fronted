@@ -62,7 +62,7 @@ export default function BenefitsSection() {
             whitespace-nowrap
             "
           >
-            Exclusively on Siyaas.com
+            Exclusively on Siyaas.in
           </p>
 
           <div className="h-px w-10 md:w-24 bg-gray-500" />

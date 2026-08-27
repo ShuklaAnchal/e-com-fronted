@@ -10,10 +10,11 @@ import { useOrders } from "@/app/hooks/orderHook";
 import { orderColumns } from "@/app/colums/orderColumns";
 
 import { deleteCategory } from "@/app/store/action/categoryAction";
+import { useRouter } from "next/navigation";
 
 export default function CatgoryPage() {
   const dispatch = useDispatch();
-
+  const router = useRouter();
   const { modal, openModal, closeModal } = useModal();
 
   const { allOrders, loading, refreshOrders } = useOrders();
@@ -30,8 +31,29 @@ export default function CatgoryPage() {
   // };
 
   const handleView = (allOrders) => {
-    console.log("View Category:", allOrders);
-  };
+  console.log("========== VIEW Order ==========");
+  console.log("1. Order:", allOrders);
+
+  const OrderID = allOrders?._id;
+
+  console.log("2. Order ID:", OrderID);
+
+  if (!OrderID) {
+    console.error("❌ OrderID ID is missing:", OrderID);
+    return;
+  }
+
+  const url = `/admin/dashboard/orders/${OrderID}`;
+
+  console.log("3. Navigating to:", url);
+
+  try {
+    router.push(url);
+    console.log("4. router.push executed successfully");
+  } catch (error) {
+    console.error("❌ ROUTER PUSH ERROR:", error);
+  }
+};
 
   // const handleDelete = async (category) => {
   //   const confirmDelete = window.confirm(`Delete ${category.name}?`);

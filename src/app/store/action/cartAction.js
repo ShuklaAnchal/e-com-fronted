@@ -255,9 +255,9 @@ export const mergeLocalCart = () => async (dispatch) => {
 
 // Remove from Cart Action
 export const removeFromCartAction =
-  (productId) => async (dispatch, getState) => {
+  ({ productId, variantId }) =>
+  async (dispatch, getState) => {
     dispatch(setCartRequest());
-
     try {
       const token = getToken();
 
@@ -268,17 +268,19 @@ export const removeFromCartAction =
           },
         };
 
-        const response = await axios.delete("/cart/remove-single-product", {
-          ...config,
-          data: {
-            productId,
+        const response = await axios.delete(
+          "/cart/remove-single-product-cart",
+          {
+            ...config,
+            data: {
+              productId,
+              variantId,
+            },
           },
-        });
+        );
 
-        // Get updated cart directly from backend
         const updatedCart = response?.data?.cart;
 
-        // Update Redux immediately
         dispatch(setCartSuccess(updatedCart?.items || []));
 
         return {
@@ -287,7 +289,10 @@ export const removeFromCartAction =
         };
       }
 
-      // Guest cart
+      // =====================================================
+      // GUEST CART
+      // =====================================================
+
       const { cartItems = [] } = getState().cart;
 
       const updatedCart = cartItems.filter(
@@ -295,6 +300,7 @@ export const removeFromCartAction =
       );
 
       dispatch(updateLocalCart(updatedCart));
+
       dispatch(setCartSuccess(updatedCart));
 
       return {
@@ -302,6 +308,8 @@ export const removeFromCartAction =
         cart: updatedCart,
       };
     } catch (error) {
+      console.error("REMOVE FROM CART ERROR:", error?.response?.data || error);
+
       dispatch(
         setCartFail(
           error?.response?.data?.message || "Failed to remove from cart",
@@ -310,6 +318,7 @@ export const removeFromCartAction =
 
       return {
         success: false,
+        message: error?.response?.data?.message || "Failed to remove from cart",
       };
     }
   };

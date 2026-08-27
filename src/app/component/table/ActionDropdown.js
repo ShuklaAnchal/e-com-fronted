@@ -8,6 +8,7 @@ export default function ActionDropdown({
   onView,
   onDelete,
   onAddVariant,
+  onRelationships
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
@@ -59,6 +60,16 @@ export default function ActionDropdown({
               Add Variant
             </button>
           )}
+
+            {onRelationships && (
+            <button
+              className="block w-full px-4 py-2 text-left border-b-[1px]  "
+              onClick={onRelationships}
+            >
+              Add Relation
+            </button>
+          )}
+
 
           <button
             onClick={onDelete}

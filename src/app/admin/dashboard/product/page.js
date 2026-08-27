@@ -3,16 +3,20 @@
 import Modal from "@/app/component/resuable/model";
 import ProductForm from "@/app/component/forms/productForm";
 import VariantForm from "@/app/component/forms/addVarientForm";
+import ProductRelationshipForm from "@/app/component/forms/productRelationshipForm"
 import Table from "@/app/component/table/table";
 
 import useModal from "@/app/hooks/useModalHook";
 import { useProducts } from "@/app/hooks/productHook";
 
 import { productColumns } from "@/app/colums/productColoum";
+import { deleteListedProduct } from "@/app/store/action/productAction";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
 
 export default function ProductPage() {
   const dispatch = useDispatch();
+  const router = useRouter()
 
   const { modal, openModal, closeModal } = useModal();
 const {
@@ -35,44 +39,87 @@ const {
     );
   };
 
-  const handleEdit = (category) => {
-    console.log({ category });
+  const handleRelationships = (product) => {
+  openModal(
+    `Product Relationships - ${product.name}`,
+    <ProductRelationshipForm
+      product={product}
+      products={products}
+      onClose={closeModal}
+      refreshProducts={refreshProducts}
+    />
+  );
+};
+
+  const handleEdit = (product) => {
+    console.log({ product });
 
     openModal(
-      "Edit Category",
+      "Edit Product",
       <ProductForm
-        editData={category}
+        editData={product}
         onClose={closeModal}
         refreshProducts={refreshProducts}
       />,
     );
   };
 
-  const handleView = (product) => {
-    console.log("View Category:", category);
-  };
+const handleView = (product) => {
+  console.log("========== VIEW PRODUCT ==========");
+  console.log("1. Product:", product);
 
-  const handleDelete = async (product) => {
-    const confirmDelete = window.confirm(`Delete ${product.name}?`);
+  const productId = product?._id;
 
-    if (!confirmDelete) return;
+  console.log("2. Product ID:", productId);
 
-    try {
-      await dispatch(product._id);
+  if (!productId) {
+    console.error("❌ Product ID is missing:", product);
+    return;
+  }
 
-      await refreshProducts();
+  const url = `/admin/dashboard/product/${productId}`;
 
-      alert("Product deleted successfully");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  console.log("3. Navigating to:", url);
+
+  try {
+    router.push(url);
+    console.log("4. router.push executed successfully");
+  } catch (error) {
+    console.error("❌ ROUTER PUSH ERROR:", error);
+  }
+};
+
+
+const handleDelete = async (product) => {
+  const confirmDelete = window.confirm(
+    `Are you sure you want to delete "${product.name}"?`,
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await dispatch(deleteListedProduct(product._id));
+
+    await refreshProducts();
+
+    alert("Product deleted successfully");
+  } catch (error) {
+    console.error("Delete product error:", error);
+
+    alert(
+      error?.message ||
+        error ||
+        "Failed to delete product",
+    );
+  }
+};
 
   const columns = productColumns({
     onEdit: handleEdit,
     onView: handleView,
     onDelete: handleDelete,
     onAddVariant: handleAddVariant,
+    onRelationships: handleRelationships,
   });
 
   return (

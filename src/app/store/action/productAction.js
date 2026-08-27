@@ -143,7 +143,7 @@ export const editProductDetails =
   };
 
 //delete product detailes
-export const deleteCategory = (id) => async (dispatch, getState) => {
+export const deleteListedProduct = (id) => async (dispatch, getState) => {
 
   try {
     const token = getToken(); // get token from localStorage
@@ -152,7 +152,7 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
         Authorization: `Bearer ${token}`, // attach token in headers
       },
     };
-    const response = await axios.delete(`/products/delete-category/${id}`, config);
+    const response = await axios.delete(`/products/delete-Product/${id}`, config);
     dispatch(removeProduct(response.data));
     return { success: true, payload: response.data };
   } catch (error) {
@@ -166,6 +166,39 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
   }
 };
 
+// ======================================================
+// UPDATE PRODUCT RELATIONSHIPS
+// ======================================================
+
+export const updateProductRelationships =
+  (productId, relationshipData) => async (dispatch) => {
+    try {
+      const token = getToken();
+
+      const response = await axios.put(
+        `/products/relationships/${productId}`,
+        relationshipData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "UPDATE PRODUCT RELATIONSHIPS ERROR:",
+        error
+      );
+
+      throw (
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update product relationships"
+      );
+    }
+  };
 
 export const createProductVarient = (productId, formData) => async (dispatch, getState) => {
   console.log({formData});

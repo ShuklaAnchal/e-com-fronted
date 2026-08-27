@@ -35,9 +35,15 @@ export default function CartPage() {
     }
   };
 
-  const handleRemove = (productId) => {
-    dispatch(removeFromCartAction(productId));
-  };
+ const handleRemove = (item) => {
+
+  dispatch(
+    removeFromCartAction({
+      productId: item.product,
+      variantId: item.variantId,
+    })
+  );
+};
 
   const handleQuantityChange = (item, delta) => {
     const newQty = item.quantity + delta;
@@ -122,7 +128,7 @@ export default function CartPage() {
                             </p>
                           )}
                           <button
-                            onClick={() => handleRemove(item.product)}
+                            onClick={() => handleRemove(item)}
                             className="text-[10px] text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition-colors"
                           >
                             Remove

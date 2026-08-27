@@ -10,6 +10,7 @@ import {
   FaArrowUp,
 } from "react-icons/fa";
 import { MdEmail, MdLocationOn } from "react-icons/md";
+import {useCategories} from "@/app/hooks/catgeoryHook"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -19,6 +20,10 @@ const Footer = () => {
   const [showTop, setShowTop] = useState(false);
 
   const router = useRouter();
+
+const { categories = [], loading: categoriesLoading } = useCategories();
+
+console.log({ categories });
 
   useEffect(() => {
     const onScroll = () => {
@@ -110,40 +115,76 @@ const Footer = () => {
             </h3>
 
             <ul className="space-y-4">
-              <li
-                onClick={() => router.push("/categories/candles")}
-                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
-              >
-                Candles
-              </li>
+              {categoriesLoading ? (
+                <li className="text-[#D9D2C5]/50 text-sm">Loading...</li>
+              ) : categories.length > 0 ? (
+                categories.map((category) => (
+                  <li
+                    key={category._id}
+                    onClick={() =>
+                      router.push(
+                        `/category/${encodeURIComponent(
+                          category.name,
+                        )}?categoryId=${category._id}`,
+                      )
+                    }
+                    className="
+            text-[#D9D2C5]
+            hover:text-[#C5A880]
+            transition-all
+            duration-300
+            cursor-pointer
+            text-sm
+          "
+                  >
+                    {category.name}
+                  </li>
+                ))
+              ) : (
+                <li className="text-[#D9D2C5]/50 text-sm">
+                  No collections available
+                </li>
+              )}
 
-              <li
-                onClick={() => router.push("/categories/diffusers")}
-                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
+              {/* Static links */}
+              {/* <li
+                onClick={() => router.push("/products")}
+                className="
+        text-[#D9D2C5]
+        hover:text-[#C5A880]
+        transition-all
+        duration-300
+        cursor-pointer
+        text-sm
+      "
               >
-                Diffusers
-              </li>
-
-              <li
-                onClick={() => router.push("/categories/perfumes")}
-                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
-              >
-                Perfumes
-              </li>
-
-              <li className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm">
                 Bestsellers
-              </li>
+              </li> */}
 
               <li
                 onClick={() => router.push("/blogs")}
-                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
+                className="
+        text-[#D9D2C5]
+        hover:text-[#C5A880]
+        transition-all
+        duration-300
+        cursor-pointer
+        text-sm
+      "
               >
                 Blogs
               </li>
+
               <li
-                onClick={() => router.push("/blogs")}
-                className="text-[#D9D2C5] hover:text-[#C5A880] transition-all duration-300 cursor-pointer text-sm"
+                onClick={() => router.push("/about-us")}
+                className="
+        text-[#D9D2C5]
+        hover:text-[#C5A880]
+        transition-all
+        duration-300
+        cursor-pointer
+        text-sm
+      "
               >
                 About Us
               </li>

@@ -105,6 +105,8 @@ export const createOrder = (formData) => async (dispatch) => {
       config
     );
 
+    console.log("order Action Data:", data);
+    
     dispatch(createneworder(data));
 
     return {

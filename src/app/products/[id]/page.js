@@ -11,7 +11,7 @@ import { fetchProductbyID } from "@/app/store/action/productAction";
 
 import ProductGallery from "@/app/component/usercomponent/productpage/ProductGallery";
 import ProductInfo from "@/app/component/usercomponent/productpage/ProductInfo";
-
+import RelatedProducts from "@/app/component/usercomponent/productpage/RelatedProducts";
 
 // =====================================================
 // Accordion Component
@@ -63,9 +63,7 @@ function AccordionItem({ title, children, isOpen, onClick }) {
           duration-300
           ease-in-out
           ${
-            isOpen
-              ? "grid-rows-[1fr] opacity-100"
-              : "grid-rows-[0fr] opacity-0"
+            isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
           }
         `}
       >
@@ -78,7 +76,6 @@ function AccordionItem({ title, children, isOpen, onClick }) {
     </div>
   );
 }
-
 
 // =====================================================
 // Product Details Page
@@ -135,9 +132,7 @@ export default function ProductDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-gray-500 text-lg">
-          Loading product...
-        </p>
+        <p className="text-gray-500 text-lg">Loading product...</p>
       </div>
     );
   }
@@ -150,9 +145,7 @@ export default function ProductDetailsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-2">
-            Product Not Found
-          </h2>
+          <h2 className="text-2xl font-semibold mb-2">Product Not Found</h2>
 
           <p className="text-gray-500">
             {error || "This product is not available."}
@@ -179,9 +172,7 @@ export default function ProductDetailsPage() {
 
   const specificationValues =
     productDetails?.[0]?.values?.filter((item) => {
-      const attributeName = item?.attributeName
-        ?.toLowerCase()
-        ?.trim();
+      const attributeName = item?.attributeName?.toLowerCase()?.trim();
 
       return (
         attributeName !== "category" &&
@@ -195,9 +186,7 @@ export default function ProductDetailsPage() {
   // ===================================================
 
   const toggleAccordion = (section) => {
-    setOpenAccordion((prev) =>
-      prev === section ? null : section
-    );
+    setOpenAccordion((prev) => (prev === section ? null : section));
   };
 
   // ===================================================
@@ -206,7 +195,6 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-
       {/* =================================================
           Header
       ================================================= */}
@@ -220,36 +208,25 @@ export default function ProductDetailsPage() {
       ================================================= */}
 
       <main className="pt-24 md:pt-32 pb-20">
-
         <section className="px-4 sm:px-6 lg:px-8">
-
           <div className="max-w-7xl mx-auto">
-
             {/* =================================================
                 Breadcrumb
             ================================================= */}
 
             <div className="mb-6 md:mb-8 text-sm text-gray-500">
-              Home /{" "}
-              {product.category?.name || "Products"} /{" "}
-              <span className="text-gray-900">
-                {product.name}
-              </span>
+              Home / {product.category?.name || "Products"} /{" "}
+              <span className="text-gray-900">{product.name}</span>
             </div>
-
 
             {/* =================================================
                 Product Main Section
             ================================================= */}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-
               {/* Gallery */}
 
-              <ProductGallery
-                product={product}
-                variants={variants}
-              />
+              <ProductGallery product={product} variants={variants} />
 
               {/* Product Info */}
 
@@ -258,18 +235,14 @@ export default function ProductDetailsPage() {
                 variants={variants}
                 productDetails={productDetails}
               />
-
             </div>
-
 
             {/* =================================================
                 Product Details Accordion
             ================================================= */}
 
             <div className="mt-14 md:mt-20 max-w-full">
-
               <div className="space-y-4">
-
                 {/* =================================================
                     DESCRIPTION
                 ================================================= */}
@@ -277,21 +250,16 @@ export default function ProductDetailsPage() {
                 <AccordionItem
                   title="Description"
                   isOpen={openAccordion === "description"}
-                  onClick={() =>
-                    toggleAccordion("description")
-                  }
+                  onClick={() => toggleAccordion("description")}
                 >
                   <div className="max-w-5xl">
-
                     <p className="whitespace-pre-line">
                       {product.fullDescription ||
                         product.shortDescription ||
                         "No description available."}
                     </p>
-
                   </div>
                 </AccordionItem>
-
 
                 {/* =================================================
                     SHIPPING & RETURN
@@ -300,13 +268,9 @@ export default function ProductDetailsPage() {
                 <AccordionItem
                   title="Shipping & Return"
                   isOpen={openAccordion === "shipping"}
-                  onClick={() =>
-                    toggleAccordion("shipping")
-                  }
+                  onClick={() => toggleAccordion("shipping")}
                 >
-
                   <div className="space-y-5">
-
                     {/* COD */}
 
                     <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
@@ -321,7 +285,6 @@ export default function ProductDetailsPage() {
                       </span>
                     </div>
 
-
                     {/* Fragile */}
 
                     <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
@@ -330,12 +293,9 @@ export default function ProductDetailsPage() {
                       </span>
 
                       <span>
-                        {product.shipping?.fragileItem
-                          ? "Yes"
-                          : "No"}
+                        {product.shipping?.fragileItem ? "Yes" : "No"}
                       </span>
                     </div>
-
 
                     {/* Shipping */}
 
@@ -345,12 +305,10 @@ export default function ProductDetailsPage() {
                       </h4>
 
                       <p>
-                        Your order will be carefully packed
-                        and shipped to the address provided
-                        during checkout.
+                        Your order will be carefully packed and shipped to the
+                        address provided during checkout.
                       </p>
                     </div>
-
 
                     {/* Return */}
 
@@ -360,16 +318,12 @@ export default function ProductDetailsPage() {
                       </h4>
 
                       <p>
-                        Please refer to our return policy for
-                        information about eligible returns,
-                        replacements and refunds.
+                        Please refer to our return policy for information about
+                        eligible returns, replacements and refunds.
                       </p>
                     </div>
-
                   </div>
-
                 </AccordionItem>
-
 
                 {/* =================================================
                     MANUFACTURING DETAILS
@@ -378,22 +332,15 @@ export default function ProductDetailsPage() {
                 <AccordionItem
                   title="Manufacturing details"
                   isOpen={openAccordion === "manufacturing"}
-                  onClick={() =>
-                    toggleAccordion("manufacturing")
-                  }
+                  onClick={() => toggleAccordion("manufacturing")}
                 >
-
                   <div className="space-y-4">
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
                       {/* Manufacturer */}
 
                       {product.manufacturer && (
                         <div>
-                          <p className="text-sm text-gray-500">
-                            Manufacturer
-                          </p>
+                          <p className="text-sm text-gray-500">Manufacturer</p>
 
                           <p className="font-medium text-gray-900">
                             {product.manufacturer}
@@ -401,21 +348,17 @@ export default function ProductDetailsPage() {
                         </div>
                       )}
 
-
                       {/* Brand */}
 
                       {product.brand && (
                         <div>
-                          <p className="text-sm text-gray-500">
-                            Brand
-                          </p>
+                          <p className="text-sm text-gray-500">Brand</p>
 
                           <p className="font-medium text-gray-900">
                             {product.brand}
                           </p>
                         </div>
                       )}
-
 
                       {/* Country */}
 
@@ -431,7 +374,6 @@ export default function ProductDetailsPage() {
                         </div>
                       )}
 
-
                       {/* Manufacturer Address */}
 
                       {product.manufacturerAddress && (
@@ -445,9 +387,7 @@ export default function ProductDetailsPage() {
                           </p>
                         </div>
                       )}
-
                     </div>
-
 
                     {/* If no manufacturing data */}
 
@@ -456,15 +396,11 @@ export default function ProductDetailsPage() {
                       !product.countryOfOrigin &&
                       !product.manufacturerAddress && (
                         <p className="text-gray-500">
-                          Manufacturing details are not
-                          available.
+                          Manufacturing details are not available.
                         </p>
                       )}
-
                   </div>
-
                 </AccordionItem>
-
 
                 {/* =================================================
                     PRODUCT SPECIFICATIONS
@@ -473,23 +409,14 @@ export default function ProductDetailsPage() {
                 {specificationValues.length > 0 && (
                   <AccordionItem
                     title="Product Specifications"
-                    isOpen={
-                      openAccordion === "specifications"
-                    }
-                    onClick={() =>
-                      toggleAccordion("specifications")
-                    }
+                    isOpen={openAccordion === "specifications"}
+                    onClick={() => toggleAccordion("specifications")}
                   >
-
                     <div className="border border-gray-200 rounded-xl overflow-hidden">
-
-                      {specificationValues.map(
-                        (item, index) => (
-                          <div
-                            key={
-                              item._id || index
-                            }
-                            className="
+                      {specificationValues.map((item, index) => (
+                        <div
+                          key={item._id || index}
+                          className="
                               grid
                               grid-cols-1
                               sm:grid-cols-2
@@ -497,49 +424,39 @@ export default function ProductDetailsPage() {
                               last:border-b-0
                               border-gray-200
                             "
-                          >
+                        >
+                          {/* Attribute */}
 
-                            {/* Attribute */}
-
-                            <div
-                              className="
+                          <div
+                            className="
                                 bg-gray-50
                                 px-5
                                 py-4
                                 font-medium
                                 text-gray-800
                               "
-                            >
-                              {item.attributeName ||
-                                "-"}
-                            </div>
+                          >
+                            {item.attributeName || "-"}
+                          </div>
 
+                          {/* Value */}
 
-                            {/* Value */}
-
-                            <div
-                              className="
+                          <div
+                            className="
                                 px-5
                                 py-4
                                 text-gray-600
                               "
-                            >
-                              {item.value || "-"}
+                          >
+                            {item.value || "-"}
 
-                              {item.unit
-                                ? ` ${item.unit}`
-                                : ""}
-                            </div>
-
+                            {item.unit ? ` ${item.unit}` : ""}
                           </div>
-                        )
-                      )}
-
+                        </div>
+                      ))}
                     </div>
-
-                </AccordionItem>
+                  </AccordionItem>
                 )}
-
 
                 {/* =================================================
                     HIGHLIGHTS
@@ -548,43 +465,37 @@ export default function ProductDetailsPage() {
                 {product.highlights?.length > 0 && (
                   <AccordionItem
                     title="Highlights"
-                    isOpen={
-                      openAccordion === "highlights"
-                    }
-                    onClick={() =>
-                      toggleAccordion("highlights")
-                    }
+                    isOpen={openAccordion === "highlights"}
+                    onClick={() => toggleAccordion("highlights")}
                   >
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                      {product.highlights.map(
-                        (highlight, index) => (
-                          <div
-                            key={index}
-                            className="
+                      {product.highlights.map((highlight, index) => (
+                        <div
+                          key={index}
+                          className="
                               border
                               border-gray-200
                               rounded-lg
                               p-4
                             "
-                          >
-                            <p>
-                              {highlight}
-                            </p>
-                          </div>
-                        )
-                      )}
-
+                        >
+                          <p>{highlight}</p>
+                        </div>
+                      ))}
                     </div>
-
                   </AccordionItem>
                 )}
-
               </div>
-
             </div>
 
+            {/* =================================================
+    RELATED PRODUCTS
+================================================= */}
+
+            <RelatedProducts
+              products={product.relatedProducts || []}
+              currentProductId={product._id}
+            />
 
             {/* =================================================
                 Category / Product Information
@@ -661,20 +572,15 @@ export default function ProductDetailsPage() {
               </div>
 
             </div> */}
-
-          </div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-
+          </div>
         </section>
-
       </main>
-
 
       {/* =================================================
           Footer
       ================================================= */}
 
       <Footer />
-
     </div>
   );
 }

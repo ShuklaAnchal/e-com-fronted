@@ -7,6 +7,7 @@ import {
   createProduct,
   editProductDetails,
 } from "@/app/store/action/productAction";
+
 import { toast } from "react-toastify";
 
 import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryAction";
@@ -14,6 +15,10 @@ import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryActi
 import { fetchAttributeBySubCatgeoryID } from "@/app/store/action/attributeAction";
 
 import { useCategories } from "@/app/hooks/catgeoryHook";
+
+// =========================================================
+// DEFAULT VARIANT
+// =========================================================
 
 const DEFAULT_VARIANT = {
   sku: "",
@@ -44,6 +49,10 @@ const DEFAULT_VARIANT = {
   attributes: [],
 };
 
+// =========================================================
+// DEFAULT PRODUCT
+// =========================================================
+
 const DEFAULT_PRODUCT = {
   name: "",
   slug: "",
@@ -61,6 +70,18 @@ const DEFAULT_PRODUCT = {
 
   productcollection: "",
 
+  // =======================================================
+  // PRODUCT STATUS
+  // =======================================================
+
+  status: "draft",
+
+  isActive: true,
+
+  // =======================================================
+  // MEDIA
+  // =======================================================
+
   images: [],
   videos: [],
 
@@ -69,6 +90,10 @@ const DEFAULT_PRODUCT = {
 
   existingImages: [],
   existingVideos: [],
+
+  // =======================================================
+  // GIFTING
+  // =======================================================
 
   gifting: {
     giftWrappingAvailable: false,
@@ -79,6 +104,10 @@ const DEFAULT_PRODUCT = {
   },
 };
 
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const dispatch = useDispatch();
 
@@ -86,6 +115,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
+
+  // =======================================================
+  // STATES
+  // =======================================================
 
   const [product, setProduct] = useState(DEFAULT_PRODUCT);
 
@@ -99,11 +132,13 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   ]);
 
   const [subcategories, setSubcategories] = useState([]);
+
   const [attributes, setAttributes] = useState([]);
 
   const [attributeValues, setAttributeValues] = useState({});
 
   const [loadingSubs, setLoadingSubs] = useState(false);
+
   const [loadingAttributes, setLoadingAttributes] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -137,6 +172,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     return [];
   };
 
+  // =========================================================
+  // NORMALIZE VARIANT
+  // =========================================================
+
   const normalizeVariant = (variant, index) => {
     return {
       ...DEFAULT_VARIANT,
@@ -144,13 +183,18 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       ...variant,
 
       sku: variant?.sku || "",
+
       barcode: variant?.barcode || "",
 
       pricing: {
         ...DEFAULT_VARIANT.pricing,
+
         ...(variant?.pricing || {}),
 
-        mrp: variant?.pricing?.mrp !== undefined ? variant.pricing.mrp : "",
+        mrp:
+          variant?.pricing?.mrp !== undefined
+            ? variant.pricing.mrp
+            : "",
 
         sellingPrice:
           variant?.pricing?.sellingPrice !== undefined
@@ -170,6 +214,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       inventory: {
         ...DEFAULT_VARIANT.inventory,
+
         ...(variant?.inventory || {}),
 
         stockQuantity:
@@ -204,14 +249,19 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       },
 
       shippingWeight:
-        variant?.shippingWeight !== undefined ? variant.shippingWeight : "",
+        variant?.shippingWeight !== undefined
+          ? variant.shippingWeight
+          : "",
 
-      isDefault: index === 0 ? true : Boolean(variant?.isDefault),
+      isDefault:
+        index === 0 ? true : Boolean(variant?.isDefault),
 
       attributes: Array.isArray(variant?.attributes)
         ? variant.attributes.map((item) => ({
             ...item,
+
             attributeId: getId(item.attributeId),
+
             value: item.value,
           }))
         : [],
@@ -226,11 +276,16 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     if (!editData) return;
 
     const categoryId = getId(editData.categoryId);
+
     const subCategoryId = getId(editData.subCategoryId);
 
     const normalizedDetails = Array.isArray(editData.details)
       ? editData.details
       : [];
+
+    // =======================================================
+    // EXISTING PRODUCT ATTRIBUTES
+    // =======================================================
 
     const existingAttributeValues = {};
 
@@ -241,6 +296,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         existingAttributeValues[attributeId] = detail.value;
       }
     });
+
+    // =======================================================
+    // SET PRODUCT
+    // =======================================================
 
     setProduct({
       name: editData.name || "",
@@ -263,6 +322,21 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       productcollection: editData.productcollection || "",
 
+      // =====================================================
+      // PRODUCT STATUS
+      // =====================================================
+
+      status: editData.status || "draft",
+
+      isActive:
+        editData.isActive !== undefined
+          ? Boolean(editData.isActive)
+          : true,
+
+      // =====================================================
+      // MEDIA
+      // =====================================================
+
       images: [],
 
       videos: [],
@@ -271,62 +345,83 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       videoPreviews: [],
 
-      /*
-       * Preserve existing media.
-       *
-       * Adjust this according to your backend response structure.
-       */
-      existingImages: Array.isArray(editData.images) ? editData.images : [],
+      existingImages: Array.isArray(editData.images)
+        ? editData.images
+        : [],
 
-      existingVideos: Array.isArray(editData.videos) ? editData.videos : [],
+      existingVideos: Array.isArray(editData.videos)
+        ? editData.videos
+        : [],
+
+      // =====================================================
+      // GIFTING
+      // =====================================================
 
       gifting: {
-        giftWrappingAvailable: Boolean(editData.gifting?.giftWrappingAvailable),
+        giftWrappingAvailable: Boolean(
+          editData.gifting?.giftWrappingAvailable
+        ),
 
-        personalizedMessage: Boolean(editData.gifting?.personalizedMessage),
+        personalizedMessage: Boolean(
+          editData.gifting?.personalizedMessage
+        ),
 
-        corporateGifting: Boolean(editData.gifting?.corporateGifting),
+        corporateGifting: Boolean(
+          editData.gifting?.corporateGifting
+        ),
 
-        occasions: getArray(editData.gifting?.occasions).join(", "),
+        occasions: getArray(
+          editData.gifting?.occasions
+        ).join(", "),
 
-        festivals: getArray(editData.gifting?.festivals).join(", "),
+        festivals: getArray(
+          editData.gifting?.festivals
+        ).join(", "),
       },
     });
+
+    // =======================================================
+    // SET ATTRIBUTE VALUES
+    // =======================================================
 
     setAttributeValues(existingAttributeValues);
 
     setDetails(normalizedDetails);
 
-    // =====================================================
-    // VARIANTS
-    // =====================================================
+    // =======================================================
+    // LOAD VARIANTS
+    // =======================================================
 
-    if (Array.isArray(editData.variants) && editData.variants.length > 0) {
+    if (
+      Array.isArray(editData.variants) &&
+      editData.variants.length > 0
+    ) {
       setVariants(
         editData.variants.map((variant, index) =>
-          normalizeVariant(variant, index),
-        ),
+          normalizeVariant(variant, index)
+        )
       );
     } else {
       setVariants([
         {
           ...DEFAULT_VARIANT,
+
           isDefault: true,
         },
       ]);
     }
 
-    // =====================================================
+    // =======================================================
     // LOAD SUBCATEGORIES
-    // =====================================================
+    // =======================================================
 
     if (categoryId) {
       loadSubCategories(categoryId);
     }
 
-    // =====================================================
+    // =======================================================
     // LOAD ATTRIBUTES
-    // =====================================================
+    // =======================================================
 
     if (subCategoryId) {
       fetchAttributes(subCategoryId);
@@ -342,6 +437,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
     setProduct((prev) => ({
       ...prev,
+
       [name]: value,
     }));
   };
@@ -369,13 +465,16 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const loadSubCategories = async (categoryId) => {
     if (!categoryId) {
       setSubcategories([]);
+
       return [];
     }
 
     try {
       setLoadingSubs(true);
 
-      const res = await dispatch(fetchSubcategorybyCategoryID(categoryId));
+      const res = await dispatch(
+        fetchSubcategorybyCategoryID(categoryId)
+      );
 
       const list = res?.subcategories || [];
 
@@ -383,7 +482,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       return list;
     } catch (error) {
-      console.error("Subcategory loading error:", error);
+      console.error(
+        "Subcategory loading error:",
+        error
+      );
 
       setSubcategories([]);
 
@@ -426,13 +528,16 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const fetchAttributes = async (subCategoryId) => {
     if (!subCategoryId) {
       setAttributes([]);
+
       return [];
     }
 
     try {
       setLoadingAttributes(true);
 
-      const res = await dispatch(fetchAttributeBySubCatgeoryID(subCategoryId));
+      const res = await dispatch(
+        fetchAttributeBySubCatgeoryID(subCategoryId)
+      );
 
       console.log("ATTRIBUTES:", res);
 
@@ -442,7 +547,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       return list;
     } catch (error) {
-      console.error("Attribute loading error:", error);
+      console.error(
+        "Attribute loading error:",
+        error
+      );
 
       setAttributes([]);
 
@@ -477,18 +585,21 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const productAttributes = attributes.filter(
-    (item) => !item.isVariantAttribute,
+    (item) => !item.isVariantAttribute
   );
 
   const variantAttributes = attributes.filter(
-    (item) => item.isVariantAttribute,
+    (item) => item.isVariantAttribute
   );
 
   // =========================================================
   // PRODUCT ATTRIBUTE CHANGE
   // =========================================================
 
-  const handleAttributeChange = (attributeId, value) => {
+  const handleAttributeChange = (
+    attributeId,
+    value
+  ) => {
     setAttributeValues((prev) => ({
       ...prev,
 
@@ -514,7 +625,11 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // VARIANT ATTRIBUTE CHANGE
   // =========================================================
 
-  const handleVariantAttributeChange = (variantIndex, attributeId, value) => {
+  const handleVariantAttributeChange = (
+    variantIndex,
+    attributeId,
+    value
+  ) => {
     setVariants((prev) => {
       const updated = [...prev];
 
@@ -522,11 +637,16 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         ...updated[variantIndex],
       };
 
-      const variantAttributesList = [...(variant.attributes || [])];
+      const variantAttributesList = [
+        ...(variant.attributes || []),
+      ];
 
-      const existingIndex = variantAttributesList.findIndex(
-        (item) => getId(item.attributeId) === getId(attributeId),
-      );
+      const existingIndex =
+        variantAttributesList.findIndex(
+          (item) =>
+            getId(item.attributeId) ===
+            getId(attributeId)
+        );
 
       if (existingIndex >= 0) {
         variantAttributesList[existingIndex] = {
@@ -584,11 +704,14 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
   const removeVariant = (index) => {
     setVariants((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
+      const updated = prev.filter(
+        (_, i) => i !== index
+      );
 
       if (updated.length > 0) {
         updated[0] = {
           ...updated[0],
+
           isDefault: true,
         };
       }
@@ -601,7 +724,11 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // UPDATE VARIANT FIELD
   // =========================================================
 
-  const updateVariantField = (index, field, value) => {
+  const updateVariantField = (
+    index,
+    field,
+    value
+  ) => {
     setVariants((prev) => {
       const updated = [...prev];
 
@@ -619,7 +746,12 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // UPDATE VARIANT NESTED
   // =========================================================
 
-  const updateVariantNested = (index, section, field, value) => {
+  const updateVariantNested = (
+    index,
+    section,
+    field,
+    value
+  ) => {
     setVariants((prev) => {
       const updated = [...prev];
 
@@ -642,14 +774,18 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(
+      e.target.files || []
+    );
 
     setProduct((prev) => ({
       ...prev,
 
       images: files,
 
-      imagePreviews: files.map((file) => URL.createObjectURL(file)),
+      imagePreviews: files.map((file) =>
+        URL.createObjectURL(file)
+      ),
     }));
   };
 
@@ -658,14 +794,18 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
 
   const handleVideoChange = (e) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(
+      e.target.files || []
+    );
 
     setProduct((prev) => ({
       ...prev,
 
       videos: files,
 
-      videoPreviews: files.map((file) => URL.createObjectURL(file)),
+      videoPreviews: files.map((file) =>
+        URL.createObjectURL(file)
+      ),
     }));
   };
 
@@ -677,7 +817,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     setProduct((prev) => ({
       ...prev,
 
-      existingImages: prev.existingImages.filter((_, i) => i !== index),
+      existingImages:
+        prev.existingImages.filter(
+          (_, i) => i !== index
+        ),
     }));
   };
 
@@ -689,7 +832,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     setProduct((prev) => ({
       ...prev,
 
-      existingVideos: prev.existingVideos.filter((_, i) => i !== index),
+      existingVideos:
+        prev.existingVideos.filter(
+          (_, i) => i !== index
+        ),
     }));
   };
 
@@ -707,7 +853,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         URL.revokeObjectURL(url);
       });
     };
-  }, [product.imagePreviews, product.videoPreviews]);
+  }, [
+    product.imagePreviews,
+    product.videoPreviews,
+  ]);
 
   // =========================================================
   // PREPARE VARIANTS
@@ -724,24 +873,39 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       pricing: {
         ...variant.pricing,
 
-        mrp: variant.pricing.mrp === "" ? 0 : Number(variant.pricing.mrp),
+        mrp:
+          variant.pricing.mrp === ""
+            ? 0
+            : Number(variant.pricing.mrp),
 
         sellingPrice:
           variant.pricing.sellingPrice === ""
             ? 0
-            : Number(variant.pricing.sellingPrice),
+            : Number(
+                variant.pricing.sellingPrice
+              ),
 
         gstRate:
-          variant.pricing.gstRate === "" ? 0 : Number(variant.pricing.gstRate),
+          variant.pricing.gstRate === ""
+            ? 0
+            : Number(
+                variant.pricing.gstRate
+              ),
 
         discountPercent:
           variant.pricing.discountPercent === ""
             ? 0
-            : Number(variant.pricing.discountPercent),
+            : Number(
+                variant.pricing
+                  .discountPercent
+              ),
 
-        currency: variant.pricing.currency || "INR",
+        currency:
+          variant.pricing.currency || "INR",
 
-        taxIncluded: Boolean(variant.pricing.taxIncluded),
+        taxIncluded: Boolean(
+          variant.pricing.taxIncluded
+        ),
       },
 
       inventory: {
@@ -750,34 +914,59 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         stockQuantity:
           variant.inventory.stockQuantity === ""
             ? 0
-            : Number(variant.inventory.stockQuantity),
+            : Number(
+                variant.inventory
+                  .stockQuantity
+              ),
 
         lowStockThreshold:
-          variant.inventory.lowStockThreshold === ""
+          variant.inventory
+            .lowStockThreshold === ""
             ? 0
-            : Number(variant.inventory.lowStockThreshold),
+            : Number(
+                variant.inventory
+                  .lowStockThreshold
+              ),
 
         reservedStock:
           variant.inventory.reservedStock === ""
             ? 0
-            : Number(variant.inventory.reservedStock),
+            : Number(
+                variant.inventory
+                  .reservedStock
+              ),
 
-        inStock: Boolean(variant.inventory.inStock),
+        inStock: Boolean(
+          variant.inventory.inStock
+        ),
 
-        backorderAllowed: Boolean(variant.inventory.backorderAllowed),
+        backorderAllowed: Boolean(
+          variant.inventory
+            .backorderAllowed
+        ),
 
-        preOrder: Boolean(variant.inventory.preOrder),
+        preOrder: Boolean(
+          variant.inventory.preOrder
+        ),
       },
 
       shippingWeight:
-        variant.shippingWeight === "" ? 0 : Number(variant.shippingWeight),
+        variant.shippingWeight === ""
+          ? 0
+          : Number(
+              variant.shippingWeight
+            ),
 
       isDefault: index === 0,
 
-      attributes: (variant.attributes || []).map((item) => ({
+      attributes: (
+        variant.attributes || []
+      ).map((item) => ({
         ...item,
 
-        attributeId: getId(item.attributeId),
+        attributeId: getId(
+          item.attributeId
+        ),
 
         value: item.value,
       })),
@@ -801,17 +990,26 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // =====================================================
 
       if (!product.name.trim()) {
-        toast.error("Product name is required.");
+        toast.error(
+          "Product name is required."
+        );
+
         return;
       }
 
       if (!product.slug.trim()) {
-        toast.error("Product slug is required.");
+        toast.error(
+          "Product slug is required."
+        );
+
         return;
       }
 
       if (!product.categoryId) {
-        toast.error("Please select a category.");
+        toast.error(
+          "Please select a category."
+        );
+
         return;
       }
 
@@ -824,36 +1022,77 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
         slug: product.slug.trim(),
 
-        shortDescription: product.shortDescription?.trim() || "",
+        shortDescription:
+          product.shortDescription?.trim() ||
+          "",
 
-        fullDescription: product.fullDescription?.trim() || "",
+        fullDescription:
+          product.fullDescription?.trim() ||
+          "",
 
-        categoryId: product.categoryId,
+        categoryId:
+          product.categoryId,
 
-        subCategoryId: product.subCategoryId || null,
+        subCategoryId:
+          product.subCategoryId || null,
 
-        brand: product.brand?.trim() || "Siyaas",
+        brand:
+          product.brand?.trim() ||
+          "Siyaas",
 
-        tags: getArray(product.tags),
+        tags: getArray(
+          product.tags
+        ),
 
-        highlights: getArray(product.highlights),
+        highlights: getArray(
+          product.highlights
+        ),
 
-        productcollection: product.productcollection?.trim() || "",
+        productcollection:
+          product.productcollection?.trim() ||
+          "",
+
+        // ===================================================
+        // PRODUCT STATUS
+        // ===================================================
+
+        status:
+          product.status || "draft",
+
+        isActive: Boolean(
+          product.isActive
+        ),
 
         // ===================================================
         // GIFTING
         // ===================================================
 
         gifting: {
-          giftWrappingAvailable: Boolean(product.gifting.giftWrappingAvailable),
+          giftWrappingAvailable:
+            Boolean(
+              product.gifting
+                .giftWrappingAvailable
+            ),
 
-          personalizedMessage: Boolean(product.gifting.personalizedMessage),
+          personalizedMessage:
+            Boolean(
+              product.gifting
+                .personalizedMessage
+            ),
 
-          corporateGifting: Boolean(product.gifting.corporateGifting),
+          corporateGifting:
+            Boolean(
+              product.gifting
+                .corporateGifting
+            ),
 
-          occasions: getArray(product.gifting.occasions),
+          occasions: getArray(
+            product.gifting.occasions
+          ),
 
-          festivals: getArray(product.gifting.festivals),
+          festivals: getArray(
+            product.gifting.festivals
+          ),
         },
       };
 
@@ -861,13 +1100,15 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // DETAILS
       // =====================================================
 
-      const productDetails = prepareDetails();
+      const productDetails =
+        prepareDetails();
 
       // =====================================================
       // VARIANTS
       // =====================================================
 
-      const preparedVariants = prepareVariants();
+      const preparedVariants =
+        prepareVariants();
 
       // =====================================================
       // FORM DATA
@@ -875,11 +1116,24 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
       const formData = new FormData();
 
-      formData.append("productData", JSON.stringify(productData));
+      formData.append(
+        "productData",
+        JSON.stringify(productData)
+      );
 
-      formData.append("variants", JSON.stringify(preparedVariants));
+      formData.append(
+        "variants",
+        JSON.stringify(
+          preparedVariants
+        )
+      );
 
-      formData.append("details", JSON.stringify(productDetails));
+      formData.append(
+        "details",
+        JSON.stringify(
+          productDetails
+        )
+      );
 
       // =====================================================
       // EXISTING IMAGES
@@ -888,12 +1142,16 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       if (editData?._id) {
         formData.append(
           "existingImages",
-          JSON.stringify(product.existingImages),
+          JSON.stringify(
+            product.existingImages
+          )
         );
 
         formData.append(
           "existingVideos",
-          JSON.stringify(product.existingVideos),
+          JSON.stringify(
+            product.existingVideos
+          )
         );
       }
 
@@ -901,53 +1159,90 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // NEW IMAGES
       // =====================================================
 
-      product.images.forEach((image) => {
-        formData.append("images", image);
-      });
+      product.images.forEach(
+        (image) => {
+          formData.append(
+            "images",
+            image
+          );
+        }
+      );
 
       // =====================================================
       // NEW VIDEOS
       // =====================================================
 
-      product.videos.forEach((video) => {
-        formData.append("videos", video);
-      });
+      product.videos.forEach(
+        (video) => {
+          formData.append(
+            "videos",
+            video
+          );
+        }
+      );
 
       // =====================================================
       // DEBUG
       // =====================================================
 
-      console.log("========== PRODUCT SUBMIT DATA ==========");
+      console.log(
+        "========== PRODUCT SUBMIT DATA =========="
+      );
 
-      console.log("Product:", productData);
+      console.log(
+        "Product:",
+        productData
+      );
 
-      console.log("Details:", productDetails);
+      console.log(
+        "Details:",
+        productDetails
+      );
 
-      console.log("Variants:", preparedVariants);
+      console.log(
+        "Variants:",
+        preparedVariants
+      );
 
-      console.log("Existing Images:", product.existingImages);
+      console.log(
+        "Existing Images:",
+        product.existingImages
+      );
 
-      console.log("Existing Videos:", product.existingVideos);
+      console.log(
+        "Existing Videos:",
+        product.existingVideos
+      );
 
       // =====================================================
       // UPDATE PRODUCT
       // =====================================================
 
       if (editData?._id) {
-        await dispatch(editProductDetails(editData._id, formData));
+        await dispatch(
+          editProductDetails(
+            editData._id,
+            formData
+          )
+        );
 
-        // SUCCESS TOAST
-        toast.success("Product updated successfully!");
+        toast.success(
+          "Product updated successfully!"
+        );
       }
 
       // =====================================================
       // CREATE PRODUCT
       // =====================================================
-      else {
-        await dispatch(createProduct(formData));
 
-        // SUCCESS TOAST
-        toast.success("Product created successfully!");
+      else {
+        await dispatch(
+          createProduct(formData)
+        );
+
+        toast.success(
+          "Product created successfully!"
+        );
       }
 
       // =====================================================
@@ -955,11 +1250,16 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // =====================================================
 
       refreshProducts?.();
+
     } catch (error) {
-      console.error("Product submit error:", error);
+      console.error(
+        "Product submit error:",
+        error
+      );
 
       toast.error(
-        error?.message || "Something went wrong while saving the product.",
+        error?.message ||
+          "Something went wrong while saving the product."
       );
     } finally {
       setIsSubmitting(false);
@@ -982,15 +1282,24 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
   return (
     <div className="w-full bg-white rounded-2xl">
-      <form onSubmit={handleSubmit} className="space-y-6">
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+      >
+
         {/* ===================================================
             BASIC DETAILS
         =================================================== */}
 
         <div className="space-y-4">
-          <h3 className="font-bold text-lg text-gray-800">Basic Details</h3>
+
+          <h3 className="font-bold text-lg text-gray-800">
+            Basic Details
+          </h3>
 
           <div className="grid md:grid-cols-2 gap-4">
+
             <input
               className="border p-3 rounded-lg w-full"
               name="name"
@@ -1021,10 +1330,128 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               className="border p-3 rounded-lg w-full"
               name="productcollection"
               placeholder="Product Collection"
-              value={product.productcollection}
+              value={
+                product.productcollection
+              }
               onChange={handleChange}
             />
+
           </div>
+        </div>
+
+        {/* ===================================================
+            PRODUCT STATUS
+        =================================================== */}
+
+        <div className="space-y-4">
+
+          <div>
+            <h3 className="font-bold text-lg text-gray-800">
+              Product Status
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Control the publishing status and availability
+              of this product.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+
+            {/* STATUS */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+
+              <select
+                className="border p-3 rounded-lg w-full bg-white"
+                value={product.status}
+                onChange={(e) =>
+                  setProduct((prev) => ({
+                    ...prev,
+                    status: e.target.value,
+                  }))
+                }
+              >
+
+                <option value="draft">
+                  Draft
+                </option>
+
+                <option value="published">
+                  Published
+                </option>
+
+                <option value="archived">
+                  Archived
+                </option>
+
+              </select>
+
+            </div>
+
+            {/* ACTIVE / INACTIVE */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Availability
+              </label>
+
+              <label
+                className={`
+                  flex items-center justify-between
+                  border rounded-lg p-3
+                  cursor-pointer transition
+                  ${
+                    product.isActive
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-300 bg-gray-50"
+                  }
+                `}
+              >
+
+                <div>
+
+                  <p className="font-medium text-gray-800">
+                    {product.isActive
+                      ? "Active"
+                      : "Inactive"}
+                  </p>
+
+                  <p className="text-xs text-gray-500">
+                    {product.isActive
+                      ? "Product is active and available"
+                      : "Product is currently disabled"}
+                  </p>
+
+                </div>
+
+                <input
+                  type="checkbox"
+                  checked={Boolean(
+                    product.isActive
+                  )}
+                  onChange={(e) =>
+                    setProduct((prev) => ({
+                      ...prev,
+
+                      isActive:
+                        e.target.checked,
+                    }))
+                  }
+                  className="w-5 h-5"
+                />
+
+              </label>
+
+            </div>
+
+          </div>
+
         </div>
 
         {/* ===================================================
@@ -1032,41 +1459,70 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="space-y-4">
-          <h3 className="font-bold text-lg text-gray-800">Category</h3>
+
+          <h3 className="font-bold text-lg text-gray-800">
+            Category
+          </h3>
 
           <div className="grid md:grid-cols-2 gap-4">
+
             <select
               className="border p-3 rounded-lg"
               value={product.categoryId}
-              onChange={handleCategoryChange}
+              onChange={
+                handleCategoryChange
+              }
               required
             >
+
               <option value="">
-                {loading ? "Loading..." : "Select Category"}
+                {loading
+                  ? "Loading..."
+                  : "Select Category"}
               </option>
 
-              {categories?.map((category) => (
-                <option key={category._id} value={category._id}>
-                  {category.name}
-                </option>
-              ))}
+              {categories?.map(
+                (category) => (
+                  <option
+                    key={category._id}
+                    value={category._id}
+                  >
+                    {category.name}
+                  </option>
+                )
+              )}
+
             </select>
 
             <select
               className="border p-3 rounded-lg"
-              value={product.subCategoryId}
-              onChange={handleSubCategoryChange}
+              value={
+                product.subCategoryId
+              }
+              onChange={
+                handleSubCategoryChange
+              }
             >
+
               <option value="">
-                {loadingSubs ? "Loading..." : "Select Subcategory"}
+                {loadingSubs
+                  ? "Loading..."
+                  : "Select Subcategory"}
               </option>
 
-              {subcategories.map((sub) => (
-                <option key={sub._id} value={sub._id}>
-                  {sub.name}
-                </option>
-              ))}
+              {subcategories.map(
+                (sub) => (
+                  <option
+                    key={sub._id}
+                    value={sub._id}
+                  >
+                    {sub.name}
+                  </option>
+                )
+              )}
+
             </select>
+
           </div>
         </div>
 
@@ -1075,17 +1531,27 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="space-y-4">
-          <h3 className="font-bold text-lg text-gray-800">Product Media</h3>
+
+          <h3 className="font-bold text-lg text-gray-800">
+            Product Media
+          </h3>
 
           <div className="grid md:grid-cols-2 gap-4">
+
             {/* IMAGES */}
 
             <div className="border rounded-xl p-5">
+
               <div
                 className="border-dashed border-2 p-5 rounded-xl cursor-pointer hover:border-blue-500 transition"
-                onClick={() => imageInputRef.current?.click()}
+                onClick={() =>
+                  imageInputRef.current?.click()
+                }
               >
-                <p className="font-medium">Upload Images</p>
+
+                <p className="font-medium">
+                  Upload Images
+                </p>
 
                 <p className="text-sm text-gray-500 mt-1">
                   Select new product images
@@ -1097,73 +1563,119 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                   type="file"
                   multiple
                   accept="image/*"
-                  onChange={handleImageChange}
+                  onChange={
+                    handleImageChange
+                  }
                 />
+
               </div>
 
               {/* EXISTING IMAGES */}
 
-              {product.existingImages.length > 0 && (
+              {product.existingImages
+                .length > 0 && (
+
                 <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Existing Images</p>
+
+                  <p className="text-sm font-medium mb-2">
+                    Existing Images
+                  </p>
 
                   <div className="flex gap-3 flex-wrap">
-                    {product.existingImages.map((image, index) => {
-                      const imageUrl =
-                        typeof image === "string"
-                          ? image
-                          : image.url || image.secure_url || image.path;
 
-                      return (
-                        <div key={index} className="relative">
-                          <img
-                            src={imageUrl}
-                            alt={`Existing ${index + 1}`}
-                            className="w-24 h-24 object-cover rounded-lg"
-                          />
+                    {product.existingImages.map(
+                      (image, index) => {
 
-                          <button
-                            type="button"
-                            onClick={() => removeExistingImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs"
+                        const imageUrl =
+                          typeof image ===
+                          "string"
+                            ? image
+                            : image.url ||
+                              image.secure_url ||
+                              image.path;
+
+                        return (
+                          <div
+                            key={index}
+                            className="relative"
                           >
-                            ×
-                          </button>
-                        </div>
-                      );
-                    })}
+
+                            <img
+                              src={imageUrl}
+                              alt={`Existing ${
+                                index + 1
+                              }`}
+                              className="w-24 h-24 object-cover rounded-lg"
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeExistingImage(
+                                  index
+                                )
+                              }
+                              className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs"
+                            >
+                              ×
+                            </button>
+
+                          </div>
+                        );
+                      }
+                    )}
+
                   </div>
                 </div>
               )}
 
               {/* NEW IMAGE PREVIEWS */}
 
-              {product.imagePreviews.length > 0 && (
+              {product.imagePreviews
+                .length > 0 && (
+
                 <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">New Images</p>
+
+                  <p className="text-sm font-medium mb-2">
+                    New Images
+                  </p>
 
                   <div className="flex gap-3 flex-wrap">
-                    {product.imagePreviews.map((src, index) => (
-                      <img
-                        key={index}
-                        src={src}
-                        alt={`Preview ${index + 1}`}
-                        className="w-24 h-24 object-cover rounded-lg"
-                      />
-                    ))}
+
+                    {product.imagePreviews.map(
+                      (src, index) => (
+                        <img
+                          key={index}
+                          src={src}
+                          alt={`Preview ${
+                            index + 1
+                          }`}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      )
+                    )}
+
                   </div>
+
                 </div>
               )}
+
             </div>
 
             {/* VIDEOS */}
 
             <div className="border rounded-xl p-5">
+
               <div
                 className="border-dashed border-2 p-5 rounded-xl cursor-pointer hover:border-blue-500 transition"
-                onClick={() => videoInputRef.current?.click()}
+                onClick={() =>
+                  videoInputRef.current?.click()
+                }
               >
-                <p className="font-medium">Upload Videos</p>
+
+                <p className="font-medium">
+                  Upload Videos
+                </p>
 
                 <p className="text-sm text-gray-500 mt-1">
                   Select new product videos
@@ -1175,63 +1687,100 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                   type="file"
                   multiple
                   accept="video/*"
-                  onChange={handleVideoChange}
+                  onChange={
+                    handleVideoChange
+                  }
                 />
+
               </div>
 
               {/* EXISTING VIDEOS */}
 
-              {product.existingVideos.length > 0 && (
+              {product.existingVideos
+                .length > 0 && (
+
                 <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Existing Videos</p>
+
+                  <p className="text-sm font-medium mb-2">
+                    Existing Videos
+                  </p>
 
                   <div className="flex gap-3 flex-wrap">
-                    {product.existingVideos.map((video, index) => {
-                      const videoUrl =
-                        typeof video === "string"
-                          ? video
-                          : video.url || video.secure_url || video.path;
 
-                      return (
-                        <div key={index} className="relative">
-                          <video
-                            src={videoUrl}
-                            controls
-                            className="w-40 rounded-lg"
-                          />
+                    {product.existingVideos.map(
+                      (video, index) => {
 
-                          <button
-                            type="button"
-                            onClick={() => removeExistingVideo(index)}
-                            className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs"
+                        const videoUrl =
+                          typeof video ===
+                          "string"
+                            ? video
+                            : video.url ||
+                              video.secure_url ||
+                              video.path;
+
+                        return (
+                          <div
+                            key={index}
+                            className="relative"
                           >
-                            ×
-                          </button>
-                        </div>
-                      );
-                    })}
+
+                            <video
+                              src={videoUrl}
+                              controls
+                              className="w-40 rounded-lg"
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeExistingVideo(
+                                  index
+                                )
+                              }
+                              className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs"
+                            >
+                              ×
+                            </button>
+
+                          </div>
+                        );
+                      }
+                    )}
+
                   </div>
+
                 </div>
               )}
 
               {/* NEW VIDEO PREVIEWS */}
 
-              {product.videoPreviews.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">New Videos</p>
+              {product.videoPreviews
+                .length > 0 && (
 
-                  {product.videoPreviews.map((src, index) => (
-                    <video
-                      key={index}
-                      src={src}
-                      controls
-                      className="w-40 mt-2 rounded-lg"
-                    />
-                  ))}
+                <div className="mt-4">
+
+                  <p className="text-sm font-medium mb-2">
+                    New Videos
+                  </p>
+
+                  {product.videoPreviews.map(
+                    (src, index) => (
+                      <video
+                        key={index}
+                        src={src}
+                        controls
+                        className="w-40 mt-2 rounded-lg"
+                      />
+                    )
+                  )}
+
                 </div>
               )}
+
             </div>
+
           </div>
+
         </div>
 
         {/* ===================================================
@@ -1239,13 +1788,18 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="space-y-4">
-          <h3 className="font-bold text-lg text-gray-800">Description</h3>
+
+          <h3 className="font-bold text-lg text-gray-800">
+            Description
+          </h3>
 
           <input
             className="border p-3 rounded-lg w-full"
             name="shortDescription"
             placeholder="Short Description"
-            value={product.shortDescription}
+            value={
+              product.shortDescription
+            }
             onChange={handleChange}
           />
 
@@ -1254,9 +1808,12 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
             rows={5}
             name="fullDescription"
             placeholder="Full Description"
-            value={product.fullDescription}
+            value={
+              product.fullDescription
+            }
             onChange={handleChange}
           />
+
         </div>
 
         {/* ===================================================
@@ -1264,11 +1821,13 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="space-y-4">
+
           <h3 className="font-bold text-lg text-gray-800">
             Product Classification
           </h3>
 
           <div className="grid md:grid-cols-2 gap-4">
+
             <input
               className="border p-3 rounded-lg"
               name="tags"
@@ -1281,10 +1840,14 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               className="border p-3 rounded-lg"
               name="highlights"
               placeholder="Highlights comma separated"
-              value={product.highlights}
+              value={
+                product.highlights
+              }
               onChange={handleChange}
             />
+
           </div>
+
         </div>
 
         {/* ===================================================
@@ -1292,15 +1855,22 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="border rounded-xl p-5 bg-gray-50 space-y-5">
+
           <div>
-            <h3 className="font-bold text-lg text-gray-800">Gifting Options</h3>
+
+            <h3 className="font-bold text-lg text-gray-800">
+              Gifting Options
+            </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              Configure gifting options available for this product.
+              Configure gifting options available for
+              this product.
             </p>
+
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
+
             {/* GIFT WRAPPING */}
 
             <label
@@ -1309,26 +1879,41 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 p-4 rounded-lg border
                 cursor-pointer transition
                 ${
-                  product.gifting.giftWrappingAvailable
+                  product.gifting
+                    .giftWrappingAvailable
                     ? "border-green-500 bg-green-50"
                     : "border-gray-200 bg-white"
                 }
               `}
             >
+
               <input
                 type="checkbox"
-                checked={product.gifting.giftWrappingAvailable}
+                checked={Boolean(
+                  product.gifting
+                    .giftWrappingAvailable
+                )}
                 onChange={(e) =>
-                  handleGiftingChange("giftWrappingAvailable", e.target.checked)
+                  handleGiftingChange(
+                    "giftWrappingAvailable",
+                    e.target.checked
+                  )
                 }
                 className="w-5 h-5"
               />
 
               <div>
-                <p className="font-medium">Gift Wrapping</p>
 
-                <p className="text-xs text-gray-500">Allow gift wrapping</p>
+                <p className="font-medium">
+                  Gift Wrapping
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  Allow gift wrapping
+                </p>
+
               </div>
+
             </label>
 
             {/* PERSONALIZED */}
@@ -1339,28 +1924,41 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 p-4 rounded-lg border
                 cursor-pointer transition
                 ${
-                  product.gifting.personalizedMessage
+                  product.gifting
+                    .personalizedMessage
                     ? "border-green-500 bg-green-50"
                     : "border-gray-200 bg-white"
                 }
               `}
             >
+
               <input
                 type="checkbox"
-                checked={product.gifting.personalizedMessage}
+                checked={Boolean(
+                  product.gifting
+                    .personalizedMessage
+                )}
                 onChange={(e) =>
-                  handleGiftingChange("personalizedMessage", e.target.checked)
+                  handleGiftingChange(
+                    "personalizedMessage",
+                    e.target.checked
+                  )
                 }
                 className="w-5 h-5"
               />
 
               <div>
-                <p className="font-medium">Personalized Message</p>
+
+                <p className="font-medium">
+                  Personalized Message
+                </p>
 
                 <p className="text-xs text-gray-500">
                   Customer can add a message
                 </p>
+
               </div>
+
             </label>
 
             {/* CORPORATE */}
@@ -1371,33 +1969,49 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 p-4 rounded-lg border
                 cursor-pointer transition
                 ${
-                  product.gifting.corporateGifting
+                  product.gifting
+                    .corporateGifting
                     ? "border-green-500 bg-green-50"
                     : "border-gray-200 bg-white"
                 }
               `}
             >
+
               <input
                 type="checkbox"
-                checked={product.gifting.corporateGifting}
+                checked={Boolean(
+                  product.gifting
+                    .corporateGifting
+                )}
                 onChange={(e) =>
-                  handleGiftingChange("corporateGifting", e.target.checked)
+                  handleGiftingChange(
+                    "corporateGifting",
+                    e.target.checked
+                  )
                 }
                 className="w-5 h-5"
               />
 
               <div>
-                <p className="font-medium">Corporate Gifting</p>
+
+                <p className="font-medium">
+                  Corporate Gifting
+                </p>
 
                 <p className="text-xs text-gray-500">
                   Enable bulk corporate gifting
                 </p>
+
               </div>
+
             </label>
+
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
+
             <div>
+
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Gifting Occasions
               </label>
@@ -1406,14 +2020,21 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 type="text"
                 className="border p-3 rounded-lg w-full bg-white"
                 placeholder="Wedding, Birthday, Anniversary"
-                value={product.gifting.occasions}
+                value={
+                  product.gifting.occasions
+                }
                 onChange={(e) =>
-                  handleGiftingChange("occasions", e.target.value)
+                  handleGiftingChange(
+                    "occasions",
+                    e.target.value
+                  )
                 }
               />
+
             </div>
 
             <div>
+
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Festivals
               </label>
@@ -1422,13 +2043,21 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 type="text"
                 className="border p-3 rounded-lg w-full bg-white"
                 placeholder="Diwali, Rakhi, Christmas"
-                value={product.gifting.festivals}
+                value={
+                  product.gifting.festivals
+                }
                 onChange={(e) =>
-                  handleGiftingChange("festivals", e.target.value)
+                  handleGiftingChange(
+                    "festivals",
+                    e.target.value
+                  )
                 }
               />
+
             </div>
+
           </div>
+
         </div>
 
         {/* ===================================================
@@ -1436,32 +2065,56 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="space-y-4">
-          <h3 className="font-bold text-lg">Product Details</h3>
+
+          <h3 className="font-bold text-lg">
+            Product Details
+          </h3>
 
           {loadingAttributes && (
-            <p className="text-sm text-gray-500">Loading attributes...</p>
+            <p className="text-sm text-gray-500">
+              Loading attributes...
+            </p>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {productAttributes.map((attr) => (
-              <div key={attr._id} className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  {attr.name}
-                  {attr.unit && ` (${attr.unit})`}
-                </label>
 
-                <input
-                  type="text"
-                  className="border border-gray-300 p-3 rounded-lg w-full"
-                  value={attributeValues[attr._id] ?? ""}
-                  onChange={(e) =>
-                    handleAttributeChange(attr._id, e.target.value)
-                  }
-                  placeholder={`Enter ${attr.name}`}
-                />
-              </div>
-            ))}
+            {productAttributes.map(
+              (attr) => (
+                <div
+                  key={attr._id}
+                  className="flex flex-col gap-1"
+                >
+
+                  <label className="text-sm font-medium text-gray-700">
+                    {attr.name}
+
+                    {attr.unit &&
+                      ` (${attr.unit})`}
+                  </label>
+
+                  <input
+                    type="text"
+                    className="border border-gray-300 p-3 rounded-lg w-full"
+                    value={
+                      attributeValues[
+                        attr._id
+                      ] ?? ""
+                    }
+                    onChange={(e) =>
+                      handleAttributeChange(
+                        attr._id,
+                        e.target.value
+                      )
+                    }
+                    placeholder={`Enter ${attr.name}`}
+                  />
+
+                </div>
+              )
+            )}
+
           </div>
+
         </div>
 
         {/* ===================================================
@@ -1469,7 +2122,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         =================================================== */}
 
         <div className="flex justify-between items-center">
-          <h3 className="font-bold text-lg">Variants</h3>
+
+          <h3 className="font-bold text-lg">
+            Variants
+          </h3>
 
           <button
             type="button"
@@ -1478,393 +2134,583 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           >
             + Add Variant
           </button>
+
         </div>
 
         {/* ===================================================
             VARIANTS
         =================================================== */}
 
-        {variants.map((variant, index) => (
-          <div
-            key={variant._id || index}
-            className="border p-5 rounded-xl space-y-4"
-          >
-            <div className="flex justify-between items-center">
-              <h4 className="font-semibold">Variant {index + 1}</h4>
+        {variants.map(
+          (variant, index) => (
 
-              {variants.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeVariant(index)}
-                  className="text-red-600 hover:text-red-800 text-sm font-medium"
-                >
-                  Remove Variant
-                </button>
-              )}
-            </div>
-
-            {/* SKU + BARCODE */}
-
-            <div className="grid md:grid-cols-2 gap-3">
-              <input
-                className="border p-3 rounded-lg"
-                placeholder="SKU"
-                value={variant.sku || ""}
-                onChange={(e) =>
-                  updateVariantField(index, "sku", e.target.value)
-                }
-              />
-
-              <input
-                className="border p-3 rounded-lg"
-                placeholder="Barcode"
-                value={variant.barcode || ""}
-                onChange={(e) =>
-                  updateVariantField(index, "barcode", e.target.value)
-                }
-              />
-            </div>
-
-            {/* PRICE */}
-
-            <div className="grid md:grid-cols-2 gap-3">
-              <input
-                type="number"
-                className="border p-3 rounded-lg"
-                placeholder="MRP"
-                value={variant.pricing?.mrp ?? ""}
-                onChange={(e) =>
-                  updateVariantNested(index, "pricing", "mrp", e.target.value)
-                }
-              />
-
-              <input
-                type="number"
-                className="border p-3 rounded-lg"
-                placeholder="Selling Price"
-                value={variant.pricing?.sellingPrice ?? ""}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "pricing",
-                    "sellingPrice",
-                    e.target.value,
-                  )
-                }
-              />
-            </div>
-
-            {/* GST */}
-
-            <div className="grid md:grid-cols-3 gap-3">
-              <input
-                type="number"
-                className="border p-3 rounded-lg"
-                placeholder="GST Rate"
-                value={variant.pricing?.gstRate ?? ""}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "pricing",
-                    "gstRate",
-                    e.target.value,
-                  )
-                }
-              />
-
-              <input
-                type="number"
-                className="border p-3 rounded-lg"
-                placeholder="Discount %"
-                value={variant.pricing?.discountPercent ?? ""}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "pricing",
-                    "discountPercent",
-                    e.target.value,
-                  )
-                }
-              />
-
-              <input
-                className="border p-3 rounded-lg"
-                placeholder="Currency"
-                value={variant.pricing?.currency || "INR"}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "pricing",
-                    "currency",
-                    e.target.value,
-                  )
-                }
-              />
-            </div>
-
-            {/* TAX INCLUDED */}
-
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={Boolean(variant.pricing?.taxIncluded)}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "pricing",
-                    "taxIncluded",
-                    e.target.checked,
-                  )
-                }
-                className="w-5 h-5"
-              />
-
-              <span className="text-sm">Tax Included</span>
-            </label>
-
-            {/* INVENTORY */}
-
-            <div className="grid md:grid-cols-2 gap-3">
-              <input
-                type="number"
-                className="border p-3 rounded-lg"
-                placeholder="Stock Quantity"
-                value={variant.inventory?.stockQuantity ?? ""}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "inventory",
-                    "stockQuantity",
-                    e.target.value,
-                  )
-                }
-              />
-
-              <input
-                type="number"
-                className="border p-3 rounded-lg"
-                placeholder="Low Stock Threshold"
-                value={variant.inventory?.lowStockThreshold ?? ""}
-                onChange={(e) =>
-                  updateVariantNested(
-                    index,
-                    "inventory",
-                    "lowStockThreshold",
-                    e.target.value,
-                  )
-                }
-              />
-            </div>
-
-            {/* SHIPPING */}
-
-            <input
-              type="number"
-              className="border p-3 rounded-lg w-full"
-              placeholder="Shipping Weight"
-              value={variant.shippingWeight ?? ""}
-              onChange={(e) =>
-                updateVariantField(index, "shippingWeight", e.target.value)
+            <div
+              key={
+                variant._id || index
               }
-            />
+              className="border p-5 rounded-xl space-y-4"
+            >
 
-            {/* INVENTORY OPTIONS */}
+              <div className="flex justify-between items-center">
 
-            <div className="grid md:grid-cols-3 gap-3">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={Boolean(variant.inventory?.inStock)}
-                  onChange={(e) =>
-                    updateVariantNested(
-                      index,
-                      "inventory",
-                      "inStock",
-                      e.target.checked,
-                    )
-                  }
-                />
-                In Stock
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={Boolean(variant.inventory?.backorderAllowed)}
-                  onChange={(e) =>
-                    updateVariantNested(
-                      index,
-                      "inventory",
-                      "backorderAllowed",
-                      e.target.checked,
-                    )
-                  }
-                />
-                Backorder Allowed
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={Boolean(variant.inventory?.preOrder)}
-                  onChange={(e) =>
-                    updateVariantNested(
-                      index,
-                      "inventory",
-                      "preOrder",
-                      e.target.checked,
-                    )
-                  }
-                />
-                Pre Order
-              </label>
-            </div>
-
-            {/* =================================================
-                VARIANT ATTRIBUTES
-            ================================================= */}
-
-            {variantAttributes.length > 0 && (
-              <div className="space-y-4 pt-3">
-                <h4 className="font-semibold text-gray-800">
-                  Variant Attributes
+                <h4 className="font-semibold">
+                  Variant {index + 1}
                 </h4>
 
-                {variantAttributes.map((attr) => {
-                  const currentValue = variant.attributes?.find(
-                    (item) => getId(item.attributeId) === getId(attr._id),
-                  )?.value;
+                {variants.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeVariant(
+                        index
+                      )
+                    }
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Remove Variant
+                  </button>
+                )}
 
-                  return (
-                    <div key={attr._id} className="space-y-2">
-                      <label className="font-medium">
-                        {attr.name}
-
-                        {attr.unit && ` (${attr.unit})`}
-                      </label>
-
-                      {/* TEXT */}
-
-                      {attr.fieldType === "text" && (
-                        <input
-                          type="text"
-                          placeholder={attr.placeholder}
-                          className="border p-3 rounded-lg w-full"
-                          value={currentValue ?? ""}
-                          onChange={(e) =>
-                            handleVariantAttributeChange(
-                              index,
-                              attr._id,
-                              e.target.value,
-                            )
-                          }
-                        />
-                      )}
-
-                      {/* NUMBER */}
-
-                      {attr.fieldType === "number" && (
-                        <input
-                          type="number"
-                          placeholder={attr.placeholder}
-                          className="border p-3 rounded-lg w-full"
-                          value={currentValue ?? ""}
-                          onChange={(e) =>
-                            handleVariantAttributeChange(
-                              index,
-                              attr._id,
-                              e.target.value,
-                            )
-                          }
-                        />
-                      )}
-
-                      {/* SELECT */}
-
-                      {attr.fieldType === "select" && (
-                        <select
-                          className="border p-3 rounded-lg w-full"
-                          value={currentValue ?? ""}
-                          onChange={(e) =>
-                            handleVariantAttributeChange(
-                              index,
-                              attr._id,
-                              e.target.value,
-                            )
-                          }
-                        >
-                          <option value="">Select {attr.name}</option>
-
-                          {attr.options?.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-
-                      {/* MULTISELECT */}
-
-                      {attr.fieldType === "multiselect" && (
-                        <select
-                          multiple
-                          className="border p-3 rounded-lg w-full h-28"
-                          value={
-                            Array.isArray(currentValue) ? currentValue : []
-                          }
-                          onChange={(e) => {
-                            const values = Array.from(
-                              e.target.selectedOptions,
-                            ).map((option) => option.value);
-
-                            handleVariantAttributeChange(
-                              index,
-                              attr._id,
-                              values,
-                            );
-                          }}
-                        >
-                          {attr.options?.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-
-                      {/* BOOLEAN */}
-
-                      {attr.fieldType === "boolean" && (
-                        <label className="flex gap-2 items-center">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(currentValue)}
-                            onChange={(e) =>
-                              handleVariantAttributeChange(
-                                index,
-                                attr._id,
-                                e.target.checked,
-                              )
-                            }
-                            className="w-5 h-5"
-                          />
-
-                          <span>{attr.name}</span>
-                        </label>
-                      )}
-                    </div>
-                  );
-                })}
               </div>
-            )}
-          </div>
-        ))}
+
+              {/* SKU + BARCODE */}
+
+              <div className="grid md:grid-cols-2 gap-3">
+
+                <input
+                  className="border p-3 rounded-lg"
+                  placeholder="SKU"
+                  value={
+                    variant.sku || ""
+                  }
+                  onChange={(e) =>
+                    updateVariantField(
+                      index,
+                      "sku",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <input
+                  className="border p-3 rounded-lg"
+                  placeholder="Barcode"
+                  value={
+                    variant.barcode || ""
+                  }
+                  onChange={(e) =>
+                    updateVariantField(
+                      index,
+                      "barcode",
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              {/* PRICE */}
+
+              <div className="grid md:grid-cols-2 gap-3">
+
+                <input
+                  type="number"
+                  className="border p-3 rounded-lg"
+                  placeholder="MRP"
+                  value={
+                    variant.pricing
+                      ?.mrp ?? ""
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "pricing",
+                      "mrp",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <input
+                  type="number"
+                  className="border p-3 rounded-lg"
+                  placeholder="Selling Price"
+                  value={
+                    variant.pricing
+                      ?.sellingPrice ?? ""
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "pricing",
+                      "sellingPrice",
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              {/* GST */}
+
+              <div className="grid md:grid-cols-3 gap-3">
+
+                <input
+                  type="number"
+                  className="border p-3 rounded-lg"
+                  placeholder="GST Rate"
+                  value={
+                    variant.pricing
+                      ?.gstRate ?? ""
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "pricing",
+                      "gstRate",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <input
+                  type="number"
+                  className="border p-3 rounded-lg"
+                  placeholder="Discount %"
+                  value={
+                    variant.pricing
+                      ?.discountPercent ?? ""
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "pricing",
+                      "discountPercent",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <input
+                  className="border p-3 rounded-lg"
+                  placeholder="Currency"
+                  value={
+                    variant.pricing
+                      ?.currency || "INR"
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "pricing",
+                      "currency",
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              {/* TAX INCLUDED */}
+
+              <label className="flex items-center gap-2">
+
+                <input
+                  type="checkbox"
+                  checked={Boolean(
+                    variant.pricing
+                      ?.taxIncluded
+                  )}
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "pricing",
+                      "taxIncluded",
+                      e.target.checked
+                    )
+                  }
+                  className="w-5 h-5"
+                />
+
+                <span className="text-sm">
+                  Tax Included
+                </span>
+
+              </label>
+
+              {/* INVENTORY */}
+
+              <div className="grid md:grid-cols-2 gap-3">
+
+                <input
+                  type="number"
+                  className="border p-3 rounded-lg"
+                  placeholder="Stock Quantity"
+                  value={
+                    variant.inventory
+                      ?.stockQuantity ?? ""
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "inventory",
+                      "stockQuantity",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <input
+                  type="number"
+                  className="border p-3 rounded-lg"
+                  placeholder="Low Stock Threshold"
+                  value={
+                    variant.inventory
+                      ?.lowStockThreshold ?? ""
+                  }
+                  onChange={(e) =>
+                    updateVariantNested(
+                      index,
+                      "inventory",
+                      "lowStockThreshold",
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              {/* SHIPPING */}
+
+              <input
+                type="number"
+                className="border p-3 rounded-lg w-full"
+                placeholder="Shipping Weight"
+                value={
+                  variant.shippingWeight ??
+                  ""
+                }
+                onChange={(e) =>
+                  updateVariantField(
+                    index,
+                    "shippingWeight",
+                    e.target.value
+                  )
+                }
+              />
+
+              {/* INVENTORY OPTIONS */}
+
+              <div className="grid md:grid-cols-3 gap-3">
+
+                <label className="flex items-center gap-2">
+
+                  <input
+                    type="checkbox"
+                    checked={Boolean(
+                      variant.inventory
+                        ?.inStock
+                    )}
+                    onChange={(e) =>
+                      updateVariantNested(
+                        index,
+                        "inventory",
+                        "inStock",
+                        e.target.checked
+                      )
+                    }
+                  />
+
+                  In Stock
+
+                </label>
+
+                <label className="flex items-center gap-2">
+
+                  <input
+                    type="checkbox"
+                    checked={Boolean(
+                      variant.inventory
+                        ?.backorderAllowed
+                    )}
+                    onChange={(e) =>
+                      updateVariantNested(
+                        index,
+                        "inventory",
+                        "backorderAllowed",
+                        e.target.checked
+                      )
+                    }
+                  />
+
+                  Backorder Allowed
+
+                </label>
+
+                <label className="flex items-center gap-2">
+
+                  <input
+                    type="checkbox"
+                    checked={Boolean(
+                      variant.inventory
+                        ?.preOrder
+                    )}
+                    onChange={(e) =>
+                      updateVariantNested(
+                        index,
+                        "inventory",
+                        "preOrder",
+                        e.target.checked
+                      )
+                    }
+                  />
+
+                  Pre Order
+
+                </label>
+
+              </div>
+
+              {/* =================================================
+                  VARIANT ATTRIBUTES
+              ================================================= */}
+
+              {variantAttributes.length >
+                0 && (
+
+                <div className="space-y-4 pt-3">
+
+                  <h4 className="font-semibold text-gray-800">
+                    Variant Attributes
+                  </h4>
+
+                  {variantAttributes.map(
+                    (attr) => {
+
+                      const currentValue =
+                        variant.attributes?.find(
+                          (item) =>
+                            getId(
+                              item.attributeId
+                            ) ===
+                            getId(
+                              attr._id
+                            )
+                        )?.value;
+
+                      return (
+                        <div
+                          key={attr._id}
+                          className="space-y-2"
+                        >
+
+                          <label className="font-medium">
+
+                            {attr.name}
+
+                            {attr.unit &&
+                              ` (${attr.unit})`}
+
+                          </label>
+
+                          {/* TEXT */}
+
+                          {attr.fieldType ===
+                            "text" && (
+
+                            <input
+                              type="text"
+                              placeholder={
+                                attr.placeholder
+                              }
+                              className="border p-3 rounded-lg w-full"
+                              value={
+                                currentValue ??
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleVariantAttributeChange(
+                                  index,
+                                  attr._id,
+                                  e.target.value
+                                )
+                              }
+                            />
+
+                          )}
+
+                          {/* NUMBER */}
+
+                          {attr.fieldType ===
+                            "number" && (
+
+                            <input
+                              type="number"
+                              placeholder={
+                                attr.placeholder
+                              }
+                              className="border p-3 rounded-lg w-full"
+                              value={
+                                currentValue ??
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleVariantAttributeChange(
+                                  index,
+                                  attr._id,
+                                  e.target.value
+                                )
+                              }
+                            />
+
+                          )}
+
+                          {/* SELECT */}
+
+                          {attr.fieldType ===
+                            "select" && (
+
+                            <select
+                              className="border p-3 rounded-lg w-full"
+                              value={
+                                currentValue ??
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleVariantAttributeChange(
+                                  index,
+                                  attr._id,
+                                  e.target.value
+                                )
+                              }
+                            >
+
+                              <option value="">
+                                Select{" "}
+                                {attr.name}
+                              </option>
+
+                              {attr.options?.map(
+                                (option) => (
+                                  <option
+                                    key={
+                                      option
+                                    }
+                                    value={
+                                      option
+                                    }
+                                  >
+                                    {option}
+                                  </option>
+                                )
+                              )}
+
+                            </select>
+
+                          )}
+
+                          {/* MULTISELECT */}
+
+                          {attr.fieldType ===
+                            "multiselect" && (
+
+                            <select
+                              multiple
+                              className="border p-3 rounded-lg w-full h-28"
+                              value={
+                                Array.isArray(
+                                  currentValue
+                                )
+                                  ? currentValue
+                                  : []
+                              }
+                              onChange={(e) => {
+
+                                const values =
+                                  Array.from(
+                                    e.target
+                                      .selectedOptions
+                                  ).map(
+                                    (option) =>
+                                      option.value
+                                  );
+
+                                handleVariantAttributeChange(
+                                  index,
+                                  attr._id,
+                                  values
+                                );
+                              }}
+                            >
+
+                              {attr.options?.map(
+                                (option) => (
+                                  <option
+                                    key={
+                                      option
+                                    }
+                                    value={
+                                      option
+                                    }
+                                  >
+                                    {option}
+                                  </option>
+                                )
+                              )}
+
+                            </select>
+
+                          )}
+
+                          {/* BOOLEAN */}
+
+                          {attr.fieldType ===
+                            "boolean" && (
+
+                            <label className="flex gap-2 items-center">
+
+                              <input
+                                type="checkbox"
+                                checked={Boolean(
+                                  currentValue
+                                )}
+                                onChange={(e) =>
+                                  handleVariantAttributeChange(
+                                    index,
+                                    attr._id,
+                                    e.target
+                                      .checked
+                                  )
+                                }
+                                className="w-5 h-5"
+                              />
+
+                              <span>
+                                {attr.name}
+                              </span>
+
+                            </label>
+
+                          )}
+
+                        </div>
+                      );
+                    }
+                  )}
+
+                </div>
+
+              )}
+
+            </div>
+          )
+        )}
 
         {/* ===================================================
             SUBMIT
         =================================================== */}
 
         <div className="pt-4 border-t">
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -1889,8 +2735,10 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
               }
             `}
           >
+
             {isSubmitting ? (
               <>
+
                 <span
                   className="
                     w-5
@@ -1903,16 +2751,23 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                   "
                 />
 
-                {editData ? "Updating..." : "Submitting..."}
+                {editData
+                  ? "Updating..."
+                  : "Submitting..."}
+
               </>
             ) : editData ? (
               "Update Product"
             ) : (
               "Create Product"
             )}
+
           </button>
+
         </div>
+
       </form>
+
     </div>
   );
 };

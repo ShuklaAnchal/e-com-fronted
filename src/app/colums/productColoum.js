@@ -6,7 +6,7 @@ import { getMediaUrl } from "@/app/utils/mediaUrl";
 
 const columnHelper = createColumnHelper();
 
-export const productColumns = ({ onEdit, onView, onDelete, onAddVariant }) => [
+export const productColumns = ({ onEdit, onView, onDelete, onAddVariant, onRelationships }) => [
   // ==========================================
   // SR NO
   // ==========================================
@@ -241,6 +241,7 @@ export const productColumns = ({ onEdit, onView, onDelete, onAddVariant }) => [
           onView={() => onView(row.original)}
           onDelete={() => onDelete(row.original)}
           onAddVariant={() => onAddVariant(row.original)}
+          onRelationships={() => onRelationships(row.original)}
         />
       </div>
     ),

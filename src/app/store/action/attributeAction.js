@@ -18,7 +18,7 @@ const getToken = () => {
   return null;
 };
 
-// FETCH ALL ATTRIBUTES
+
 // FETCH ATTRIBUTES WITH PAGINATION
 export const asyncFetchAttributes =
   ({ page = 1, limit = 8 } = {}) =>
@@ -66,7 +66,14 @@ export const asyncFetchAttributes =
 // FETCH ATTRIBUTE BY ID
 export const fetchAllAttribute = (id) => async (dispatch) => {
   try {
-    const { data } = await axios.get(`/attribute/fetchAttributesByID/${id}`);
+     const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+    const { data } = await axios.get(`/attribute/fetchAttributesByID/${id}`, config);
     dispatch(fetchSingleAttribute(data.attribute));
     return data;
   } catch (error) {
@@ -77,8 +84,15 @@ export const fetchAllAttribute = (id) => async (dispatch) => {
 // FETCH ATTRIBUTE BY ID
 export const fetchAttributeByCatgeoryID = (id) => async (dispatch) => {
   try {
+     const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
     const { data } = await axios.get(
-      `/attribute/fetchAttributesByCatgory/${id}`,
+      `/attribute/fetchAttributesByCatgory/${id}`,config
     );
     dispatch(fetchCategoryAttribute(data.attribute));
     return data;
@@ -90,8 +104,15 @@ export const fetchAttributeByCatgeoryID = (id) => async (dispatch) => {
 // FETCH ATTRIBUTE BY ID
 export const fetchAttributeBySubCatgeoryID = (id) => async (dispatch) => {
   try {
+     const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
     const { data } = await axios.get(
-      `/attribute/fetchAttributesBySubcategory/${id}`,
+      `/attribute/fetchAttributesBySubcategory/${id}`,config
     );
     dispatch(fetchSubcategoryAttribute(data.attribute));
     return data;
