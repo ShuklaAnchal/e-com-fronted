@@ -20,7 +20,12 @@ export const metadata = {
   description:
     "Experience the art of scented light with Siyaas. Handcrafted soy candles, diffusers, and luxury wooden crafts for every mood.",
   icons: {
-    icon: "/siyaas.png",
+    icon: [
+      {
+        url: "/siyaas.png",
+        type: "image/png",
+      },
+    ],
     shortcut: "/siyaas.png",
     apple: "/siyaas.png",
   },
