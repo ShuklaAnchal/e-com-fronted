@@ -222,7 +222,7 @@ const ReelProducts = () => {
                       </p> */}
 
                       <button
-                        onClick={() => router.push(`/products/${item._id}`)}
+                        onClick={() => router.push(`/products`)}
                         className=" mt-2 sm:mt-3 rounded-xl w-full py-2 border border-[#C5A880]/50 text-[9px] sm:text-[10px] uppercase
                         tracking-[0.2em] hover:bg-[#C5A880] transition-all "
                       >
@@ -248,29 +248,64 @@ const ReelProducts = () => {
         </div>
       </section>
 
-      {activeVideo && (
-        <div
-          className="fixed inset-0 bg-black/90  z-[9999] flex items-center justify-center "
-          onClick={() => setActiveVideo(null)}
-        >
-          <div
-            className="
-            w-[90%]
-            max-w-md
-            "
-            onClick={(e) => e.stopPropagation()}
-          >
-            <video
-              key={activeVideo.url}
-              src={activeVideo.url}
-              controls
-              autoPlay
-              playsInline
-              className="w-full rounded-lg"
-            />
-          </div>
-        </div>
-      )}
+     {activeVideo && (
+
+  <div
+    className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center"
+    onClick={() => setActiveVideo(null)}
+  >
+    <div
+      className="relative w-[90%] max-w-md"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Close Button */}
+      <button
+        type="button"
+        onClick={() => setActiveVideo(null)}
+        aria-label="Close reel"
+        className="
+          absolute
+          top-7
+          -right-0
+          z-50
+          flex
+          h-10
+          w-10
+          items-center
+          justify-center
+          rounded-full
+          bg-white/20
+          text-2xl
+          text-black
+          backdrop-blur-md
+          border
+          border-white/20
+          
+          transition-all
+          duration-300
+          hover:bg-white
+          hover:text-black
+        "
+      >
+        ×
+      </button>
+
+```
+  {/* Reel Video */}
+  <video
+    key={activeVideo.url}
+    src={activeVideo.url}
+    controls
+    autoPlay
+    playsInline
+    className="w-full rounded-lg"
+  />
+</div>
+```
+
+  </div>
+)}
+
     </>
   );
 };

@@ -20,7 +20,7 @@ const Trending = () => {
       image: "/tranding-2.png",
       title: "Candles",
       description: "Vanilla scented candles",
-      link: "/collections/bridgerton",
+      link: "/products",
     },
   ];
 
