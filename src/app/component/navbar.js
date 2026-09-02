@@ -56,13 +56,13 @@ const sidenavbar = () => {
       localStorage.setItem("admin", JSON.stringify(admin));
     }
   }, [admin]);
-  console.log({admin});
-  
+  console.log({ admin });
+
   const id = admin?.id || "";
   const userType = admin?.userType || "";
   const adminName = admin?.adminName || "";
-  console.log({adminName});
-  
+  console.log({ adminName });
+
   const data = [
     { id: 0, Links: "/admin/dashboard/category", text: "Dashboard" },
     { id: 1, Links: "/admin/dashboard/", text: "Catgeory" },
@@ -80,7 +80,7 @@ const sidenavbar = () => {
     <div className=" rounded-br-3xl h-screen w-[12vw] py-6 flex flex-col justify-between bg-[#5C4033] text-white">
       <div className="flex flex-col gap-1 justify-center px-4">
         <div className="h-28">
-          <Image
+          {/* <Image
             src="/siyassLogowhite.png"
             alt="Siyaas Logo"
             width={100}
@@ -91,7 +91,7 @@ const sidenavbar = () => {
                           transition-all
                           duration-300
                         `}
-          />
+          /> */}
         </div>
         <Link href="/admin/dashboard">
           <div

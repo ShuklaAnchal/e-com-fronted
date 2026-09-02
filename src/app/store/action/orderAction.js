@@ -69,10 +69,7 @@ export const fetchOrderbyID = (id) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(
-      `/order/user-orderdetiles/${id}`,
-      config
-    );
+    const { data } = await axios.get(`/order/user-orderdetiles/${id}`, config);
 
     console.log(data);
 
@@ -99,14 +96,10 @@ export const createOrder = (formData) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post(
-      "/order/user-order",
-      formData,
-      config
-    );
+    const { data } = await axios.post("/order/user-order", formData, config);
 
     console.log("order Action Data:", data);
-    
+
     dispatch(createneworder(data));
 
     return {
@@ -114,15 +107,55 @@ export const createOrder = (formData) => async (dispatch) => {
       payload: data,
     };
   } catch (error) {
-    console.error(
-      "CREATE ORDER ERROR:",
-      error?.response?.data || error
-    );
+    console.error("CREATE ORDER ERROR:", error?.response?.data || error);
 
     const message =
       error?.response?.data?.message ||
       error?.response?.data?.error ||
       "Failed to create Order";
+
+    dispatch(iserror(message));
+
+    return {
+      success: false,
+      message,
+    };
+  }
+};
+
+// Update order status by admin
+export const editOrderdetailes = (orderId, status) => async (dispatch) => {
+  try {
+    const token = getToken();
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    const payload = {
+      orderId,
+      status,
+    };
+
+    const { data } = await axios.put(
+      "/order/Admin-updateOrder-status",
+      payload,
+      config,
+    );
+
+    dispatch(editorder(data));
+console.log({data});
+
+    return {
+      success: true,
+      payload: data,
+    };
+  } catch (error) {
+    const message =
+      error?.response?.data?.message || "Failed to update order status";
 
     dispatch(iserror(message));
 

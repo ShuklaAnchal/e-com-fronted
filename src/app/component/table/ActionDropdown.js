@@ -8,7 +8,8 @@ export default function ActionDropdown({
   onView,
   onDelete,
   onAddVariant,
-  onRelationships
+  onRelationships,
+  OnHandle,
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
@@ -38,6 +39,20 @@ export default function ActionDropdown({
 
       {open && (
         <div className="absolute right-0 top-6 z-50 bg-white border rounded-lg shadow-lg w-20   ">
+          {/* Order Status */}
+          {OnHandle && (
+            <button
+              type="button"
+              onClick={() => {
+                OnHandle();
+                setOpen(false);
+              }}
+              className="block w-full border-b px-4 py-2 text-left"
+            >
+              Status
+            </button>
+          )}
+
           <button
             onClick={onEdit}
             className="block w-full px-4 py-2 text-left border-b-[1px]  "
@@ -61,7 +76,7 @@ export default function ActionDropdown({
             </button>
           )}
 
-            {onRelationships && (
+          {onRelationships && (
             <button
               className="block w-full px-4 py-2 text-left border-b-[1px]  "
               onClick={onRelationships}
@@ -69,7 +84,6 @@ export default function ActionDropdown({
               Add Relation
             </button>
           )}
-
 
           <button
             onClick={onDelete}

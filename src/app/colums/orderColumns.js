@@ -7,6 +7,7 @@ const columnHelper = createColumnHelper();
 export const orderColumns = ({
   //   onEdit,
   onView,
+  OnHandle,
   //   onDelete,
 }) => [
   columnHelper.display({
@@ -53,6 +54,7 @@ export const orderColumns = ({
         <ActionDropdown
         //   onEdit={() => onEdit(row.original)}
           onView={() => onView(row.original)}
+          OnHandle={()=>OnHandle(row.original)}
         //   onDelete={() => onDelete(row.original)}
         />
       </div>
