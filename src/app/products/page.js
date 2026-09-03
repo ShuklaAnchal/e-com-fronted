@@ -1,7 +1,9 @@
+
 "use client";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
@@ -13,7 +15,69 @@ import { getMediaUrl } from "@/app/utils/mediaUrl";
 const ProductsPage = () => {
   const router = useRouter();
 
-  const { products = [], loading } = useProducts();
+  // =========================================================
+  // INFINITE SCROLL REF
+  // =========================================================
+
+  const loadMoreRef = useRef(null);
+
+  // =========================================================
+  // PRODUCTS HOOK
+  // =========================================================
+
+  const {
+    products = [],
+    loading,
+    loadingMore,
+    pagination,
+    loadMoreProducts,
+  } = useProducts();
+
+  // =========================================================
+  // INFINITE SCROLL
+  // =========================================================
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+
+        if (
+          firstEntry.isIntersecting &&
+          !loadingMore &&
+          pagination.currentPage < pagination.totalPages
+        ) {
+          loadMoreProducts();
+        }
+      },
+      {
+        root: null,
+
+        // Start loading the next page before
+        // the user reaches the bottom.
+        rootMargin: "300px",
+
+        threshold: 0,
+      },
+    );
+
+    const currentRef = loadMoreRef.current;
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [
+    loadingMore,
+    pagination.currentPage,
+    pagination.totalPages,
+    loadMoreProducts,
+  ]);
 
   // =========================================================
   // MAP API PRODUCT DATA
@@ -95,7 +159,7 @@ const ProductsPage = () => {
     });
 
   // =========================================================
-  // LOADING
+  // INITIAL LOADING
   // =========================================================
 
   if (loading) {
@@ -256,132 +320,111 @@ const ProductsPage = () => {
                  PRODUCT GRID
               ================================================= */
 
-              <div
-                className="
-                  grid
-                  grid-cols-2
-                  gap-3
-                  sm:gap-5
-                  md:grid-cols-4
-                  md:gap-6
-                  lg:grid-cols-5
-                  lg:gap-8
-                "
-              >
+              <>
 
-                {mappedProducts.map((product) => (
+                <div
+                  className="
+                    grid
+                    grid-cols-2
+                    gap-3
+                    sm:gap-5
+                    md:grid-cols-4
+                    md:gap-6
+                    lg:grid-cols-5
+                    lg:gap-8
+                  "
+                >
 
-                  /* ===========================================
-                     PRODUCT CARD
-                  =========================================== */
+                  {mappedProducts.map((product) => (
 
-                  <div
-                    key={product._id}
-                    onClick={() =>
-                      router.push(
-                        `/products/${product._id}`,
-                      )
-                    }
-                    className="
-                      group
-                      flex
-                      flex-col
-                      text-center
-                      cursor-pointer
-                      bg-white/40
-                      backdrop-blur-[2px]
-                      border
-                      border-[#C5A880]/15
-                      rounded-[14px]
-                      sm:rounded-[18px]
-                      md:rounded-[20px]
-                      shadow-[0_5px_20px_rgba(40,30,20,0.05)]
-                      transition-all
-                      duration-500
-                      ease-out
-                      hover:border-[#C5A880]/40
-                      hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)]
-                      hover:-translate-y-1
-                      overflow-hidden
-                    "
-                  >
-
-                    {/* =======================================
-                        IMAGE AREA
-                    ======================================= */}
+                    /* ===========================================
+                       PRODUCT CARD
+                    =========================================== */
 
                     <div
+                      key={product._id}
+                      onClick={() =>
+                        router.push(
+                          `/products/${product._id}`,
+                        )
+                      }
                       className="
-                        relative
-                        w-full
-                        aspect-square
+                        group
+                        flex
+                        flex-col
+                        text-center
+                        cursor-pointer
+                        bg-white/40
+                        backdrop-blur-[2px]
+                        border
+                        border-[#C5A880]/15
+                        rounded-[14px]
+                        sm:rounded-[18px]
+                        md:rounded-[20px]
+                        shadow-[0_5px_20px_rgba(40,30,20,0.05)]
+                        transition-all
+                        duration-500
+                        ease-out
+                        hover:border-[#C5A880]/40
+                        hover:shadow-[0_15px_40px_rgba(197,168,128,0.12)]
+                        hover:-translate-y-1
                         overflow-hidden
-                        bg-[#faf8f4]
                       "
                     >
 
-                      {/* RAKHI SPECIAL */}
+                      {/* =======================================
+                          IMAGE AREA
+                      ======================================= */}
 
-                      <div className="absolute top-2 left-2 z-20">
-                        <span
-                          className="
-                            inline-block
-                            bg-[#C5A880]
-                            text-[#121212]
-                            px-2
-                            sm:px-3
-                            py-1
-                            sm:py-1.5
-                            text-[7px]
-                            sm:text-[9px]
-                            uppercase
-                            tracking-[0.12em]
-                            sm:tracking-[0.18em]
-                            font-medium
-                            rounded-[3px]
-                            shadow-sm
-                          "
-                        >
-                          Rakhi Special
-                        </span>
-                      </div>
-
-                      {/* PRIMARY IMAGE */}
-
-                      <Image
-                        src={
-                          product.image ||
-                          "/placeholder-product.png"
-                        }
-                        alt={
-                          product.name || "Product"
-                        }
-                        fill
-                        sizes="
-                          (max-width: 500px) 44vw,
-                          (max-width: 768px) 30vw,
-                          20vw
-                        "
+                      <div
                         className="
-                          object-contain
-                          p-1
-                          sm:p-2
-                          transition-transform
-                          duration-700
-                          ease-out
-                          group-hover:scale-[1.04]
+                          relative
+                          w-full
+                          aspect-square
+                          overflow-hidden
+                          bg-[#faf8f4]
                         "
-                      />
+                      >
 
-                      {/* HOVER IMAGE */}
+                        {/* RAKHI SPECIAL */}
 
-                      {product.hoverImage && (
+                        <div className="absolute top-2 left-2 z-20">
+                          <span
+                            className="
+                              inline-block
+                              bg-[#C5A880]
+                              text-[#121212]
+                              px-2
+                              sm:px-3
+                              py-1
+                              sm:py-1.5
+                              text-[7px]
+                              sm:text-[9px]
+                              uppercase
+                              tracking-[0.12em]
+                              sm:tracking-[0.18em]
+                              font-medium
+                              rounded-[3px]
+                              shadow-sm
+                            "
+                          >
+                            Rakhi Special
+                          </span>
+                        </div>
+
+                        {/* PRIMARY IMAGE */}
+
                         <Image
-                          src={product.hoverImage}
-                          alt={`${product.name || "Product"} Hover`}
+                          src={
+                            product.image ||
+                            "/placeholder-product.png"
+                          }
+                          alt={
+                            product.name || "Product"
+                          }
                           fill
                           sizes="
-                            (max-width: 640px) 44vw,
+                            (max-width: 500px) 44vw,
                             (max-width: 768px) 30vw,
                             20vw
                           "
@@ -389,227 +432,325 @@ const ProductsPage = () => {
                             object-contain
                             p-1
                             sm:p-2
-                            opacity-0
-                            transition-opacity
-                            duration-500
-                            group-hover:opacity-100
+                            transition-transform
+                            duration-700
+                            ease-out
+                            group-hover:scale-[1.04]
                           "
                         />
-                      )}
 
-                      {/* OUT OF STOCK */}
+                        {/* HOVER IMAGE */}
 
-                      {!product.inStock && (
-                        <div
-                          className="
-                            absolute
-                            inset-0
-                            z-10
-                            bg-black/30
-                            flex
-                            items-center
-                            justify-center
-                          "
-                        >
-                          <span
+                        {product.hoverImage && (
+                          <Image
+                            src={product.hoverImage}
+                            alt={`${product.name || "Product"} Hover`}
+                            fill
+                            sizes="
+                              (max-width: 640px) 44vw,
+                              (max-width: 768px) 30vw,
+                              20vw
+                            "
                             className="
-                              bg-white/90
-                              px-3
-                              sm:px-4
-                              py-2
-                              text-[8px]
-                              sm:text-[10px]
-                              uppercase
-                              tracking-[0.15em]
-                              text-black
+                              object-contain
+                              p-1
+                              sm:p-2
+                              opacity-0
+                              transition-opacity
+                              duration-500
+                              group-hover:opacity-100
+                            "
+                          />
+                        )}
+
+                        {/* OUT OF STOCK */}
+
+                        {!product.inStock && (
+                          <div
+                            className="
+                              absolute
+                              inset-0
+                              z-10
+                              bg-black/30
+                              flex
+                              items-center
+                              justify-center
                             "
                           >
-                            Out of Stock
-                          </span>
-                        </div>
-                      )}
-
-                    </div>
-
-                    {/* =======================================
-                        PRODUCT INFORMATION
-                    ======================================= */}
-
-                    <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
-
-                      {/* PRODUCT NAME */}
-
-                      <h3
-                        className="
-                          text-[9px]
-                          sm:text-xs
-                          md:text-sm
-                          font-serif
-                          font-light
-                          tracking-[0.1em]
-                          sm:tracking-[0.16em]
-                          text-luxury-dark
-                          mb-1
-                          sm:mb-2
-                          uppercase
-                          truncate
-                          transition-colors
-                          duration-300
-                          group-hover:text-luxury-gold
-                        "
-                      >
-                        {product.name}
-                      </h3>
-
-                      {/* DESCRIPTION */}
-
-                      <p
-                        className="
-                          text-[8px]
-                          sm:text-[10px]
-                          md:text-[11px]
-                          text-[#777]
-                          font-light
-                          leading-[1.4]
-                          line-clamp-2
-                          min-h-[10px]
-                          sm:min-h-[10px]
-                          font-sans
-                          tracking-wide
-                          px-0.5
-                          sm:px-1
-                        "
-                      >
-                        {product.description}
-                      </p>
-
-                      {/* PRICE */}
-
-                      {product.mrp > 0 &&
-                      product.price > 0 ? (
-                        <div
-                          className="
-                            flex
-                            items-baseline
-                            justify-center
-                            gap-1
-                            sm:gap-2
-                            mt-2
-                            sm:mt-3
-                            pt-1.5
-                            sm:pt-2
-                            border-t
-                            border-[#C5A880]/15
-                          "
-                        >
-
-                          {/* MRP */}
-
-                          {product.mrp >
-                            product.price && (
                             <span
                               className="
-                                text-[7px]
+                                bg-white/90
+                                px-3
+                                sm:px-4
+                                py-2
+                                text-[8px]
                                 sm:text-[10px]
-                                text-[#999]
-                                line-through
-                                font-light
+                                uppercase
+                                tracking-[0.15em]
+                                text-black
                               "
                             >
-                              Rs. {product.mrp}
+                              Out of Stock
                             </span>
-                          )}
+                          </div>
+                        )}
 
-                          {/* SELLING PRICE */}
+                      </div>
 
-                          <span
+                      {/* =======================================
+                          PRODUCT INFORMATION
+                      ======================================= */}
+
+                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
+
+                        {/* PRODUCT NAME */}
+
+                        <h3
+                          className="
+                            text-[9px]
+                            sm:text-xs
+                            md:text-sm
+                            font-serif
+                            font-light
+                            tracking-[0.1em]
+                            sm:tracking-[0.16em]
+                            text-luxury-dark
+                            mb-1
+                            sm:mb-2
+                            uppercase
+                            truncate
+                            transition-colors
+                            duration-300
+                            group-hover:text-luxury-gold
+                          "
+                        >
+                          {product.name}
+                        </h3>
+
+                        {/* DESCRIPTION */}
+
+                        <p
+                          className="
+                            text-[8px]
+                            sm:text-[10px]
+                            md:text-[11px]
+                            text-[#777]
+                            font-light
+                            leading-[1.4]
+                            line-clamp-2
+                            min-h-[10px]
+                            sm:min-h-[10px]
+                            font-sans
+                            tracking-wide
+                            px-0.5
+                            sm:px-1
+                          "
+                        >
+                          {product.description}
+                        </p>
+
+                        {/* PRICE */}
+
+                        {product.mrp > 0 &&
+                        product.price > 0 ? (
+                          <div
                             className="
-                              text-[9px]
-                              sm:text-xs
-                              text-luxury-dark
-                              font-medium
-                              tracking-wide
+                              flex
+                              items-baseline
+                              justify-center
+                              gap-1
+                              sm:gap-2
+                              mt-2
+                              sm:mt-3
+                              pt-1.5
+                              sm:pt-2
+                              border-t
+                              border-[#C5A880]/15
                             "
                           >
-                            Rs. {product.price}
-                          </span>
 
-                        </div>
-                      ) : (
-                        <div className="mt-2 sm:mt-3">
-                          <span
+                            {/* MRP */}
+
+                            {product.mrp >
+                              product.price && (
+                              <span
+                                className="
+                                  text-[7px]
+                                  sm:text-[10px]
+                                  text-[#999]
+                                  line-through
+                                  font-light
+                                "
+                              >
+                                Rs. {product.mrp}
+                              </span>
+                            )}
+
+                            {/* SELLING PRICE */}
+
+                            <span
+                              className="
+                                text-[9px]
+                                sm:text-xs
+                                text-luxury-dark
+                                font-medium
+                                tracking-wide
+                              "
+                            >
+                              Rs. {product.price}
+                            </span>
+
+                          </div>
+                        ) : (
+                          <div className="mt-2 sm:mt-3">
+                            <span
+                              className="
+                                text-[8px]
+                                sm:text-xs
+                                text-gray-500
+                              "
+                            >
+                              Price unavailable
+                            </span>
+                          </div>
+                        )}
+
+                        {/* BUY BUTTON */}
+
+                        <button
+                          disabled={!product.inStock}
+                          onClick={(e) => {
+                            e.stopPropagation();
+
+                            if (product.inStock) {
+                              router.push(
+                                `/products/${product._id}`,
+                              );
+                            }
+                          }}
+                          className={`
+                            mt-2.5
+                            sm:mt-4
+                            w-full
+                            border
+                            py-2
+                            sm:py-2.5
+                            md:py-3
+                            text-[7px]
+                            sm:text-[9px]
+                            md:text-[10px]
+                            uppercase
+                            tracking-[0.1em]
+                            sm:tracking-[0.18em]
+                            transition-all
+                            duration-500
+                            font-light
+                            rounded-[10px]
+
+                            ${
+                              product.inStock
+                                ? `
+                                  border-[#C5A880]/50
+                                  text-[#B08F5A]
+                                  bg-transparent
+                                  hover:bg-[#C5A880]
+                                  hover:text-[#121212]
+                                  cursor-pointer
+                                `
+                                : `
+                                  border-gray-300
+                                  text-gray-400
+                                  cursor-not-allowed
+                                `
+                            }
+                          `}
+                        >
+                          {product.inStock
+                            ? "Buy Now"
+                            : "Out of Stock"}
+                        </button>
+
+                      </div>
+
+                    </div>
+                  ))}
+
+                </div>
+
+                {/* =================================================
+                    INFINITE SCROLL TRIGGER
+                ================================================= */}
+
+                {mappedProducts.length > 0 &&
+                  pagination.currentPage <
+                    pagination.totalPages && (
+                    <div
+                      ref={loadMoreRef}
+                      className="
+                        flex
+                        justify-center
+                        items-center
+                        py-10
+                      "
+                    >
+                      {loadingMore && (
+                        <div
+                          className="
+                            flex
+                            flex-col
+                            items-center
+                            gap-3
+                          "
+                        >
+                          <div
                             className="
-                              text-[8px]
-                              sm:text-xs
+                              h-6
+                              w-6
+                              animate-spin
+                              rounded-full
+                              border-2
+                              border-[#C5A880]/30
+                              border-t-[#C5A880]
+                            "
+                          />
+
+                          <p
+                            className="
+                              text-[9px]
+                              tracking-[0.2em]
+                              uppercase
                               text-gray-500
                             "
                           >
-                            Price unavailable
-                          </span>
+                            Loading more products...
+                          </p>
                         </div>
                       )}
-
-                      {/* BUY BUTTON */}
-
-                      <button
-                        disabled={!product.inStock}
-                        onClick={(e) => {
-                          e.stopPropagation();
-
-                          if (product.inStock) {
-                            router.push(
-                              `/products/${product._id}`,
-                            );
-                          }
-                        }}
-                        className={`
-                          mt-2.5
-                          sm:mt-4
-                          w-full
-                          border
-                          py-2
-                          sm:py-2.5
-                          md:py-3
-                          text-[7px]
-                          sm:text-[9px]
-                          md:text-[10px]
-                          uppercase
-                          tracking-[0.1em]
-                          sm:tracking-[0.18em]
-                          transition-all
-                          duration-500
-                          font-light
-                          rounded-[10px]
-
-                          ${
-                            product.inStock
-                              ? `
-                                border-[#C5A880]/50
-                                text-[#B08F5A]
-                                bg-transparent
-                                hover:bg-[#C5A880]
-                                hover:text-[#121212]
-                                cursor-pointer
-                              `
-                              : `
-                                border-gray-300
-                                text-gray-400
-                                cursor-not-allowed
-                              `
-                          }
-                        `}
-                      >
-                        {product.inStock
-                          ? "Buy Now"
-                          : "Out of Stock"}
-                      </button>
-
                     </div>
+                  )}
 
-                  </div>
-                ))}
+                {/* =================================================
+                    ALL PRODUCTS LOADED
+                ================================================= */}
 
-              </div>
+                {mappedProducts.length > 0 &&
+                  pagination.currentPage >=
+                    pagination.totalPages && (
+                    <div className="flex justify-center py-10">
+                      <p
+                        className="
+                          text-[9px]
+                          tracking-[0.2em]
+                          uppercase
+                          text-gray-400
+                        "
+                      >
+                        All products loaded
+                      </p>
+                    </div>
+                  )}
+
+              </>
             )}
 
           </div>
@@ -627,3 +768,4 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
+

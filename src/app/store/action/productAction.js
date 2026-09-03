@@ -19,7 +19,7 @@ const getToken = () => {
 
 // FETCH PRODUCTS WITH BACKEND PAGINATION
 export const asyncfetchproduct =
-  ({ page = 1, limit = 8 } = {}) =>
+  ({ page = 1, limit = 10 } = {}) =>
   async (dispatch) => {
     try {
       const token = getToken();
