@@ -422,7 +422,7 @@ const Header = () => {
                 <div
                   className="
                     absolute
-                    top-4
+                    top-6
                     left-0
                     bg-white
                     w-52
@@ -434,7 +434,7 @@ const Header = () => {
                   "
                 >
                   <Link
-                    href="/faqs"
+                    href="/policies/faq"
                     className="
                       block
                       px-5
