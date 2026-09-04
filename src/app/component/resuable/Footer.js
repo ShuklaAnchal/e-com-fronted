@@ -111,7 +111,7 @@ console.log({ categories });
           {/* Shop */}
           <div>
             <h3 className="text-sm tracking-[0.25em] uppercase text-[#C5A880] mb-6">
-              About Siyass
+              About Siyaas
             </h3>
 
             <ul className="space-y-4">

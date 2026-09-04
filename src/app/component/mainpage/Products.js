@@ -530,7 +530,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                       }
                     }}
                     className={` mt-2.5 sm:mt-4 w-full border py-2 sm:py-2.5 md:py-3
-text-[7px] sm:text-[9px]   md:text-[10px] uppercase
+text-[7px] sm:text-[9px]   md:text-[10px] uppercase bg-[#C5A880]
 tracking-[0.1em]  sm:tracking-[0.18em] transition-all duration-500
 font-normal rounded-[10px]
  ${
