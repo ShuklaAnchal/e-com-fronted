@@ -19,6 +19,70 @@ const getToken = () => {
   return null;
 };
 
+// SEND OTP register
+export const sendOtpregister = (mobileNumber) => async (dispatch) => {
+  try {
+    dispatch(clearCustomerError());
+    const { data } = await axios.post(
+      "/register/send-otp",
+      {
+        mobileNumber,
+      },
+    );
+    return {
+      success: true,
+      payload: data,
+    };
+  } catch (error) {
+    const message = error.response?.data?.message || "Failed to send OTP";
+    dispatch(customerError(message));
+    return {
+      success: false,
+      message,
+    };
+  }
+};
+
+
+
+export const verifyOtpregister =
+  ({ mobileNumber, otp }) =>
+  async (dispatch) => {
+    try {
+      dispatch(clearCustomerError());
+      const { data } = await axios.post("/register/verify-otp", {
+        mobileNumber,
+        otp,
+      });
+      console.log("Customer Register Response:", data);
+
+      if (data.token) {
+        localStorage.setItem("userToken", data.token);
+      }
+
+      console.log({ user: data.admin });
+      console.log({ token: data.token });
+      dispatch(
+        adminLogin({
+          user: data.admin,
+          token: data.token,
+        }),
+      );
+      return {
+        success: true,
+        payload: data,
+      };
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "OTP verification failed";
+      dispatch(customerError(message));
+      return {
+        success: false,
+        message,
+      };
+    }
+  };
+
 
 // SEND OTP
 export const sendOtp = (mobileNumber) => async (dispatch) => {

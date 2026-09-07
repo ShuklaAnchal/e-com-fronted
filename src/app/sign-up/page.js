@@ -6,7 +6,10 @@ import Link from "next/link";
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Footer from "@/app/component/resuable/Footer";
-import { sendOtp, verifyOtp } from "@/app/store/action/userAction";
+import {
+  sendOtpregister,
+  verifyOtpregister,
+} from "@/app/store/action/userAction";
 import { mergeLocalCart } from "@/app/store/action/cartAction";
 import { useDispatch } from "react-redux";
 
@@ -29,7 +32,7 @@ function LoginContent() {
     }
 
     setLoading(true);
-    const res = await dispatch(sendOtp(mobileNumber));
+    const res = await dispatch(sendOtpregister(mobileNumber));
 
     setLoading(false);
     if (res.success) {
@@ -53,7 +56,7 @@ function LoginContent() {
     setLoading(true);
 
     const res = await dispatch(
-      verifyOtp({
+      verifyOtpregister({
         mobileNumber,
         otp: otpValue,
       }),
@@ -97,12 +100,12 @@ function LoginContent() {
         <div className="relative z-10 w-full max-w-md luxury-glass rounded-2xl border border-[#C5A880]/20 p-8 md:p-12 shadow-[0_20px_50px_rgba(197,168,128,0.06)] animate-fade-up">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-serif uppercase tracking-[0.1em] text-luxury-dark leading-tight mb-3">
-              {step === 1 ? "Welcome Back" : "Verification"}
+              {step === 1 ? "Join Us" : "Verification"}
             </h1>
 
             <p className="mx-auto max-w-[320px] text-sm leading-6 tracking-wide font-light text-[#6C6C6C]">
               {step === 1
-                ? "Enter your mobile number to login in an account."
+                ? "Create your account and begin your journey with us."
                 : `We've sent a 4-digit code to +91 ${mobileNumber}`}
             </p>
           </div>
@@ -129,7 +132,7 @@ function LoginContent() {
                     }
                     // placeholder="00000 00000"
                     required
-                    className="w-full h-14 bg-transparent pl-4 bg-red-500 pr-4 text-luxury-dark tracking-[0.15em] placeholder:text-luxury-dark/20 outline-none transition-all"
+                    className="w-full h-14 bg-transparent pl-4 pr-4 text-luxury-dark tracking-[0.15em] placeholder:text-luxury-dark/20 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -143,10 +146,7 @@ function LoginContent() {
               </button>
 
               <div className="w=full items-center">
-                Not Registered yet?{" "}
-                <Link href="/sign-up">
-                  Sign Up
-                </Link>
+                Already have an account? <Link href="/login">Log In</Link>
               </div>
             </form>
           ) : (

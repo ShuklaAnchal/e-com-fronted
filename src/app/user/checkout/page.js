@@ -507,7 +507,10 @@ export default function CheckoutPage() {
 
   const openRazorpay = async ({ orderId, razorpayOrder }) => {
     const isLoaded = await loadRazorpayScript();
-
+ console.log({razorpayOrder});
+ console.log({orderId});
+ 
+ 
     if (!isLoaded) {
       throw new Error("Razorpay SDK failed to load.");
     }
@@ -538,7 +541,7 @@ export default function CheckoutPage() {
     }
 
     const options = {
-      key: process.env.RAZORPAY_KEY_ID,
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
 
       amount: razorpayAmount || Math.round(total * 100),
 
