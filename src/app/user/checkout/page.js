@@ -84,7 +84,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     setMounted(true);
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("userToken");
 
     if (!token || token === "undefined" || token === "null") {
       router.push("/login?redirect=/user/checkout");
