@@ -24,15 +24,60 @@ export default function OrderSummary({
   onChangeAddress,
   onPlaceOrder,
 }) {
+
+const getImageUrl = (imageUrl) => {
+  const placeholder = "/placeholder-product.png";
+
+  if (!imageUrl || typeof imageUrl !== "string") {
+    return placeholder;
+  }
+
+  const trimmedUrl = imageUrl.trim();
+
+  if (
+    !trimmedUrl ||
+    trimmedUrl === "undefined" ||
+    trimmedUrl === "null" ||
+    trimmedUrl.includes("/undefined") ||
+    trimmedUrl.includes("undefined/")
+  ) {
+    return placeholder;
+  }
+
+  // Already a complete URL
+  if (
+    trimmedUrl.startsWith("http://") ||
+    trimmedUrl.startsWith("https://")
+  ) {
+    return trimmedUrl;
+  }
+
+  // Local Next.js public image
+  // Example: /candle.png
+  if (trimmedUrl.startsWith("/")) {
+    return trimmedUrl;
+  }
+
+  // Relative backend image path
+  // Example: uploads/products/image.jpg
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return `${process.env.NEXT_PUBLIC_API_URL.replace(
+      /\/$/,
+      ""
+    )}/${trimmedUrl.replace(/^\/+/, "")}`;
+  }
+
+  return placeholder;
+};
+
+
+
   return (
     <div className="lg:sticky lg:top-28">
-
       <section className="bg-[#FAF7F2] border border-luxury-gold/20 p-5 sm:p-6 md:p-8">
-
         {/* HEADER */}
 
         <div className="flex items-center justify-between border-b border-luxury-gold/20 pb-5 mb-6">
-
           <h2 className="font-serif text-2xl text-luxury-dark uppercase tracking-[0.08em]">
             Your Order
           </h2>
@@ -44,109 +89,71 @@ export default function OrderSummary({
           >
             Edit Cart
           </button>
-
         </div>
 
         {/* PRODUCTS */}
 
         <div className="space-y-5 max-h-[420px] overflow-y-auto pr-2">
-
           {cartItems.map((item, index) => {
+            const image = getImageUrl(item.image || item.images?.[0]);
 
-            const image =
-              item.image ||
-              item.images?.[0] ||
-              "/candle.png";
+            const itemPrice = Number(item.price || 0);
 
-            const itemPrice =
-              Number(item.price || 0);
-
-            const quantity =
-              Number(item.quantity || 0);
+            const quantity = Number(item.quantity || 0);
 
             return (
               <div
-                key={`${
-                  item.productId ||
-                  item.product ||
-                  index
-                }-${index}`}
-                className="
-                  flex
-                  gap-4
-                  border-b
-                  border-luxury-gold/10
-                  pb-5
-                "
+                key={`${item.productId || item.product || index}-${index}`}
+                className="flex gap-4 border-b border-luxury-gold/10 pb-5"
               >
-
-                {/* IMAGE */}
-
-                <div className="
-                  relative
-                  w-20
-                  h-24
-                  flex-shrink-0
-                  bg-luxury-dark/5
-                  border
-                  border-luxury-gold/10
-                  overflow-hidden
-                ">
-
+                <div
+                  className="
+          relative
+          w-20
+          h-24
+          flex-shrink-0
+          bg-luxury-dark/5
+          border
+          border-luxury-gold/10
+          overflow-hidden
+        "
+                >
                   <Image
                     src={image}
-                    alt={
-                      item.name ||
-                      "Product"
-                    }
+                    alt={item.name || "Product"}
                     fill
                     className="object-cover"
                     sizes="80px"
                   />
 
-                  <span className="
-                    absolute
-                    top-1
-                    right-1
-                    bg-luxury-dark
-                    text-white
-                    text-[9px]
-                    min-w-5
-                    h-5
-                    px-1
-                    flex
-                    items-center
-                    justify-center
-                  ">
+                  <span
+                    className="
+            absolute
+            top-1
+            right-1
+            bg-luxury-dark
+            text-white
+            text-[9px]
+            min-w-5
+            h-5
+            px-1
+            flex
+            items-center
+            justify-center
+          "
+                  >
                     {quantity}
                   </span>
-
                 </div>
 
                 {/* PRODUCT */}
-
                 <div className="flex-1 min-w-0">
-
-                  <h3 className="
-                    font-serif
-                    text-sm
-                    text-luxury-dark
-                    uppercase
-                    tracking-wide
-                  ">
-                    {item.name ||
-                      item.productName ||
-                      "Product"}
+                  <h3 className="font-serif text-sm text-luxury-dark uppercase tracking-wide">
+                    {item.name || item.productName || "Product"}
                   </h3>
 
                   {item.variantLabel && (
-                    <p className="
-                      text-[9px]
-                      text-luxury-gold
-                      uppercase
-                      tracking-widest
-                      mt-1
-                    ">
+                    <p className="text-[9px] text-luxury-gold uppercase tracking-widest mt-1">
                       {item.variantLabel}
                     </p>
                   )}
@@ -154,34 +161,21 @@ export default function OrderSummary({
                   <p className="text-sm text-luxury-dark mt-3">
                     Rs. {itemPrice.toFixed(2)}
                   </p>
-
                 </div>
 
                 {/* TOTAL */}
-
-                <div className="
-                  text-sm
-                  font-medium
-                  text-luxury-dark
-                ">
-                  Rs.{" "}
-                  {(itemPrice * quantity).toFixed(2)}
+                <div className="text-sm font-medium text-luxury-dark">
+                  Rs. {(itemPrice * quantity).toFixed(2)}
                 </div>
-
               </div>
             );
           })}
-
         </div>
 
         {/* PRICE */}
 
         <div className="mt-7 space-y-4">
-
-          <PriceRow
-            label="MRP Total"
-            value={`Rs. ${mrpTotal.toFixed(2)}`}
-          />
+          <PriceRow label="MRP Total" value={`Rs. ${mrpTotal.toFixed(2)}`} />
 
           {discount > 0 && (
             <PriceRow
@@ -191,26 +185,19 @@ export default function OrderSummary({
             />
           )}
 
-          <PriceRow
-            label="Subtotal"
-            value={`Rs. ${subtotal.toFixed(2)}`}
-          />
+          <PriceRow label="Subtotal" value={`Rs. ${subtotal.toFixed(2)}`} />
 
           <PriceRow
             label="Shipping"
-            value={
-              shipping === 0
-                ? "FREE"
-                : `Rs. ${shipping.toFixed(2)}`
-            }
+            value={shipping === 0 ? "FREE" : `Rs. ${shipping.toFixed(2)}`}
             green
           />
-
         </div>
 
         {/* TOTAL */}
 
-        <div className="
+        <div
+          className="
           border-t
           border-luxury-gold/20
           mt-6
@@ -218,40 +205,43 @@ export default function OrderSummary({
           flex
           justify-between
           items-center
-        ">
-
+        "
+        >
           <div>
-
-            <p className="
+            <p
+              className="
               font-serif
               text-lg
               text-luxury-dark
               uppercase
               tracking-wide
-            ">
+            "
+            >
               Total
             </p>
 
-            <p className="
+            <p
+              className="
               text-[9px]
               uppercase
               tracking-widest
               text-[#777]
               mt-1
-            ">
+            "
+            >
               Inclusive of applicable taxes
             </p>
-
           </div>
 
-          <p className="
+          <p
+            className="
             font-serif
             text-2xl
             text-luxury-dark
-          ">
+          "
+          >
             Rs. {total.toFixed(2)}
           </p>
-
         </div>
 
         {/* SELECTED ADDRESS */}
@@ -269,49 +259,55 @@ export default function OrderSummary({
           showNewAddressForm &&
           formData.name &&
           formData.addressline && (
-            <div className="
+            <div
+              className="
               border
               border-luxury-gold/15
               mt-6
               p-4
-            ">
-
-              <p className="
+            "
+            >
+              <p
+                className="
                 text-[9px]
                 uppercase
                 tracking-widest
                 text-luxury-gold
-              ">
+              "
+              >
                 New Delivery Address
               </p>
 
-              <p className="
+              <p
+                className="
                 text-sm
                 font-medium
                 text-luxury-dark
                 mt-2
-              ">
+              "
+              >
                 {formData.name}
               </p>
 
-              <p className="
+              <p
+                className="
                 text-xs
                 text-[#777]
                 mt-1
-              ">
+              "
+              >
                 {formData.addressline}
               </p>
 
-              <p className="
+              <p
+                className="
                 text-xs
                 text-[#777]
                 mt-1
-              ">
-                {formData.city},{" "}
-                {formData.state} -{" "}
-                {formData.pincode}
+              "
+              >
+                {formData.city}, {formData.state} - {formData.pincode}
               </p>
-
             </div>
           )}
 
@@ -319,11 +315,7 @@ export default function OrderSummary({
 
         <button
           type="submit"
-          disabled={
-            placingOrder ||
-            addressLoading ||
-            savingAddress
-          }
+          disabled={placingOrder || addressLoading || savingAddress}
           onClick={onPlaceOrder}
           className="
             w-full
@@ -345,11 +337,12 @@ export default function OrderSummary({
           {placingOrder
             ? "Processing..."
             : paymentMethod === "COD"
-            ? "Place Order"
-            : "Continue to Payment"}
+              ? "Place Order"
+              : "Continue to Payment"}
         </button>
 
-        <p className="
+        <p
+          className="
           text-[9px]
           text-[#777]
           text-center
@@ -357,42 +350,42 @@ export default function OrderSummary({
           tracking-widest
           leading-relaxed
           mt-5
-        ">
-          By placing your order, you agree to
-          our Terms & Conditions and Privacy
+        "
+        >
+          By placing your order, you agree to our Terms & Conditions and Privacy
           Policy.
         </p>
-
       </section>
     </div>
   );
 }
 
-function AddressSummary({
-  address,
-  onChangeAddress,
-}) {
+function AddressSummary({ address, onChangeAddress }) {
   return (
-    <div className="
+    <div
+      className="
       border
       border-luxury-gold/15
       mt-6
       p-4
-    ">
-
-      <div className="
+    "
+    >
+      <div
+        className="
         flex
         items-center
         justify-between
         gap-3
-      ">
-
-        <p className="
+      "
+      >
+        <p
+          className="
           text-[9px]
           uppercase
           tracking-widest
           text-luxury-gold
-        ">
+        "
+        >
           Delivering To
         </p>
 
@@ -408,88 +401,80 @@ function AddressSummary({
         >
           Change
         </button>
-
       </div>
 
-      <p className="
+      <p
+        className="
         text-sm
         font-medium
         text-luxury-dark
         mt-2
-      ">
-        {address.name ||
-          address.fullName}
+      "
+      >
+        {address.name || address.fullName}
       </p>
 
-      <p className="
+      <p
+        className="
         text-xs
         text-[#777]
         mt-1
         leading-relaxed
-      ">
-        {address.addressline ||
-          address.address}
+      "
+      >
+        {address.addressline || address.address}
 
-        {address.locality
-          ? `, ${address.locality}`
-          : ""}
+        {address.locality ? `, ${address.locality}` : ""}
 
-        {address.landmark
-          ? `, ${address.landmark}`
-          : ""}
+        {address.landmark ? `, ${address.landmark}` : ""}
       </p>
 
-      <p className="
+      <p
+        className="
         text-xs
         text-[#777]
         mt-1
-      ">
+      "
+      >
         {address.city}
 
-        {address.city &&
-        address.state
-          ? ", "
-          : ""}
+        {address.city && address.state ? ", " : ""}
 
         {address.state}
 
-        {address.pincode
-          ? ` - ${address.pincode}`
-          : ""}
+        {address.pincode ? ` - ${address.pincode}` : ""}
       </p>
 
-      <p className="
+      <p
+        className="
         text-xs
         text-[#777]
         mt-1
-      ">
-        Mobile:{" "}
-        {address.mobileNumber ||
-          address.mobile}
+      "
+      >
+        Mobile: {address.mobileNumber || address.mobile}
       </p>
-
     </div>
   );
 }
 
-function PriceRow({
-  label,
-  value,
-  green = false,
-}) {
+function PriceRow({ label, value, green = false }) {
   return (
-    <div className="
+    <div
+      className="
       flex
       justify-between
       items-center
       text-sm
-    ">
-
-      <span className="
+    "
+    >
+      <span
+        className="
         text-[#6C6C6C]
         font-light
         tracking-wide
-      ">
+      "
+      >
         {label}
       </span>
 
@@ -502,7 +487,6 @@ function PriceRow({
       >
         {value}
       </span>
-
     </div>
   );
 }

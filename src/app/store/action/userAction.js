@@ -11,7 +11,6 @@ import {
 
 import { adminLogin, currentAdmin } from "../reducer/adminReducer";
 
-
 const getToken = () => {
   if (typeof window !== "undefined") {
     return localStorage.getItem("token");
@@ -23,12 +22,9 @@ const getToken = () => {
 export const sendOtpregister = (mobileNumber) => async (dispatch) => {
   try {
     dispatch(clearCustomerError());
-    const { data } = await axios.post(
-      "/register/send-otp",
-      {
-        mobileNumber,
-      },
-    );
+    const { data } = await axios.post("/user/register/send-otp", {
+      mobileNumber,
+    });
     return {
       success: true,
       payload: data,
@@ -43,14 +39,12 @@ export const sendOtpregister = (mobileNumber) => async (dispatch) => {
   }
 };
 
-
-
 export const verifyOtpregister =
   ({ mobileNumber, otp }) =>
   async (dispatch) => {
     try {
       dispatch(clearCustomerError());
-      const { data } = await axios.post("/register/verify-otp", {
+      const { data } = await axios.post("/user/register/verify-otp", {
         mobileNumber,
         otp,
       });
@@ -82,7 +76,6 @@ export const verifyOtpregister =
       };
     }
   };
-
 
 // SEND OTP
 export const sendOtp = (mobileNumber) => async (dispatch) => {
