@@ -93,6 +93,12 @@ const DEFAULT_PRODUCT = {
   existingImages: [],
   existingVideos: [],
 
+  experience: {
+    bestseller: false,
+    featured: false,
+    trending: false,
+  },
+
   // =======================================================
   // GIFTING
   // =======================================================
@@ -342,6 +348,12 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       existingImages: Array.isArray(editData.images) ? editData.images : [],
 
       existingVideos: Array.isArray(editData.videos) ? editData.videos : [],
+
+      experience: {
+        bestseller: Boolean(editData.experience?.bestseller),
+        featured: Boolean(editData.experience?.featured),
+        trending: Boolean(editData.experience?.trending),
+      },
 
       // =====================================================
       // GIFTING
@@ -927,6 +939,12 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
 
         isActive: Boolean(product.isActive),
 
+        experience: {
+          bestseller: Boolean(product.experience?.bestseller),
+          featured: Boolean(product.experience?.featured),
+          trending: Boolean(product.experience?.trending),
+        },
+
         // ===================================================
         // GIFTING
         // ===================================================
@@ -1242,6 +1260,133 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
           </div>
         </div>
 
+        {/* ===================================================
+    PRODUCT EXPERIENCE
+=================================================== */}
+
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-bold text-lg text-gray-800">
+              Product Experience
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Select where this product should be promoted on the website.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* BESTSELLER */}
+
+            <label
+              className={`
+        flex items-center justify-between
+        border rounded-lg p-4
+        cursor-pointer transition
+        ${
+          product.experience?.bestseller
+            ? "border-orange-500 bg-orange-50"
+            : "border-gray-300 bg-gray-50"
+        }
+      `}
+            >
+              <div>
+                <p className="font-medium text-gray-800">Bestseller</p>
+
+                <p className="text-xs text-gray-500">Show as bestseller</p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={Boolean(product.experience?.bestseller)}
+                onChange={(e) =>
+                  setProduct((prev) => ({
+                    ...prev,
+                    experience: {
+                      ...prev.experience,
+                      bestseller: e.target.checked,
+                    },
+                  }))
+                }
+                className="w-5 h-5"
+              />
+            </label>
+
+            {/* FEATURED */}
+
+            <label
+              className={`
+        flex items-center justify-between
+        border rounded-lg p-4
+        cursor-pointer transition
+        ${
+          product.experience?.featured
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 bg-gray-50"
+        }
+      `}
+            >
+              <div>
+                <p className="font-medium text-gray-800">Featured</p>
+
+                <p className="text-xs text-gray-500">
+                  Show in featured section
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={Boolean(product.experience?.featured)}
+                onChange={(e) =>
+                  setProduct((prev) => ({
+                    ...prev,
+                    experience: {
+                      ...prev.experience,
+                      featured: e.target.checked,
+                    },
+                  }))
+                }
+                className="w-5 h-5"
+              />
+            </label>
+
+            {/* TRENDING */}
+
+            <label
+              className={`
+        flex items-center justify-between
+        border rounded-lg p-4
+        cursor-pointer transition
+        ${
+          product.experience?.trending
+            ? "border-purple-500 bg-purple-50"
+            : "border-gray-300 bg-gray-50"
+        }
+      `}
+            >
+              <div>
+                <p className="font-medium text-gray-800">Trending</p>
+
+                <p className="text-xs text-gray-500">Show as trending</p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={Boolean(product.experience?.trending)}
+                onChange={(e) =>
+                  setProduct((prev) => ({
+                    ...prev,
+                    experience: {
+                      ...prev.experience,
+                      trending: e.target.checked,
+                    },
+                  }))
+                }
+                className="w-5 h-5"
+              />
+            </label>
+          </div>
+        </div>
         {/* ===================================================
             MEDIA
         =================================================== */}

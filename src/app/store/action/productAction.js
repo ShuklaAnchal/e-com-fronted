@@ -3,6 +3,7 @@ import {
   fetchProduct,
   createnewProduct,
   createProductvarient,
+  feacturedProducts,
   editProduct,
   removeProduct,
   catgeorywiseProducts,
@@ -63,11 +64,54 @@ export const asyncfetchproduct =
     }
   };
 
+export const mainpageproducts =
+  ({ page = 1, limit = 10 } = {}) =>
+  async (dispatch) => {
+    try {
+      const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      console.log("Fetching products...");
+      console.log("Page:", page);
+      console.log("Limit:", limit);
+
+      const { data } = await axios.get(
+        `/products/get-main-page-products?page=${page}&limit=${limit}`,
+        config,
+      );
+
+      console.log("Product API Response:", data);
+
+      // Store only current page products
+      dispatch(feacturedProducts(data.products || []));
+
+      return data;
+    } catch (error) {
+      console.error(
+        "Error in fetching products:",
+        error.response?.data || error.message,
+      );
+
+      dispatch(
+        iserror(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch products",
+        ),
+      );
+
+      return null;
+    }
+  };
+
 export const fetchProductbyID = (id) => async (dispatch) => {
   try {
-    const { data } = await axios.get(
-      `/products/fetch-productby-id/${id}`
-    );
+    const { data } = await axios.get(`/products/fetch-productby-id/${id}`);
 
     dispatch(productByid(data));
 
@@ -80,7 +124,6 @@ export const fetchProductbyID = (id) => async (dispatch) => {
 };
 
 export const createProduct = (formData) => async (dispatch, getState) => {
-  
   try {
     const token = getToken();
     const config = {
@@ -91,25 +134,23 @@ export const createProduct = (formData) => async (dispatch, getState) => {
 
     const { data } = await axios.post("/products/create", formData, config);
 
-
     dispatch(createnewProduct(data));
 
     return { success: true, payload: data };
   } catch (error) {
-  console.log("FULL ERROR", error);
-  console.log("RESPONSE", error.response);
-  console.log("DATA", error.response?.data);
+    console.log("FULL ERROR", error);
+    console.log("RESPONSE", error.response);
+    console.log("DATA", error.response?.data);
 
-  const message =
-    error?.response?.data?.error || "Failed to create product";
+    const message = error?.response?.data?.error || "Failed to create product";
 
-  dispatch(iserror(message));
+    dispatch(iserror(message));
 
-  return {
-    success: false,
-    message,
-  };
-}
+    return {
+      success: false,
+      message,
+    };
+  }
 };
 
 //edit products detailes
@@ -119,21 +160,21 @@ export const editProductDetails =
       const token = getToken(); // get token from localStorage
       const config = {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       };
 
       const result = await axios.put(
         `/products/update-product-detiles/${id}`,
         formData,
-        config
+        config,
       );
 
       dispatch(editProduct(result.data));
       return { success: true, payload: result.data };
     } catch (error) {
       dispatch(
-        iserror(error?.response?.data?.message || "Failed to create product")
+        iserror(error?.response?.data?.message || "Failed to create product"),
       );
       return {
         success: false,
@@ -144,7 +185,6 @@ export const editProductDetails =
 
 //delete product detailes
 export const deleteListedProduct = (id) => async (dispatch, getState) => {
-
   try {
     const token = getToken(); // get token from localStorage
     const config = {
@@ -152,12 +192,15 @@ export const deleteListedProduct = (id) => async (dispatch, getState) => {
         Authorization: `Bearer ${token}`, // attach token in headers
       },
     };
-    const response = await axios.delete(`/products/delete-Product/${id}`, config);
+    const response = await axios.delete(
+      `/products/delete-Product/${id}`,
+      config,
+    );
     dispatch(removeProduct(response.data));
     return { success: true, payload: response.data };
   } catch (error) {
     dispatch(
-      iserror(error?.response?.data?.message || "Failed to create product")
+      iserror(error?.response?.data?.message || "Failed to create product"),
     );
     return {
       success: false,
@@ -182,15 +225,12 @@ export const updateProductRelationships =
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
     } catch (error) {
-      console.error(
-        "UPDATE PRODUCT RELATIONSHIPS ERROR:",
-        error
-      );
+      console.error("UPDATE PRODUCT RELATIONSHIPS ERROR:", error);
 
       throw (
         error?.response?.data?.message ||
@@ -200,54 +240,58 @@ export const updateProductRelationships =
     }
   };
 
-export const createProductVarient = (productId, formData) => async (dispatch, getState) => {
-  console.log({formData});
-  
-  try {
-    const token = getToken();
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+export const createProductVarient =
+  (productId, formData) => async (dispatch, getState) => {
+    console.log({ formData });
 
-    console.log({formData});
-    
-    const { data } = await axios.post(`/product-variant/create-variant/${productId}`, formData, config);
- console.log({data});
- 
-    dispatch(createProductvarient(data));
+    try {
+      const token = getToken();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-    return { success: true, payload: data };
-  } catch (error) {
-  console.log("FULL ERROR", error);
-  console.log("RESPONSE", error.response);
-  console.log("DATA", error.response?.data);
+      console.log({ formData });
 
-  const message =
-    error?.response?.data?.error || "Failed to create product";
+      const { data } = await axios.post(
+        `/product-variant/create-variant/${productId}`,
+        formData,
+        config,
+      );
+      console.log({ data });
 
-  dispatch(iserror(message));
+      dispatch(createProductvarient(data));
 
-  return {
-    success: false,
-    message,
+      return { success: true, payload: data };
+    } catch (error) {
+      console.log("FULL ERROR", error);
+      console.log("RESPONSE", error.response);
+      console.log("DATA", error.response?.data);
+
+      const message =
+        error?.response?.data?.error || "Failed to create product";
+
+      dispatch(iserror(message));
+
+      return {
+        success: false,
+        message,
+      };
+    }
   };
-}
-};
 
-
-//fetch category wise products 
-export const fetchCategoryWiseProducts= (categoryId) => async (dispatch) => {
+//fetch category wise products
+export const fetchCategoryWiseProducts = (categoryId) => async (dispatch) => {
   try {
-    console.log({categoryId});
-    
+    console.log({ categoryId });
+
     const { data } = await axios.get(
-      `/products/fetch-catgeory-wise-products/${categoryId}`
+      `/products/fetch-catgeory-wise-products/${categoryId}`,
     );
 
     dispatch(catgeorywiseProducts(data));
-console.log({data});
+    console.log({ data });
 
     return data; // Return the whole response
   } catch (error) {
@@ -256,5 +300,3 @@ console.log({data});
     throw error;
   }
 };
-
-

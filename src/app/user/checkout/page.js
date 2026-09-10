@@ -547,7 +547,7 @@ export default function CheckoutPage() {
 
       currency: razorpayCurrency,
 
-      name: "DingwaniFoods",
+      name: "Siyaas",
 
       description: `Payment for Order ${orderId}`,
 
@@ -613,6 +613,27 @@ export default function CheckoutPage() {
     };
 
     const razorpay = new window.Razorpay(options);
+    console.log("========== RAZORPAY DEBUG ==========");
+
+console.log(
+  "Frontend Razorpay Key:",
+  process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+);
+
+console.log(
+  "Frontend Key Mode:",
+  process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test_")
+    ? "TEST"
+    : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_live_")
+    ? "LIVE"
+    : "UNKNOWN"
+);
+
+console.log("Razorpay Order ID:", razorpayOrderId);
+console.log("Razorpay Amount:", razorpayAmount);
+console.log("Razorpay Currency:", razorpayCurrency);
+
+console.log("====================================");
 
     razorpay.on("payment.failed", function (response) {
       console.error("RAZORPAY PAYMENT FAILED:", response);

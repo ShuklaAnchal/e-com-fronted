@@ -14,6 +14,10 @@ export const productReducer = createSlice({
       state.product = action.payload;
       state.isAuthenticated = true;
     },
+    feacturedProducts: (state, action) => {
+      state.product = action.payload;
+      state.isAuthenticated = true;
+    },
     productByid: (state, action) => {
       state.product = action.payload;
       state.isAuthenticated = true;
@@ -44,6 +48,7 @@ export const productReducer = createSlice({
 export const {
   fetchProduct,
   createnewProduct,
+  feacturedProducts,
   createProductvarient,
   catgeorywiseProducts,
   editProduct,

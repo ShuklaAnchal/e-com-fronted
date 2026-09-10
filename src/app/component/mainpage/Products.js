@@ -1,167 +1,187 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useProducts } from "@/app/hooks/productHook";
+import { useDispatch, useSelector } from "react-redux";
+
+// import { useProducts } from "@/app/hooks/productHook";
+import { mainpageproducts } from "@/app/store/action/productAction";
 
 const Products = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const { products = [], loading, refreshProducts } = useProducts();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   console.log({ products });
+
+  useEffect(() => {
+    const fetchMainPageProducts = async () => {
+      try {
+        setLoading(true);
+
+        const result = await dispatch(
+          mainpageproducts({
+            page: 1,
+            limit: 8,
+          }),
+        );
+
+        console.log("Main Page Products Result:", result);
+
+        setProducts(result?.products || []);
+      } catch (error) {
+        console.error("Fetch main page products error:", error);
+
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMainPageProducts();
+  }, [dispatch]);
 
   // --------------------------------------------------
   // SAFE IMAGE URL HELPER
   // --------------------------------------------------
- const getImageUrl = (imageUrl) => {
-  const placeholder = "/placeholder-product.png";
+  const getImageUrl = (imageUrl) => {
+    const placeholder = "/placeholder-product.png";
 
-  if (!imageUrl || typeof imageUrl !== "string") {
-    return placeholder;
-  }
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return placeholder;
+    }
 
-  const trimmedUrl = imageUrl.trim();
+    const trimmedUrl = imageUrl.trim();
 
-  if (
-    !trimmedUrl ||
-    trimmedUrl === "undefined" ||
-    trimmedUrl === "null" ||
-    trimmedUrl.includes("/undefined") ||
-    trimmedUrl.includes("undefined/")
-  ) {
-    return placeholder;
-  }
+    if (
+      !trimmedUrl ||
+      trimmedUrl === "undefined" ||
+      trimmedUrl === "null" ||
+      trimmedUrl.includes("/undefined") ||
+      trimmedUrl.includes("undefined/")
+    ) {
+      return placeholder;
+    }
 
-  // Full URL
-  if (
-    trimmedUrl.startsWith("http://") ||
-    trimmedUrl.startsWith("https://")
-  ) {
-    return trimmedUrl;
-  }
-
-  // Local Next.js public image
-  if (trimmedUrl.startsWith("/")) {
-    if (trimmedUrl.startsWith("/placeholder")) {
+    // Full URL
+    if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
       return trimmedUrl;
     }
 
+    // Local Next.js public image
+    if (trimmedUrl.startsWith("/")) {
+      if (trimmedUrl.startsWith("/placeholder")) {
+        return trimmedUrl;
+      }
+
+      if (process.env.NEXT_PUBLIC_API_URL) {
+        return `${process.env.NEXT_PUBLIC_API_URL.replace(
+          /\/$/,
+          "",
+        )}${trimmedUrl}`;
+      }
+
+      return trimmedUrl;
+    }
+
+    // Relative backend path
     if (process.env.NEXT_PUBLIC_API_URL) {
       return `${process.env.NEXT_PUBLIC_API_URL.replace(
         /\/$/,
-        ""
-      )}${trimmedUrl}`;
+        "",
+      )}/${trimmedUrl.replace(/^\/+/, "")}`;
     }
 
-    return trimmedUrl;
-  }
-
-  // Relative backend path
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return `${process.env.NEXT_PUBLIC_API_URL.replace(
-      /\/$/,
-      ""
-    )}/${trimmedUrl.replace(/^\/+/, "")}`;
-  }
-
-  return placeholder;
-};
+    return placeholder;
+  };
 
   // --------------------------------------------------
   // CONVERT API PRODUCT STRUCTURE INTO UI STRUCTURE
   // --------------------------------------------------
-const mappedProducts = products
-  .filter((product) => product.status === "published")
-  .map((product) => {
-    // -----------------------------------------
-    // PRODUCT LEVEL IMAGES ONLY
-    // -----------------------------------------
-    const imageMedia =
-      Array.isArray(product.media)
+  const mappedProducts = products
+    .filter((product) => product.status === "published")
+    .map((product) => {
+      // -----------------------------------------
+      // PRODUCT LEVEL IMAGES ONLY
+      // -----------------------------------------
+      const imageMedia = Array.isArray(product.media)
         ? product.media.filter(
             (media) =>
               media &&
               media.mediaType === "image" &&
               typeof media.url === "string" &&
-              media.url.trim() !== ""
+              media.url.trim() !== "",
           )
         : [];
 
-    // -----------------------------------------
-    // PRIMARY PRODUCT IMAGE
-    // -----------------------------------------
-    const primaryMedia =
-      imageMedia.find((media) => media.isPrimary === true) ||
-      imageMedia[0];
+      // -----------------------------------------
+      // PRIMARY PRODUCT IMAGE
+      // -----------------------------------------
+      const primaryMedia =
+        imageMedia.find((media) => media.isPrimary === true) || imageMedia[0];
 
-    // -----------------------------------------
-    // HOVER PRODUCT IMAGE
-    // -----------------------------------------
-    const hoverMedia =
-      imageMedia.find(
-        (media) =>
-          media.url !== primaryMedia?.url
-      ) || primaryMedia;
+      // -----------------------------------------
+      // HOVER PRODUCT IMAGE
+      // -----------------------------------------
+      const hoverMedia =
+        imageMedia.find((media) => media.url !== primaryMedia?.url) ||
+        primaryMedia;
 
-    // -----------------------------------------
-    // DEFAULT VARIANT
-    // -----------------------------------------
-    const defaultVariant =
-      product.variants?.find(
-        (variant) => variant.isDefault === true
-      ) || product.variants?.[0];
+      // -----------------------------------------
+      // DEFAULT VARIANT
+      // -----------------------------------------
+      const defaultVariant =
+        product.variants?.find((variant) => variant.isDefault === true) ||
+        product.variants?.[0];
 
-    // -----------------------------------------
-    // PRICING
-    // -----------------------------------------
-    const mrp = Number(
-      defaultVariant?.pricing?.mrp || 0
-    );
+      // -----------------------------------------
+      // PRICING
+      // -----------------------------------------
+      const mrp = Number(defaultVariant?.pricing?.mrp || 0);
 
-    const sellingPrice = Number(
-      defaultVariant?.pricing?.sellingPrice || 0
-    );
+      const sellingPrice = Number(defaultVariant?.pricing?.sellingPrice || 0);
 
-    // -----------------------------------------
-    // INVENTORY
-    // -----------------------------------------
-    const inStock =
-      defaultVariant?.inventory?.inStock === true;
+      // -----------------------------------------
+      // INVENTORY
+      // -----------------------------------------
+      const inStock = defaultVariant?.inventory?.inStock === true;
 
-    const stockQuantity = Number(
-      defaultVariant?.inventory?.stockQuantity || 0
-    );
+      const stockQuantity = Number(
+        defaultVariant?.inventory?.stockQuantity || 0,
+      );
 
-    // -----------------------------------------
-    // FINAL UI PRODUCT
-    // -----------------------------------------
-    return {
-      ...product,
+      // -----------------------------------------
+      // FINAL UI PRODUCT
+      // -----------------------------------------
+      return {
+        ...product,
 
-      // Product-level media
-      image: getImageUrl(primaryMedia?.url),
-      hoverImage: getImageUrl(hoverMedia?.url),
+        // Product-level media
+        image: getImageUrl(primaryMedia?.url),
+        hoverImage: getImageUrl(hoverMedia?.url),
 
-      // Product information
-      description:
-        product.shortDescription ||
-        product.fullDescription ||
-        "Premium quality product",
+        // Product information
+        description:
+          product.shortDescription ||
+          product.fullDescription ||
+          "Premium quality product",
 
-      // Variant pricing
-      mrp,
-      price: sellingPrice,
+        // Variant pricing
+        mrp,
+        price: sellingPrice,
 
-      // Variant inventory
-      inStock,
-      stockQuantity,
+        // Variant inventory
+        inStock,
+        stockQuantity,
 
-      // Optional useful values
-      variantId: defaultVariant?._id,
-      sku: defaultVariant?.sku,
-    };
-  });
+        // Optional useful values
+        variantId: defaultVariant?._id,
+        sku: defaultVariant?.sku,
+      };
+    });
 
   // --------------------------------------------------
   // LOADING
@@ -620,62 +640,3 @@ font-normal rounded-[10px]
 };
 
 export default Products;
-
-// ### Also check your `.env`
-
-// You should have something like:
-
-// ```env
-// NEXT_PUBLIC_API_URL=http://localhost:5000
-// ```
-
-// or, for production:
-
-// ```env
-// NEXT_PUBLIC_API_URL=https://your-api-domain.com
-// ```
-
-// **Do not put a trailing `/`** at the end.
-
-// And create:
-
-// ```text
-// public/placeholder-product.png
-// ```
-
-// So your structure should be:
-
-// ```text
-// project/
-// ├── app/
-// ├── public/
-// │   └── placeholder-product.png
-// ├── .env.local
-// ├── package.json
-// └── ...
-// ```
-
-// Now even if your backend returns:
-
-// ```js
-// media: [
-//   {
-//     mediaType: "image",
-//     url: undefined
-//   }
-// ]
-// ```
-
-// or:
-
-// ```js
-// url: "/uploads/undefined"
-// ```
-
-// the frontend will safely show:
-
-// ```text
-// /public/placeholder-product.png
-// ```
-
-// instead of sending `undefined/uploads/undefined` to `next/image`.
