@@ -24,53 +24,37 @@ export default function OrderSummary({
   onChangeAddress,
   onPlaceOrder,
 }) {
+  const getProductImage = (item) => {
+    const media = item?.productId?.media;
 
-const getImageUrl = (imageUrl) => {
-  const placeholder = "/placeholder-product.png";
+    if (!Array.isArray(media)) {
+      return "/placeholder-product.png";
+    }
 
-  if (!imageUrl || typeof imageUrl !== "string") {
-    return placeholder;
-  }
+    const validImages = media.filter(
+      (image) =>
+        image?.mediaType === "image" &&
+        image?.url &&
+        !String(image.url).includes("undefined"),
+    );
 
-  const trimmedUrl = imageUrl.trim();
+    const primaryFrontImage = validImages.find(
+      (image) =>
+        image?.sectionType === "front_view" && image?.isPrimary === true,
+    );
 
-  if (
-    !trimmedUrl ||
-    trimmedUrl === "undefined" ||
-    trimmedUrl === "null" ||
-    trimmedUrl.includes("/undefined") ||
-    trimmedUrl.includes("undefined/")
-  ) {
-    return placeholder;
-  }
+    const frontImage = validImages.find(
+      (image) => image?.sectionType === "front_view",
+    );
 
-  // Already a complete URL
-  if (
-    trimmedUrl.startsWith("http://") ||
-    trimmedUrl.startsWith("https://")
-  ) {
-    return trimmedUrl;
-  }
-
-  // Local Next.js public image
-  // Example: /candle.png
-  if (trimmedUrl.startsWith("/")) {
-    return trimmedUrl;
-  }
-
-  // Relative backend image path
-  // Example: uploads/products/image.jpg
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return `${process.env.NEXT_PUBLIC_API_URL.replace(
-      /\/$/,
-      ""
-    )}/${trimmedUrl.replace(/^\/+/, "")}`;
-  }
-
-  return placeholder;
-};
-
-
+    return (
+      primaryFrontImage?.url ||
+      frontImage?.url ||
+      validImages.find((image) => image?.isPrimary === true)?.url ||
+      validImages[0]?.url ||
+      "/placeholder-product.png"
+    );
+  };
 
   return (
     <div className="lg:sticky lg:top-28">
@@ -95,7 +79,7 @@ const getImageUrl = (imageUrl) => {
 
         <div className="space-y-5 max-h-[420px] overflow-y-auto pr-2">
           {cartItems.map((item, index) => {
-            const image = getImageUrl(item.image || item.images?.[0]);
+            const image = getProductImage(item);
 
             const itemPrice = Number(item.price || 0);
 
@@ -106,21 +90,10 @@ const getImageUrl = (imageUrl) => {
                 key={`${item.productId || item.product || index}-${index}`}
                 className="flex gap-4 border-b border-luxury-gold/10 pb-5"
               >
-                <div
-                  className="
-          relative
-          w-20
-          h-24
-          flex-shrink-0
-          bg-luxury-dark/5
-          border
-          border-luxury-gold/10
-          overflow-hidden
-        "
-                >
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
                   <Image
                     src={image}
-                    alt={item.name || "Product"}
+                    alt={item?.productId?.name || "Product"}
                     fill
                     className="object-cover"
                     sizes="80px"

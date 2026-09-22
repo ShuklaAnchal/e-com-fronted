@@ -12,6 +12,7 @@ import { fetchProductbyID } from "@/app/store/action/productAction";
 import ProductGallery from "@/app/component/usercomponent/productpage/ProductGallery";
 import ProductInfo from "@/app/component/usercomponent/productpage/ProductInfo";
 import RelatedProducts from "@/app/component/usercomponent/productpage/RelatedProducts";
+import ProductReviews from "@/app/component/usercomponent/productpage/ProductReviews";
 
 // =====================================================
 // Accordion Component
@@ -487,6 +488,8 @@ export default function ProductDetailsPage() {
                 )}
               </div>
             </div>
+
+            <ProductReviews id={product._id} />
 
             {/* =================================================
     RELATED PRODUCTS

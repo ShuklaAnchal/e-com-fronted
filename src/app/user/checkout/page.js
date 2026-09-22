@@ -346,63 +346,40 @@ export default function CheckoutPage() {
   /* =====================================================
      CART SUBTOTAL
   ===================================================== */
-
   const subtotal = useMemo(() => {
-    return (
-      cartItems.reduce((total, item) => {
-        const price = Number(item?.price || 0);
+    return cartItems.reduce((total, item) => {
+      const price = Number(item?.price) || 0;
+      const quantity = Number(item?.quantity) || 0;
 
-        const quantity = Number(item?.quantity || 0);
-
-        return total + price * quantity;
-      }, 0) || 0
-    );
-  }, [cartItems]);
-
-  /* =====================================================
-     MRP TOTAL
-  ===================================================== */
+      return total + price * quantity;
+    }, 0);
+  });
 
   const mrpTotal = useMemo(() => {
-    return (
-      cartItems.reduce((total, item) => {
-        const mrp = Number(
-          item?.mrp || item?.variantDetails?.pricing?.mrp || item?.price || 0,
-        );
+    return cartItems.reduce((total, item) => {
+      const product = item?.productId;
 
-        const quantity = Number(item?.quantity || 0);
+      const variant =
+        product?.variants?.find(
+          (v) => String(v?._id) === String(item?.variantId),
+        ) ||
+        product?.variants?.find((v) => v?.isDefault) ||
+        product?.variants?.[0];
 
-        return total + mrp * quantity;
-      }, 0) || 0
-    );
-  }, [cartItems]);
+      const mrp = Number(variant?.pricing?.mrp) || 0;
+      const quantity = Number(item?.quantity) || 0;
 
-  /* =====================================================
-     DISCOUNT
-  ===================================================== */
+      return total + mrp * quantity;
+    }, 0);
+  });
 
   const discount = Math.max(mrpTotal - subtotal, 0);
 
-  /* =====================================================
-     SHIPPING
-  ===================================================== */
-
   const shippingCost = 0;
-
-  /* =====================================================
-     TAX
-  ===================================================== */
-
   const tax = 0;
 
-  /* =====================================================
-     FINAL TOTAL
-  ===================================================== */
-
-  const total = useMemo(() => {
-    return subtotal - discount + shippingCost + tax;
-  }, [subtotal, discount, shippingCost, tax]);
-
+  // IMPORTANT: do NOT subtract discount here
+  const total = subtotal + shippingCost + tax;
   /* =====================================================
      CREATE SHIPPING ADDRESS
   ===================================================== */
@@ -507,10 +484,9 @@ export default function CheckoutPage() {
 
   const openRazorpay = async ({ orderId, razorpayOrder }) => {
     const isLoaded = await loadRazorpayScript();
- console.log({razorpayOrder});
- console.log({orderId});
- 
- 
+    console.log({ razorpayOrder });
+    console.log({ orderId });
+
     if (!isLoaded) {
       throw new Error("Razorpay SDK failed to load.");
     }
@@ -615,25 +591,25 @@ export default function CheckoutPage() {
     const razorpay = new window.Razorpay(options);
     console.log("========== RAZORPAY DEBUG ==========");
 
-console.log(
-  "Frontend Razorpay Key:",
-  process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-);
+    console.log(
+      "Frontend Razorpay Key:",
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    );
 
-console.log(
-  "Frontend Key Mode:",
-  process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test_")
-    ? "TEST"
-    : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_live_")
-    ? "LIVE"
-    : "UNKNOWN"
-);
+    console.log(
+      "Frontend Key Mode:",
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test_")
+        ? "TEST"
+        : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_live_")
+          ? "LIVE"
+          : "UNKNOWN",
+    );
 
-console.log("Razorpay Order ID:", razorpayOrderId);
-console.log("Razorpay Amount:", razorpayAmount);
-console.log("Razorpay Currency:", razorpayCurrency);
+    console.log("Razorpay Order ID:", razorpayOrderId);
+    console.log("Razorpay Amount:", razorpayAmount);
+    console.log("Razorpay Currency:", razorpayCurrency);
 
-console.log("====================================");
+    console.log("====================================");
 
     razorpay.on("payment.failed", function (response) {
       console.error("RAZORPAY PAYMENT FAILED:", response);

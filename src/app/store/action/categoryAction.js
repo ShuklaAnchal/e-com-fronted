@@ -26,18 +26,10 @@ export const asyncfetchcategory =
           Authorization: `Bearer ${token}`,
         },
       };
-
-      console.log("Fetching categories...");
-      console.log("Page:", page);
-      console.log("Limit:", limit);
-
       const { data } = await axios.get(
         `/categorys/fetch-all-categories?page=${page}&limit=${limit}`,
         config,
       );
-
-      console.log("Category API Response:", data);
-
       // Current page categories
       dispatch(fetchCategory(data.products || []));
 
@@ -82,12 +74,10 @@ export const fetchCategorybyID = (id) => async (dispatch, getState) => {
 };
 
 export const createCategory = (formData) => async (dispatch, getState) => {
-
-  console.log({formData});
   
   try {
     const token = getToken();
-      console.log({token});
+   
     const config = {
       headers: {
         Authorization: `Bearer ${token}`, // attach token in headers

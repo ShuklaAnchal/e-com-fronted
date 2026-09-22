@@ -30,8 +30,6 @@ export function useCategories() {
           }),
         );
 
-        console.log("Category API Result:", result);
-
         // Current page categories
         setCategories(result?.categories || []);
 

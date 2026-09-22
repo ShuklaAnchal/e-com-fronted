@@ -23,8 +23,6 @@ const Footer = () => {
 
 const { categories = [], loading: categoriesLoading } = useCategories();
 
-console.log({ categories });
-
   useEffect(() => {
     const onScroll = () => {
       setShowTop(window.scrollY > 300);

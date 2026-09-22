@@ -31,27 +31,15 @@ export const asyncfetchproduct =
         },
       };
 
-      console.log("Fetching products...");
-      console.log("Page:", page);
-      console.log("Limit:", limit);
-
       const { data } = await axios.get(
         `/products/fetch-AllProducts-user?page=${page}&limit=${limit}`,
         config,
       );
-
-      console.log("Product API Response:", data);
-
       // Store only current page products
       dispatch(fetchProduct(data.products || []));
 
       return data;
     } catch (error) {
-      console.error(
-        "Error in fetching products:",
-        error.response?.data || error.message,
-      );
-
       dispatch(
         iserror(
           error.response?.data?.message ||
@@ -76,26 +64,16 @@ export const mainpageproducts =
         },
       };
 
-      console.log("Fetching products...");
-      console.log("Page:", page);
-      console.log("Limit:", limit);
-
       const { data } = await axios.get(
         `/products/get-main-page-products?page=${page}&limit=${limit}`,
         config,
       );
-
-      console.log("Product API Response:", data);
 
       // Store only current page products
       dispatch(feacturedProducts(data.products || []));
 
       return data;
     } catch (error) {
-      console.error(
-        "Error in fetching products:",
-        error.response?.data || error.message,
-      );
 
       dispatch(
         iserror(
@@ -117,7 +95,6 @@ export const fetchProductbyID = (id) => async (dispatch) => {
 
     return data; // Return the whole response
   } catch (error) {
-    console.error(error);
     dispatch(iserror(error.message));
     throw error;
   }
@@ -138,10 +115,6 @@ export const createProduct = (formData) => async (dispatch, getState) => {
 
     return { success: true, payload: data };
   } catch (error) {
-    console.log("FULL ERROR", error);
-    console.log("RESPONSE", error.response);
-    console.log("DATA", error.response?.data);
-
     const message = error?.response?.data?.error || "Failed to create product";
 
     dispatch(iserror(message));
@@ -230,8 +203,6 @@ export const updateProductRelationships =
 
       return response.data;
     } catch (error) {
-      console.error("UPDATE PRODUCT RELATIONSHIPS ERROR:", error);
-
       throw (
         error?.response?.data?.message ||
         error?.message ||
@@ -242,8 +213,6 @@ export const updateProductRelationships =
 
 export const createProductVarient =
   (productId, formData) => async (dispatch, getState) => {
-    console.log({ formData });
-
     try {
       const token = getToken();
       const config = {
@@ -252,22 +221,16 @@ export const createProductVarient =
         },
       };
 
-      console.log({ formData });
-
       const { data } = await axios.post(
         `/product-variant/create-variant/${productId}`,
         formData,
         config,
       );
-      console.log({ data });
 
       dispatch(createProductvarient(data));
 
       return { success: true, payload: data };
     } catch (error) {
-      console.log("FULL ERROR", error);
-      console.log("RESPONSE", error.response);
-      console.log("DATA", error.response?.data);
 
       const message =
         error?.response?.data?.error || "Failed to create product";
@@ -284,18 +247,14 @@ export const createProductVarient =
 //fetch category wise products
 export const fetchCategoryWiseProducts = (categoryId) => async (dispatch) => {
   try {
-    console.log({ categoryId });
 
     const { data } = await axios.get(
       `/products/fetch-catgeory-wise-products/${categoryId}`,
     );
 
     dispatch(catgeorywiseProducts(data));
-    console.log({ data });
-
     return data; // Return the whole response
   } catch (error) {
-    console.error(error);
     dispatch(iserror(error.message));
     throw error;
   }

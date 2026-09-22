@@ -15,7 +15,7 @@ import {
 
 import { asyncfetchUserwiseOrders } from "@/app/store/action/orderAction";
 import { asyncfetchUserWishlist } from "@/app/store/action/wishlistAction";
-import {asyncfetchAddress} from "@/app/store/action/addressAction"
+import { asyncfetchAddress } from "@/app/store/action/addressAction";
 
 import ProfileSidebar from "../component/profile/ProfileSidebar";
 import ProfileTab from "../component/profile/ProfileTab";
@@ -35,35 +35,34 @@ export default function UserProfilePage() {
   const dispatch = useDispatch();
 
   const loginState = useSelector((state) => state.login);
-  const orderState = useSelector((state) => state.order);
 
-  const admin =
-    loginState?.admin ||
-    loginState?.user ||
-    null;
+  const admin = loginState?.admin || loginState?.user || null;
 
-  const orders =
-    orderState?.order?.orders ||
-    orderState?.orders ||
-    [];
+  // ==========================================================
+  // LOCAL STATE
+  // ==========================================================
 
   const [activeTab, setActiveTab] = useState("profile");
 
   const [loading, setLoading] = useState(true);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  // Orders
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
+  // Wishlist
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistPagination, setWishlistPagination] = useState(null);
 
-  const [ordersLoading, setOrdersLoading] = useState(false);
-
+  // Address
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addresses, setAddresses] = useState([]);
 
-  /* ==========================================================
-     FETCH USER
-  ========================================================== */
+  // ==========================================================
+  // FETCH USER
+  // ==========================================================
 
   useEffect(() => {
     const loadUser = async () => {
@@ -73,11 +72,7 @@ export default function UserProfilePage() {
           localStorage.getItem("token") ||
           localStorage.getItem("adminToken");
 
-        if (
-          !token ||
-          token === "undefined" ||
-          token === "null"
-        ) {
+        if (!token || token === "undefined" || token === "null") {
           router.replace("/login");
           return;
         }
@@ -99,9 +94,9 @@ export default function UserProfilePage() {
     loadUser();
   }, [dispatch, router, admin]);
 
-  /* ==========================================================
-     FETCH ORDERS
-  ========================================================== */
+  // ==========================================================
+  // FETCH ORDERS
+  // ==========================================================
 
   useEffect(() => {
     if (!admin || activeTab !== "orders") return;
@@ -110,11 +105,35 @@ export default function UserProfilePage() {
       try {
         setOrdersLoading(true);
 
-        await dispatch(
-          asyncfetchUserwiseOrders()
-        );
+        const result = await dispatch(asyncfetchUserwiseOrders());
+
+        console.log("ORDERS API:", result);
+
+        /*
+          If your API returns:
+
+          {
+            success: true,
+            orders: [...]
+          }
+
+          then use:
+
+          setOrders(result?.orders || []);
+        */
+
+        if (Array.isArray(result)) {
+          setOrders(result);
+        } else {
+          setOrders(result?.orders || result?.data || []);
+        }
       } catch (error) {
-        console.error("ORDERS ERROR:", error);
+        console.error(
+          "ORDERS ERROR:",
+          error?.response?.data || error?.message || error,
+        );
+
+        setOrders([]);
       } finally {
         setOrdersLoading(false);
       }
@@ -123,9 +142,9 @@ export default function UserProfilePage() {
     loadOrders();
   }, [activeTab, admin, dispatch]);
 
-  /* ==========================================================
-     FETCH WISHLIST
-  ========================================================== */
+  // ==========================================================
+  // FETCH WISHLIST
+  // ==========================================================
 
   useEffect(() => {
     if (!admin || activeTab !== "wishlist") return;
@@ -134,25 +153,21 @@ export default function UserProfilePage() {
       try {
         setWishlistLoading(true);
 
-        const data = await dispatch(
+        const result = await dispatch(
           asyncfetchUserWishlist({
             page: 1,
             limit: 8,
-          })
+          }),
         );
 
-        console.log("Wishlist API:", data);
+        console.log("WISHLIST API:", result);
 
-        setWishlist(data?.wishlist || []);
-        setWishlistPagination(
-          data?.pagination || null
-        );
+        setWishlist(result?.wishlist || []);
+        setWishlistPagination(result?.pagination || null);
       } catch (error) {
         console.error(
           "WISHLIST ERROR:",
-          error?.response?.data ||
-            error?.message ||
-            error
+          error?.response?.data || error?.message || error,
         );
 
         setWishlist([]);
@@ -165,40 +180,36 @@ export default function UserProfilePage() {
     loadWishlist();
   }, [activeTab, admin, dispatch]);
 
+  // ==========================================================
+  // FETCH USER ADDRESSES
+  // ==========================================================
 
-  /* ==========================================================
-   FETCH USER ADDRESSES
-========================================================== */
+  useEffect(() => {
+    if (!admin) return;
 
-useEffect(() => {
-  if (!admin) return;
+    const loadAddresses = async () => {
+      try {
+        const result = await dispatch(asyncfetchAddress());
 
-  const loadAddresses = async () => {
-    try {
-      const data = await dispatch(asyncfetchAddress());
+        console.log("ADDRESS API:", result);
 
-      console.log("ADDRESS API:", data);
+        setAddresses(result?.shippingAddress || []);
+      } catch (error) {
+        console.error(
+          "ADDRESS FETCH ERROR:",
+          error?.response?.data || error?.message || error,
+        );
 
-      setAddresses(data?.shippingAddress || []);
-    } catch (error) {
-      console.error(
-        "ADDRESS FETCH ERROR:",
-        error?.response?.data ||
-          error?.message ||
-          error
-      );
+        setAddresses([]);
+      }
+    };
 
-      setAddresses([]);
-    }
-  };
+    loadAddresses();
+  }, [admin, dispatch]);
 
-  loadAddresses();
-}, [admin, dispatch]);
-
-
-  /* ==========================================================
-     LOGOUT
-  ========================================================== */
+  // ==========================================================
+  // LOGOUT
+  // ==========================================================
 
   const handleLogout = async () => {
     try {
@@ -218,32 +229,30 @@ useEffect(() => {
     }
   };
 
-  /* ==========================================================
-     ADDRESS
-  ========================================================== */
+  // ==========================================================
+  // ADDRESS SUCCESS
+  // ==========================================================
 
-const handleAddressSuccess = async () => {
-  try {
-    const data = await dispatch(asyncfetchAddress());
+  const handleAddressSuccess = async () => {
+    try {
+      const result = await dispatch(asyncfetchAddress());
 
-    console.log("UPDATED ADDRESS API:", data);
+      console.log("UPDATED ADDRESS API:", result);
 
-    setAddresses(data?.shippingAddress || []);
-  } catch (error) {
-    console.error(
-      "REFRESH ADDRESS ERROR:",
-      error?.response?.data ||
-        error?.message ||
-        error
-    );
-  } finally {
-    setShowAddressForm(false);
-  }
-};
+      setAddresses(result?.shippingAddress || []);
+    } catch (error) {
+      console.error(
+        "REFRESH ADDRESS ERROR:",
+        error?.response?.data || error?.message || error,
+      );
+    } finally {
+      setShowAddressForm(false);
+    }
+  };
 
-  /* ==========================================================
-     LOADING
-  ========================================================== */
+  // ==========================================================
+  // LOADING
+  // ==========================================================
 
   if (loading) {
     return (
@@ -276,9 +285,9 @@ const handleAddressSuccess = async () => {
     );
   }
 
-  /* ==========================================================
-     USER NOT FOUND
-  ========================================================== */
+  // ==========================================================
+  // USER NOT FOUND
+  // ==========================================================
 
   if (!admin) {
     return (
@@ -286,9 +295,7 @@ const handleAddressSuccess = async () => {
         <div className="text-center">
           <p className="mb-5 text-4xl">👤</p>
 
-          <h1 className="mb-3 font-serif text-2xl">
-            User Not Found
-          </h1>
+          <h1 className="mb-3 font-serif text-2xl">User Not Found</h1>
 
           <p className="mb-6 text-sm text-gray-500">
             Please login again to continue.
@@ -312,42 +319,31 @@ const handleAddressSuccess = async () => {
     );
   }
 
-  /* ==========================================================
-     USER DATA
-  ========================================================== */
+  // ==========================================================
+  // USER DATA
+  // ==========================================================
 
-  const userName =
-    admin?.name ||
-    admin?.fullName ||
-    "User";
+  const userName = admin?.name || admin?.fullName || "User";
 
-  const userEmail =
-    admin?.email || "";
+  const userEmail = admin?.email || "";
 
-  const userMobile =
-    admin?.mobileNumber ||
-    admin?.phone ||
-    "";
+  const userMobile = admin?.mobileNumber || admin?.phone || "";
 
-  /* ==========================================================
-     RENDER
-  ========================================================== */
+  // ==========================================================
+  // RENDER
+  // ==========================================================
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF7F2]">
-
       <MarqueeBar />
 
       <Header />
 
       <main className="flex-1 pb-20 pt-32 md:pt-36">
-
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-
           {/* PAGE HEADER */}
 
           <div className="mb-12 text-center md:mb-14">
-
             <p
               className="
                 mb-3
@@ -389,7 +385,6 @@ const handleAddressSuccess = async () => {
               lg:grid-cols-[280px_1fr]
             "
           >
-
             {/* SIDEBAR */}
 
             <ProfileSidebar
@@ -406,6 +401,7 @@ const handleAddressSuccess = async () => {
             {/* CONTENT */}
 
             <section>
+              {/* PROFILE */}
 
               {activeTab === "profile" && (
                 <ProfileTab
@@ -418,6 +414,8 @@ const handleAddressSuccess = async () => {
                 />
               )}
 
+              {/* ORDERS */}
+
               {activeTab === "orders" && (
                 <OrdersTab
                   orders={orders}
@@ -425,6 +423,8 @@ const handleAddressSuccess = async () => {
                   router={router}
                 />
               )}
+
+              {/* WISHLIST */}
 
               {activeTab === "wishlist" && (
                 <WishlistTab
@@ -435,27 +435,23 @@ const handleAddressSuccess = async () => {
                 />
               )}
 
+              {/* ADDRESS */}
+
               {activeTab === "address" && (
                 <AddressTab
                   addresses={addresses}
-                  setShowAddressForm={
-                    setShowAddressForm
-                  }
+                  setShowAddressForm={setShowAddressForm}
                 />
               )}
-
             </section>
           </div>
         </div>
       </main>
 
       {/* ADDRESS MODAL */}
-
       {showAddressForm && (
         <AddressForm
-          onClose={() =>
-            setShowAddressForm(false)
-          }
+          onClose={() => setShowAddressForm(false)}
           onSuccess={handleAddressSuccess}
         />
       )}

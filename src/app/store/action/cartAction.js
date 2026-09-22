@@ -41,62 +41,24 @@ export const fetchCart = () => async (dispatch, getState) => {
     };
 
     const { data } = await axios.get("/cart/get-all-cart-product", config);
-
+   console.log({data});
+   
     // ======================================================
     // GET ITEMS FROM API
     // ======================================================
 
     const rawItems = data?.cart?.items || [];
-
+    console.log({rawItems});
+    
     // ======================================================
     // NORMALIZE CART ITEMS
     // ======================================================
 
-    const normalized = rawItems.map((item) => {
-      const product =
-        item.productId && typeof item.productId === "object"
-          ? item.productId
-          : null;
-
-      return {
-        // Product ID
-        product: product?._id || item.productId || null,
-
-        // Variant ID
-        variantId: item.variantId || null,
-
-        // Product information
-        name: item.name || product?.name || "Product",
-
-        // Price saved by backend
-        price: Number(item.price || 0),
-
-        // MRP
-        mrp: Number(item.mrp || 0),
-
-        // Image
-        image:
-          item.image ||
-          product?.images?.[0]?.url ||
-          product?.images?.[0] ||
-          "/candle.png",
-
-        // Quantity
-        quantity: Number(item.quantity || 1),
-
-        // SKU
-        sku: item.sku || "",
-
-        // Variant label
-        variantLabel: item.variantLabel || item.sku || null,
-      };
-    });
-
-    dispatch(setCartSuccess(normalized));
+    dispatch(setCartSuccess(rawItems));
 
     return {
       success: true,
-      cartItems: normalized,
+      cartItems: rawItems,
     };
   } catch (error) {
     console.error("FETCH CART ERROR:", error?.response?.data || error);

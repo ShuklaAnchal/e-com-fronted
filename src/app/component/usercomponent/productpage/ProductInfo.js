@@ -98,22 +98,6 @@ const isAlreadyInCart = cartItems.some((item) => {
       ? item.variantId?._id
       : item.variantId;
 
-  console.log("========== CART CHECK ==========");
-  console.log("Cart Product:", cartProductId);
-  console.log("Current Product:", product?._id);
-  console.log("Cart Variant:", cartVariantId);
-  console.log("Current Variant:", selectedVariant?._id);
-
-  console.log(
-    "Product Match:",
-    String(cartProductId) === String(product?._id)
-  );
-
-  console.log(
-    "Variant Match:",
-    String(cartVariantId) === String(selectedVariant?._id)
-  );
-
   return (
     String(cartProductId) === String(product?._id) &&
     String(cartVariantId) === String(selectedVariant?._id)
