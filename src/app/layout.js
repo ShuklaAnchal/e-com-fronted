@@ -46,7 +46,7 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning={true}
         className="min-h-full flex flex-col bg-[#FAF7F2] text-[#2C2C2C] font-sans"
       >
-        {" "}
+ 
         <ReduxProvider>
           <ClientWrapper>{children}</ClientWrapper>
         </ReduxProvider>

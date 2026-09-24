@@ -20,7 +20,7 @@ function LoginContent() {
   const redirectTo = searchParams.get("redirect") || "/";
   const [step, setStep] = useState(1);
   const [mobileNumber, setmobileNumber] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
 
   const handleSendOtp = async (e) => {
@@ -106,7 +106,7 @@ function LoginContent() {
             <p className="mx-auto max-w-[320px] text-sm leading-6 tracking-wide font-light text-[#6C6C6C]">
               {step === 1
                 ? "Create your account and begin your journey with us."
-                : `We've sent a 4-digit code to +91 ${mobileNumber}`}
+                : `We've sent a 6-digit code to +91 ${mobileNumber}`}
             </p>
           </div>
 
