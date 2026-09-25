@@ -1,90 +1,168 @@
+
 "use client";
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+
 import Header from "@/app/component/mainpage/Header";
 import MarqueeBar from "@/app/component/mainpage/MarqueeBar";
 import Footer from "@/app/component/resuable/Footer";
+
 import { sendOtp, verifyOtp } from "@/app/store/action/userAction";
 import { mergeLocalCart } from "@/app/store/action/cartAction";
+
 import { useDispatch } from "react-redux";
 
 function LoginContent() {
   const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
+
   const redirectTo = searchParams.get("redirect") || "/";
+
   const [step, setStep] = useState(1);
   const [mobileNumber, setmobileNumber] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+
+  // 6 digit OTP
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
   const [loading, setLoading] = useState(false);
 
+  // =========================
+  // SEND OTP
+  // =========================
   const handleSendOtp = async (e) => {
     e.preventDefault();
 
     if (mobileNumber.length !== 10) {
-      alert("Please enter a valid mobile number.");
+      alert("Please enter a valid 10-digit mobile number.");
       return;
     }
 
     setLoading(true);
-    const res = await dispatch(sendOtp(mobileNumber));
 
-    setLoading(false);
-    if (res.success) {
-      alert("OTP sent successfully");
-      setStep(2);
-    } else {
-      alert(res.message);
+    try {
+      const res = await dispatch(sendOtp(mobileNumber));
+
+      if (res.success) {
+        alert("OTP sent successfully");
+
+        // Reset all 6 OTP fields
+        setOtp(["", "", "", "", "", ""]);
+
+        setStep(2);
+      } else {
+        alert(res.message || "Failed to send OTP");
+      }
+    } catch (error) {
+      console.error("Send OTP Error:", error);
+      alert("Something went wrong while sending OTP.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // =========================
+  // VERIFY OTP
+  // =========================
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
 
     const otpValue = otp.join("");
 
-    if (otpValue.length !== 4) {
-      alert("Please enter valid OTP");
+    // Must be exactly 6 digits
+    if (otpValue.length !== 6) {
+      alert("Please enter the complete 6-digit OTP.");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(otpValue)) {
+      alert("OTP must contain 6 digits.");
       return;
     }
 
     setLoading(true);
 
-    const res = await dispatch(
-      verifyOtp({
-        mobileNumber,
-        otp: otpValue,
-      }),
-    );
+    try {
+      const res = await dispatch(
+        verifyOtp({
+          mobileNumber,
+          otp: otpValue,
+        })
+      );
 
-    setLoading(false);
+      if (res.success) {
+        // Merge any guest cart items into the backend
+        await dispatch(mergeLocalCart());
 
-    if (res.success) {
-      // Merge any guest cart items into the backend
-      await dispatch(mergeLocalCart());
-      router.push(redirectTo);
-    } else {
-      alert(res.message);
+        router.push(redirectTo);
+      } else {
+        alert(res.message || "Invalid OTP");
+      }
+    } catch (error) {
+      console.error("Verify OTP Error:", error);
+      alert("Something went wrong while verifying OTP.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // =========================
+  // OTP INPUT CHANGE
+  // =========================
   const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return;
+    const value = element.value;
+
+    // Only allow numbers
+    if (!/^\d*$/.test(value)) {
+      return;
+    }
 
     const newOtp = [...otp];
-    newOtp[index] = element.value;
+
+    // Keep only one digit
+    newOtp[index] = value.slice(-1);
+
     setOtp(newOtp);
 
-    if (element.value && element.nextSibling) {
-      element.nextSibling.focus();
+    // Move to next input
+    if (value && index < otp.length - 1) {
+      const nextInput = element.nextElementSibling;
+
+      if (nextInput) {
+        nextInput.focus();
+      }
     }
+  };
+
+  // =========================
+  // BACKSPACE
+  // =========================
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const previousInput = e.currentTarget.previousElementSibling;
+
+      if (previousInput) {
+        previousInput.focus();
+      }
+    }
+  };
+
+  // =========================
+  // CHANGE MOBILE NUMBER
+  // =========================
+  const handleChangeMobile = () => {
+    setStep(1);
+
+    // Reset all 6 OTP fields
+    setOtp(["", "", "", "", "", ""]);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-luxury-cream">
       <MarqueeBar />
+
       <Header />
 
       <main className="relative flex-1 flex items-center justify-center overflow-hidden px-4 mt-32 mb-20">
@@ -103,10 +181,13 @@ function LoginContent() {
             <p className="mx-auto max-w-[320px] text-sm leading-6 tracking-wide font-light text-[#6C6C6C]">
               {step === 1
                 ? "Enter your mobile number to login in an account."
-                : `We've sent a 4-digit code to +91 ${mobileNumber}`}
+                : `We've sent a 6-digit code to +91 ${mobileNumber}`}
             </p>
           </div>
 
+          {/* =========================
+              MOBILE NUMBER
+          ========================= */}
           {step === 1 ? (
             <form onSubmit={handleSendOtp} className="space-y-7">
               <div>
@@ -114,60 +195,78 @@ function LoginContent() {
                   Mobile Number
                 </label>
 
-                <div className="relative flex flex row items-center gap-2 border border-[#C5A880]/30 focus:outline-none focus:border-[#C5A880]">
+                <div className="relative flex flex-row items-center gap-2 border border-[#C5A880]/30 focus-within:border-[#C5A880]">
                   <span className="text-luxury-dark/60 font-light tracking-wide px-3">
                     +91
                   </span>
 
                   <input
                     type="tel"
+                    inputMode="numeric"
                     value={mobileNumber}
                     onChange={(e) =>
                       setmobileNumber(
-                        e.target.value.replace(/\D/g, "").slice(0, 10),
+                        e.target.value.replace(/\D/g, "").slice(0, 10)
                       )
                     }
-                    // placeholder="00000 00000"
+                    placeholder="Enter mobile number"
                     required
-                    className="w-full h-14 bg-transparent pl-4 bg-red-500 pr-4 text-luxury-dark tracking-[0.15em] placeholder:text-luxury-dark/20 outline-none transition-all"
+                    className="w-full h-14 bg-transparent pl-4 pr-4 text-luxury-dark tracking-[0.15em] placeholder:text-luxury-dark/20 outline-none transition-all"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || mobileNumber.length !== 10}
                 className="w-full h-14 mt-3 bg-luxury-dark text-[#C5A880] text-xs uppercase tracking-[0.2em] font-light transition-all duration-500 hover:bg-[#C5A880] hover:text-[#121212] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Sending..." : "Send OTP"}
               </button>
 
-              <div className="w=full items-center">
+              <div className="w-full text-center text-sm">
                 Not Registered yet?{" "}
-                <Link href="/sign-up">
+                <Link
+                  href="/sign-up"
+                  className="text-luxury-gold-dark hover:text-luxury-dark transition-colors"
+                >
                   Sign Up
                 </Link>
               </div>
             </form>
           ) : (
+            /* =========================
+               OTP VERIFICATION
+            ========================= */
             <form onSubmit={handleVerifyOtp} className="space-y-8">
-              <div className="flex items-center justify-center gap-3 md:gap-4">
+              <div className="flex items-center justify-center gap-2 md:gap-3">
                 {otp.map((data, index) => (
                   <input
                     key={index}
                     type="text"
+                    inputMode="numeric"
+                    autoComplete={index === 0 ? "one-time-code" : "off"}
                     maxLength={1}
                     value={data}
-                    onChange={(e) => handleOtpChange(e.target, index)}
+                    onChange={(e) =>
+                      handleOtpChange(e.target, index)
+                    }
+                    onKeyDown={(e) =>
+                      handleOtpKeyDown(e, index)
+                    }
                     onFocus={(e) => e.target.select()}
-                    className="w-14 h-14 md:w-16 md:h-16 bg-transparent border border-[#C5A880]/30 text-center text-xl font-light text-luxury-dark focus:outline-none focus:border-[#C5A880] transition-all"
+                    className="w-11 h-14 sm:w-12 sm:h-14 md:w-14 md:h-14 bg-transparent border border-[#C5A880]/30 text-center text-xl font-light text-luxury-dark focus:outline-none focus:border-[#C5A880] transition-all"
                   />
                 ))}
               </div>
 
+              <p className="text-center text-xs text-[#777]">
+                Enter the 6-digit OTP sent to your mobile number.
+              </p>
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || otp.join("").length !== 6}
                 className="w-full mt-3 h-14 bg-luxury-dark text-[#C5A880] text-xs uppercase tracking-[0.2em] font-light transition-all duration-500 hover:bg-[#C5A880] hover:text-[#121212] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Verifying..." : "Verify & Login"}
@@ -176,10 +275,7 @@ function LoginContent() {
               <div className="text-center">
                 <button
                   type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setOtp(["", "", "", ""]);
-                  }}
+                  onClick={handleChangeMobile}
                   className="text-[11px] uppercase tracking-[0.15em] text-luxury-gold-dark hover:text-luxury-dark transition-colors mt-3"
                 >
                   Change Mobile Number
@@ -202,3 +298,4 @@ export default function LoginPage() {
     </Suspense>
   );
 }
+
