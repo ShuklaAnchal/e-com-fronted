@@ -489,8 +489,9 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            <ProductReviews id={product._id} />
-
+            {productData.reviews?.length > 0 && (
+              <ProductReviews id={product._id} />
+            )}
             {/* =================================================
     RELATED PRODUCTS
 ================================================= */}

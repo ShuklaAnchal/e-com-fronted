@@ -217,7 +217,7 @@ const CartPage = () => {
       token === "null"
     ) {
       router.push(
-        "/login?redirect=/user/checkout"
+        "/sign-up?redirect=/user/checkout"
       );
       return;
     }

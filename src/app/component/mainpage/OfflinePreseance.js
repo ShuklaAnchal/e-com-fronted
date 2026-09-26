@@ -12,35 +12,35 @@ const moments = [
     title: "A Candle That Made My Home Special",
     person: "Bhopal",
     video:
-      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957322/AQMl428t7WoSuzCTcp_Zd_FOChyHyt1xTyqaDjASHJ7sKZzcHKYeTZxUquFsVJxWzsLPs7AUJWr_uyTh3UollSKxjahwW-lhAiWfLLU.mp4",
+      "https://ik.imagekit.io/obhyn5uys/Offlinepreances/prodictshowcase.mp4?updatedAt=1790340616714",
   },
   {
     category: "Events",
     title: "Siyaas Festive Collection Launch",
     person: "Bhopal",
     video:
-      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957341/VID_20260816204415607.mp4",
+      "https://ik.imagekit.io/obhyn5uys/Offlinepreances/addvideo.mp4?updatedAt=1790340627954",
   },
   {
     category: "Event",
     title: "Hack Nd Make Startup India",
     person: "Bhopal",
     video:
-      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957448/AQNR_KECKSki6nv7UoUgSkCmKv-x38AD6H4sgwHRujqt43sca9OURZSlG6ZVOEPOqheHYvMZO-Ivq_GjbwCj52gcjqiiJhZqs0cHWLc.mp4",
+      "https://ik.imagekit.io/obhyn5uys/Offlinepreances/event3.mp4?updatedAt=1790429714294",
   },
   {
     category: "Events",
     title: "Jamming By The Koun Active Hai",
     person: "Bhopal",
     video:
-      "https://res.cloudinary.com/mdbmovuw/video/upload/v1786957715/AirBrushVideo1786879064978.mp4",
+      "https://ik.imagekit.io/obhyn5uys/Offlinepreances/event1.mp4?updatedAt=1790340633273",
   },
   {
     category: "Customer Love",
     title: "A Candle That Made My Home Special",
     person: "Bhopal",
     video:
-      "https://res.cloudinary.com/mdbmovuw/video/upload/v1787074648/promationvideo.mp4",
+      "https://ik.imagekit.io/obhyn5uys/Offlinepreances/productproation.mp4?updatedAt=1790340637843",
   },
   // {
   //   category: "Events",

@@ -233,7 +233,7 @@ function LoginContent() {
               <div className="w-full text-center text-sm">
                 Already have an account?{" "}
                 <Link
-                  href="/login"
+                  href={redirectTo !== "/" ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login"}
                   className="text-luxury-gold-dark hover:text-luxury-dark transition-colors"
                 >
                   Log In

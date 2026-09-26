@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import {
   createProduct,
   editProductDetails,
+  fetchProductbyID,
 } from "@/app/store/action/productAction";
 
 import DynamicAttributeField from "../resuable/DynamicAttributeField";
@@ -17,6 +18,7 @@ import { fetchSubcategorybyCategoryID } from "@/app/store/action/subcategoryActi
 import { fetchAttributeBySubCatgeoryID } from "@/app/store/action/attributeAction";
 
 import { useCategories } from "@/app/hooks/catgeoryHook";
+import { useParams } from "next/navigation";
 
 // =========================================================
 // DEFAULT VARIANT
@@ -118,6 +120,10 @@ const DEFAULT_PRODUCT = {
 
 const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const dispatch = useDispatch();
+  const params = useParams();
+
+  const productId = editData?._id || editData?.id || params?.id;
+  const isEditMode = Boolean(productId);
 
   const { categories, loading } = useCategories();
 
@@ -148,6 +154,8 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   const [loadingSubs, setLoadingSubs] = useState(false);
 
   const [loadingAttributes, setLoadingAttributes] = useState(false);
+
+  const [fetchingProduct, setFetchingProduct] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -271,88 +279,102 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   };
 
   // =========================================================
-  // EDIT MODE
+  // POPULATE FORM FROM PRODUCT DATA
   // =========================================================
 
-  useEffect(() => {
-    if (!editData) return;
+  const populateForm = async (data, apiResponse = null) => {
+    if (!data) return;
 
-    const categoryId = getId(editData.categoryId);
-
-    const subCategoryId = getId(editData.subCategoryId);
-
-    const normalizedDetails = Array.isArray(editData.details)
-      ? editData.details
-      : [];
+    const categoryId = getId(data.categoryId);
+    const subCategoryId = getId(data.subCategoryId);
 
     // =======================================================
-    // EXISTING PRODUCT ATTRIBUTES
+    // GET SAVED PRODUCT DETAILS FROM API RESPONSE
+    // =======================================================
+
+    const savedProductDetails =
+      apiResponse?.productDetails || data?.productDetails || [];
+
+    const savedValues = Array.isArray(savedProductDetails)
+      ? savedProductDetails.flatMap((detail) =>
+          Array.isArray(detail?.values) ? detail.values : [],
+        )
+      : [];
+
+    console.log("SAVED PRODUCT ATTRIBUTE VALUES:", savedValues);
+
+    // =======================================================
+    // CREATE ATTRIBUTE VALUE MAP
     // =======================================================
 
     const existingAttributeValues = {};
 
-    normalizedDetails.forEach((detail) => {
-      const attributeId = getId(detail.attributeId);
+    savedValues.forEach((item) => {
+      const attributeId = getId(item?.attributeId);
 
       if (attributeId) {
-        existingAttributeValues[attributeId] = detail.value;
+        existingAttributeValues[attributeId] = item.value;
       }
     });
+
+    console.log("ATTRIBUTE VALUES MAP FOR EDIT:", existingAttributeValues);
 
     // =======================================================
     // SET PRODUCT
     // =======================================================
 
     setProduct({
-      name: editData.name || "",
+      name: data.name || "",
+      slug: data.slug || "",
 
-      slug: editData.slug || "",
-
-      shortDescription: editData.shortDescription || "",
-
-      fullDescription: editData.fullDescription || "",
+      shortDescription: data.shortDescription || "",
+      fullDescription: data.fullDescription || "",
 
       categoryId,
-
       subCategoryId,
 
-      brand: editData.brand || "",
+      brand: data.brand || "",
 
-      tags: getArray(editData.tags).join(", "),
+      tags: getArray(data.tags).join(", "),
+      highlights: getArray(data.highlights).join(", "),
 
-      highlights: getArray(editData.highlights).join(", "),
+      productcollection: Array.isArray(data.productcollection)
+        ? data.productcollection.join(", ")
+        : data.productcollection || "",
 
-      productcollection: editData.productcollection || "",
+      status: data.status || "draft",
 
-      // =====================================================
-      // PRODUCT STATUS
-      // =====================================================
-
-      status: editData.status || "draft",
-
-      isActive:
-        editData.isActive !== undefined ? Boolean(editData.isActive) : true,
+      isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
 
       // =====================================================
       // MEDIA
       // =====================================================
 
       images: [],
-
       videos: [],
-
       imagePreviews: [],
-
       videoPreviews: [],
 
-      existingImages: Array.isArray(editData.images) ? editData.images : [],
+      existingImages: Array.isArray(data.images)
+        ? data.images
+        : Array.isArray(data.media)
+          ? data.media.filter((item) => item.type === "image")
+          : [],
 
-      existingVideos: Array.isArray(editData.videos) ? editData.videos : [],
+      existingVideos: Array.isArray(data.videos)
+        ? data.videos
+        : Array.isArray(data.media)
+          ? data.media.filter((item) => item.type === "video")
+          : [],
+
+      // =====================================================
+      // EXPERIENCE
+      // =====================================================
 
       experience: {
-        bestseller: Boolean(editData.experience?.bestseller),
-        featured: Boolean(editData.experience?.featured),
-        trending: Boolean(editData.experience?.trending),
+        bestseller: Boolean(data.experience?.bestseller),
+        featured: Boolean(data.experience?.featured),
+        trending: Boolean(data.experience?.trending),
       },
 
       // =====================================================
@@ -360,41 +382,40 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // =====================================================
 
       gifting: {
-        giftWrappingAvailable: Boolean(editData.gifting?.giftWrappingAvailable),
+        giftWrappingAvailable: Boolean(data.gifting?.giftWrappingAvailable),
 
-        personalizedMessage: Boolean(editData.gifting?.personalizedMessage),
+        personalizedMessage: Boolean(data.gifting?.personalizedMessage),
 
-        corporateGifting: Boolean(editData.gifting?.corporateGifting),
+        corporateGifting: Boolean(data.gifting?.corporateGifting),
 
-        occasions: getArray(editData.gifting?.occasions).join(", "),
+        occasions: getArray(data.gifting?.occasions).join(", "),
 
-        festivals: getArray(editData.gifting?.festivals).join(", "),
+        festivals: getArray(data.gifting?.festivals).join(", "),
       },
     });
 
     // =======================================================
-    // SET ATTRIBUTE VALUES
+    // IMPORTANT:
+    // SET SAVED ATTRIBUTE VALUES
     // =======================================================
 
     setAttributeValues(existingAttributeValues);
 
-    setDetails(normalizedDetails);
+    // Keep saved values for fallback rendering
+    setDetails(savedValues);
 
     // =======================================================
     // LOAD VARIANTS
     // =======================================================
 
-    if (Array.isArray(editData.variants) && editData.variants.length > 0) {
+    if (Array.isArray(data.variants) && data.variants.length > 0) {
       setVariants(
-        editData.variants.map((variant, index) =>
-          normalizeVariant(variant, index),
-        ),
+        data.variants.map((variant, index) => normalizeVariant(variant, index)),
       );
     } else {
       setVariants([
         {
           ...DEFAULT_VARIANT,
-
           isDefault: true,
         },
       ]);
@@ -405,17 +426,68 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
     // =======================================================
 
     if (categoryId) {
-      loadSubCategories(categoryId);
+      await loadSubCategories(categoryId);
     }
 
     // =======================================================
-    // LOAD ATTRIBUTES
+    // LOAD ATTRIBUTE MASTER
     // =======================================================
 
     if (subCategoryId) {
-      fetchAttributes(subCategoryId);
+      await fetchAttributes(subCategoryId);
     }
-  }, [editData]);
+  };
+
+  // =========================================================
+  // FETCH PRODUCT BY ID FOR EDIT MODE
+  // =========================================================
+
+  useEffect(() => {
+    if (!productId) return;
+
+    let isMounted = true;
+
+    const loadProductData = async () => {
+      try {
+        setFetchingProduct(true);
+
+        const response = await dispatch(fetchProductbyID(productId));
+
+        console.log("========== FETCH PRODUCT BY ID ==========");
+        console.log("FULL RESPONSE:", response);
+
+        if (!isMounted) return;
+
+        const productData = response?.product;
+
+        console.log("PRODUCT DATA:", productData);
+
+        console.log("PRODUCT DETAILS:", response?.productDetails);
+
+        if (productData) {
+          await populateForm(productData, response);
+        } else if (editData) {
+          await populateForm(editData);
+        }
+      } catch (error) {
+        console.error("Failed to load product by ID:", error);
+
+        if (isMounted && editData) {
+          await populateForm(editData);
+        }
+      } finally {
+        if (isMounted) {
+          setFetchingProduct(false);
+        }
+      }
+    };
+
+    loadProductData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productId, dispatch]);
 
   // =========================================================
   // INPUT CHANGE
@@ -990,7 +1062,7 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // EXISTING IMAGES
       // =====================================================
 
-      if (editData?._id) {
+      if (productId) {
         formData.append(
           "existingImages",
           JSON.stringify(product.existingImages),
@@ -1038,8 +1110,8 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
       // UPDATE PRODUCT
       // =====================================================
 
-      if (editData?._id) {
-        await dispatch(editProductDetails(editData._id, formData));
+      if (productId) {
+        await dispatch(editProductDetails(productId, formData));
 
         toast.success("Product updated successfully!");
       }
@@ -1082,6 +1154,15 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
   // =========================================================
   // UI
   // =========================================================
+
+  if (fetchingProduct) {
+    return (
+      <div className="w-full bg-white rounded-2xl p-12 text-center">
+        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin mx-auto" />
+        <p className="mt-4 text-sm text-gray-500">Loading product details...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-white rounded-2xl">
@@ -1754,23 +1835,15 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
         <div className="space-y-4">
           <div>
             <h3 className="font-bold text-lg text-gray-800">Product Details</h3>
-
             <p className="text-sm text-gray-500 mt-1">
-              Add product-specific details based on the selected subcategory.
+              Configure product-specific details based on the selected
+              subcategory.
             </p>
           </div>
 
           {loadingAttributes && (
             <p className="text-sm text-gray-500">Loading attributes...</p>
           )}
-
-          {!loadingAttributes &&
-            productAttributes.length === 0 &&
-            product.subCategoryId && (
-              <p className="text-sm text-gray-500">
-                No product attributes available for this subcategory.
-              </p>
-            )}
 
           {!loadingAttributes && productAttributes.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -1786,6 +1859,55 @@ const ProductForm = ({ editData, onClose, refreshProducts }) => {
                 ))}
             </div>
           )}
+
+          {!loadingAttributes &&
+            productAttributes.length === 0 &&
+            details.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {details.map((detail, index) => {
+                  const attributeId = getId(detail?.attributeId || detail?._id);
+                  const attributeName =
+                    detail?.attributeId?.name ||
+                    detail?.attributeName ||
+                    detail?.name ||
+                    `Attribute ${index + 1}`;
+
+                  return (
+                    <div key={attributeId || index} className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {attributeName}
+                        {detail?.attributeId?.unit &&
+                          ` (${detail.attributeId.unit})`}
+                      </label>
+
+                      <input
+                        type="text"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
+                        value={
+                          attributeValues[attributeId] !== undefined
+                            ? attributeValues[attributeId]
+                            : detail.value !== undefined
+                              ? String(detail.value)
+                              : ""
+                        }
+                        onChange={(e) =>
+                          handleAttributeChange(attributeId, e.target.value)
+                        }
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+          {!loadingAttributes &&
+            productAttributes.length === 0 &&
+            details.length === 0 &&
+            product.subCategoryId && (
+              <p className="text-sm text-gray-500">
+                No product attributes available for this subcategory.
+              </p>
+            )}
         </div>
 
         {/* ===================================================

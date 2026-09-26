@@ -321,7 +321,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
                     </span>
 
                     {/* RAKHI SPECIAL */}
-                    <span
+                    {/* <span
                       className="
         bg-[#C5A880]
         text-[#121212]
@@ -340,7 +340,7 @@ ease-out  hover:border-[#C5A880]/40 hover:shadow-[0_15px_40px_rgba(197,168,128,0
       "
                     >
                       Rakhi Special
-                    </span>
+                    </span> */}
                   </div>
 
                   {/* MAIN IMAGE */}

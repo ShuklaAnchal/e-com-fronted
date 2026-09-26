@@ -195,30 +195,68 @@ const isAlreadyInCart = cartItems.some((item) => {
     }
 
     try {
-      // If already in cart, directly go to cart
-      if (isAlreadyInCart) {
-        router.push("/user/cart");
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("userToken")
+          : null;
+
+      const isUserLoggedIn =
+        token && token !== "undefined" && token !== "null";
+
+      if (!isUserLoggedIn) {
+        // Clean up invalid/stale token if any
+        if (typeof window !== "undefined" && token) {
+          localStorage.removeItem("userToken");
+        }
+
+        // Add to local guest cart
+        if (!isAlreadyInCart) {
+          await dispatch(
+            addToCartAction(
+              {
+                ...product,
+                selectedVariant,
+              },
+              qty
+            )
+          );
+        }
+
+        // Redirect non-logged-in user to Register page
+        router.push("/sign-up?redirect=/user/checkout");
         return;
       }
 
-      const result = await dispatch(
-        addToCartAction(
-          {
-            ...product,
-            selectedVariant,
-          },
-          qty
-        )
-      );
-
-      if (result?.success) {
-        router.push("/user/cart");
-      } else {
-        console.error(
-          result?.message ||
-            "Unable to proceed."
+      // If user IS logged in
+      if (!isAlreadyInCart) {
+        const result = await dispatch(
+          addToCartAction(
+            {
+              ...product,
+              selectedVariant,
+            },
+            qty
+          )
         );
+
+        if (!result?.success) {
+          
+          const errMsg = result?.message || "";
+          if (
+            errMsg.toLowerCase().includes("token") ||
+            errMsg.toLowerCase().includes("unauthorized")
+          ) {
+            localStorage.removeItem("userToken");
+            router.push("/sign-up?redirect=/user/checkout");
+            return;
+          }
+
+          console.error(errMsg || "Unable to proceed.");
+          return;
+        }
       }
+
+      router.push("/user/checkout");
     } catch (error) {
       console.error(
         "BUY NOW ERROR:",

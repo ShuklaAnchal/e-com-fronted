@@ -87,7 +87,7 @@ export default function CheckoutPage() {
     const token = localStorage.getItem("userToken");
 
     if (!token || token === "undefined" || token === "null") {
-      router.push("/login?redirect=/user/checkout");
+      router.push("/sign-up?redirect=/user/checkout");
       return;
     }
 

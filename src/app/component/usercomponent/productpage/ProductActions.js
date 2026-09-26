@@ -123,7 +123,7 @@ export default function ProductActions({
           className={`rounded-xl py-4 flex items-center justify-center gap-2 transition ${
             isInCart
               ? "bg-green-600 text-white cursor-default"
-              : "bg-black text-white hover:bg-gray-800"
+              : "bg-black text-white  hover:bg-[#d8b98eec]"
           } disabled:opacity-70`}
         >
           <FaShoppingCart />
@@ -136,7 +136,7 @@ export default function ProductActions({
           type="button"
           disabled={disabled}
           onClick={() => onBuyNow(quantity)}
-          className="bg-gray-900 text-white rounded-xl py-4 flex items-center justify-center gap-2 disabled:opacity-50"
+          className="bg-gray-900 hover:bg-[#d8b98eec] text-white rounded-xl py-4 flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <FaBolt />
           Buy Now

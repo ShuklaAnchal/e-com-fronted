@@ -17,18 +17,18 @@ const ReelProducts = () => {
   const products = [
     {
       _id: "demo1",
-      name: "Vanilla Soy Candle",
+      name: "Lavender Collection",
       // price: 799,
       video: {
-        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787757759/IMG_5033.mov",
+        url: "https://res.cloudinary.com/jx2mazj5/video/upload/v1790437200/InShot_20260117_171128341_l9tu5d.mp4",
       },
     },
     {
       _id: "demo2",
-      name: "Lavender Collection",
+      name: "Scented candles",
       // price: 999,
       video: {
-        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787757511/VID_20260620_135122.mp4",
+        url: "https://res.cloudinary.com/jx2mazj5/video/upload/v1790437170/VID_20260926002314702_rgejgb.mp4",
       },
     },
     {
@@ -36,15 +36,15 @@ const ReelProducts = () => {
       name: "Luxury Amber Candle",
       // price: 1299,
       video: {
-        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787753351/IMG_E5481.mov",
+        url: "https://res.cloudinary.com/jx2mazj5/video/upload/v1790437148/WhatsApp_Video_2026-09-26_at_7.38.33_PM_1_ukurqq.mp4",
       },
     },
     {
       _id: "demo4",
-      name: "Rose Essence",
+      name: "Jasmin big jar",
       // price: 899,
       video: {
-        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787652123/IMG_5318.mov",
+        url: "https://res.cloudinary.com/jx2mazj5/video/upload/v1790437062/IMG_6149_srmboq.mov",
       },
     },
     {
@@ -52,65 +52,63 @@ const ReelProducts = () => {
       name: "Luxury Collection",
       // price: 1499,
       video: {
-        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787651474/IMG_5294.mov",
+        url: "https://res.cloudinary.com/jx2mazj5/video/upload/v1790437053/IMG_6399_qfjmd3.mov",
       },
     },
     {
       _id: "demo6",
-      name: "Signature Collection",
+      name: "Lavender mid jar",
       // price: 1499,
       video: {
-        url: "https://res.cloudinary.com/mdbmovuw/video/upload/v1787651867/IMG_5250.mov",
+        url: "https://res.cloudinary.com/jx2mazj5/video/upload/v1790437045/WhatsApp_Video_2026-09-26_at_8.11.18_PM_j3tota.mp4",
       },
     },
-    // {
-    //   _id: "demo7",
-    //   name: "Signature Collection",
-    //   price: 1499,
-    //   video: {
-    //     url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-    //   },
-    // },
 
-    // {
-    //   _id: "demo8",
-    //   name: "Signature Collection",
-    //   price: 1499,
-    //   video: {
-    //     url: "https://v1.pinimg.com/videos/mc/720p/6d/a0/fa/6da0fa70eb2ac7b781652a97b3c3be18.mp4",
-    //   },
-    // },
   ];
 
   useEffect(() => {
-    const firstVideo = videoRefs.current[0];
+    const playVideos = () => {
+      videoRefs.current.forEach((video) => {
+        if (!video) return;
 
-    if (firstVideo) {
-      firstVideo.play().catch(() => {});
-    }
+        video.muted = true;
+
+        video.play().catch((error) => {
+          console.log("Video autoplay blocked:", error);
+        });
+      });
+    };
+
+    // Give Swiper/browser time to render videos
+    const timer = setTimeout(playVideos, 500);
 
     return () => {
+      clearTimeout(timer);
+
       videoRefs.current.forEach((video) => {
-        if (video) video.pause();
+        if (video) {
+          video.pause();
+        }
       });
     };
   }, []);
 
-  const handleSlideChange = (swiper) => {
-    setActiveIndex(swiper.activeIndex);
+ const handleSlideChange = (swiper) => {
+  setActiveIndex(swiper.activeIndex);
 
-    videoRefs.current.forEach((video, index) => {
+  // Wait until Swiper has finished moving the slides
+  setTimeout(() => {
+    videoRefs.current.forEach((video) => {
       if (!video) return;
 
-      if (index === swiper.activeIndex) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-        video.currentTime = 0;
-      }
+      video.muted = true;
+
+      video.play().catch((error) => {
+        console.log("Could not autoplay video:", error);
+      });
     });
-  };
+  }, 100);
+};
 
   return (
     <>
@@ -248,22 +246,21 @@ const ReelProducts = () => {
         </div>
       </section>
 
-     {activeVideo && (
-
-  <div
-    className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center"
-    onClick={() => setActiveVideo(null)}
-  >
-    <div
-      className="relative w-[90%] max-w-md"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Close Button */}
-      <button
-        type="button"
-        onClick={() => setActiveVideo(null)}
-        aria-label="Close reel"
-        className="
+      {activeVideo && (
+        <div
+          className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center"
+          onClick={() => setActiveVideo(null)}
+        >
+          <div
+            className="relative w-[90%] max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setActiveVideo(null)}
+              aria-label="Close reel"
+              className="
           absolute
           top-7
           -right-0
@@ -286,26 +283,23 @@ const ReelProducts = () => {
           hover:bg-white
           hover:text-black
         "
-      >
-        ×
-      </button>
-
-```
-  {/* Reel Video */}
-  <video
-    key={activeVideo.url}
-    src={activeVideo.url}
-    controls
-    autoPlay
-    playsInline
-    className="w-full rounded-lg"
-  />
-</div>
-```
-
-  </div>
-)}
-
+            >
+              ×
+            </button>
+            ```
+            {/* Reel Video */}
+            <video
+              key={activeVideo.url}
+              src={activeVideo.url}
+              controls
+              autoPlay
+              playsInline
+              className="w-full rounded-lg"
+            />
+          </div>
+          ```
+        </div>
+      )}
     </>
   );
 };
