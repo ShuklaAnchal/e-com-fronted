@@ -9,13 +9,26 @@ import {
   FaCheckCircle,
   FaMapMarkerAlt,
 } from "react-icons/fa";
-
+import { FaShoppingCart } from "react-icons/fa";
 import { MdSecurity, MdAutorenew } from "react-icons/md";
+import { FaStar } from "react-icons/fa6";
+
 
 import { addToCartAction } from "@/app/store/action/cartAction";
 
 import QuantitySelector from "./QuantitySelector";
 import ProductActions from "./ProductActions";
+
+// Generate a consistent placeholder rating between 3.5 and 4.8
+const getFakeRating = (value = "product") => {
+  let hash = 0;
+
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+
+  return (35 + (Math.abs(hash) % 14)) / 10;
+};
 
 export default function ProductInfo({
   product,
@@ -25,10 +38,7 @@ export default function ProductInfo({
   const dispatch = useDispatch();
   const router = useRouter();
 
-  // =========================================================
   // REDUX DATA
-  // =========================================================
-
   const cartItems = useSelector(
     (state) => state.cart?.cartItems || []
   );
@@ -37,102 +47,74 @@ export default function ProductInfo({
     (state) => state.wishlist?.wishlistItems || []
   );
 
-  // =========================================================
   // DEFAULT VARIANT
-  // =========================================================
-
   const defaultVariant =
     variants.find((variant) => variant.isDefault) ||
     variants[0] ||
     null;
 
-  // =========================================================
   // STATES
-  // =========================================================
-
   const [quantity, setQuantity] = useState(1);
-
   const [selectedVariant, setSelectedVariant] =
     useState(defaultVariant);
-
   const [pincode, setPincode] = useState("");
+  const [deliveryResult, setDeliveryResult] = useState(null);
 
-  const [deliveryResult, setDeliveryResult] =
-    useState(null);
-
-  // =========================================================
   // PRICING
-  // =========================================================
-
   const pricing = selectedVariant?.pricing || {};
 
   const sellingPrice = pricing.sellingPrice || 0;
-
   const mrp = pricing.mrp || 0;
+  const discountPercent = pricing.discountPercent || 0;
 
-  const discountPercent =
-    pricing.discountPercent || 0;
+  // FAKE RATING
+  const fakeRating = getFakeRating(
+    String(product?._id || product?.name || "product")
+  );
 
-  // =========================================================
   // STOCK
-  // =========================================================
-
-  const stock =
-    selectedVariant?.inventory?.stockQuantity || 0;
+  const stock = selectedVariant?.inventory?.stockQuantity || 0;
 
   const isInStock =
     selectedVariant?.inventory?.inStock && stock > 0;
 
-  // =========================================================
   // CHECK CART
-  // =========================================================
+  const isAlreadyInCart = cartItems.some((item) => {
+    const cartProductId =
+      typeof item.product === "object"
+        ? item.product?._id
+        : item.product;
 
-const isAlreadyInCart = cartItems.some((item) => {
-  const cartProductId =
-    typeof item.product === "object"
-      ? item.product?._id
-      : item.product;
+    const cartVariantId =
+      typeof item.variantId === "object"
+        ? item.variantId?._id
+        : item.variantId;
 
-  const cartVariantId =
-    typeof item.variantId === "object"
-      ? item.variantId?._id
-      : item.variantId;
+    return (
+      String(cartProductId) === String(product?._id) &&
+      String(cartVariantId) === String(selectedVariant?._id)
+    );
+  });
 
-  return (
-    String(cartProductId) === String(product?._id) &&
-    String(cartVariantId) === String(selectedVariant?._id)
-  );
-});
-
-  // =========================================================
   // CHECK WISHLIST
-  // =========================================================
+  const isAlreadyInWishlist = wishlistItems.some((item) => {
+    const wishlistProductId =
+      typeof item.product === "object"
+        ? item.product?._id
+        : item.product;
 
-  const isAlreadyInWishlist = wishlistItems.some(
-    (item) => {
-      const wishlistProductId =
-        typeof item.product === "object"
-          ? item.product?._id
-          : item.product;
+    const wishlistVariantId =
+      typeof item.variantId === "object"
+        ? item.variantId?._id
+        : item.variantId;
 
-      const wishlistVariantId =
-        typeof item.variantId === "object"
-          ? item.variantId?._id
-          : item.variantId;
+    return (
+      String(wishlistProductId) === String(product?._id) &&
+      String(wishlistVariantId) === String(selectedVariant?._id)
+    );
+  });
 
-      return (
-        String(wishlistProductId) ===
-          String(product?._id) &&
-        String(wishlistVariantId) ===
-          String(selectedVariant?._id)
-      );
-    }
-  );
-
-  // =========================================================
   // ADD TO CART
-  // =========================================================
-
   const handleAddToCart = async (qty) => {
     if (!selectedVariant) {
       alert("Please select a variant.");
@@ -144,7 +126,6 @@ const isAlreadyInCart = cartItems.some((item) => {
       return;
     }
 
-    // Prevent duplicate cart item
     if (isAlreadyInCart) {
       alert("This product variant is already in your cart.");
       return;
@@ -164,23 +145,14 @@ const isAlreadyInCart = cartItems.some((item) => {
       if (result?.success) {
         console.log("Product added to cart successfully");
       } else {
-        alert(
-          result?.message ||
-            "Unable to add product."
-        );
+        alert(result?.message || "Unable to add product.");
       }
     } catch (error) {
-      console.error(
-        "ADD TO CART ERROR:",
-        error
-      );
+      console.error("ADD TO CART ERROR:", error);
     }
   };
 
-  // =========================================================
   // BUY NOW
-  // =========================================================
-
   const handleBuyNow = async (qty) => {
     if (!selectedVariant) {
       console.error("Please select a variant.");
@@ -188,95 +160,43 @@ const isAlreadyInCart = cartItems.some((item) => {
     }
 
     if (!isInStock) {
-      console.error(
-        "This product is currently out of stock."
-      );
+      console.error("This product is currently out of stock.");
       return;
     }
 
     try {
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("userToken")
-          : null;
-
-      const isUserLoggedIn =
-        token && token !== "undefined" && token !== "null";
-
-      if (!isUserLoggedIn) {
-        // Clean up invalid/stale token if any
-        if (typeof window !== "undefined" && token) {
-          localStorage.removeItem("userToken");
-        }
-
-        // Add to local guest cart
-        if (!isAlreadyInCart) {
-          await dispatch(
-            addToCartAction(
-              {
-                ...product,
-                selectedVariant,
-              },
-              qty
-            )
-          );
-        }
-
-        // Redirect non-logged-in user to Register page
-        router.push("/sign-up?redirect=/user/checkout");
+      if (isAlreadyInCart) {
+        router.push("/user/cart");
         return;
       }
 
-      // If user IS logged in
-      if (!isAlreadyInCart) {
-        const result = await dispatch(
-          addToCartAction(
-            {
-              ...product,
-              selectedVariant,
-            },
-            qty
-          )
-        );
-
-        if (!result?.success) {
-          
-          const errMsg = result?.message || "";
-          if (
-            errMsg.toLowerCase().includes("token") ||
-            errMsg.toLowerCase().includes("unauthorized")
-          ) {
-            localStorage.removeItem("userToken");
-            router.push("/sign-up?redirect=/user/checkout");
-            return;
-          }
-
-          console.error(errMsg || "Unable to proceed.");
-          return;
-        }
-      }
-
-      router.push("/user/checkout");
-    } catch (error) {
-      console.error(
-        "BUY NOW ERROR:",
-        error
+      const result = await dispatch(
+        addToCartAction(
+          {
+            ...product,
+            selectedVariant,
+          },
+          qty
+        )
       );
+
+      if (result?.success) {
+        router.push("/user/cart");
+      } else {
+        console.error(result?.message || "Unable to proceed.");
+      }
+    } catch (error) {
+      console.error("BUY NOW ERROR:", error);
     }
   };
 
-  // =========================================================
   // DELIVERY CHECK
-  // =========================================================
-
   const checkPincode = () => {
     if (pincode.length !== 6) {
       setDeliveryResult({
         available: false,
-        message:
-          "Please enter a valid 6 digit pincode.",
+        message: "Please enter a valid 6 digit pincode.",
       });
-
       return;
     }
 
@@ -286,114 +206,96 @@ const isAlreadyInCart = cartItems.some((item) => {
     });
   };
 
-  // =========================================================
   // UI
-  // =========================================================
-
   return (
-    <div className="flex flex-col w-full">
-
-      {/* =====================================================
-          BRAND
-      ===================================================== */}
-
-      <p className="uppercase tracking-[0.35em] text-xs text-gray-500 mb-4">
+    <div className="flex w-full min-w-0 flex-col">
+      {/* BRAND */}
+      <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-gray-500 sm:mb-3 sm:text-xs sm:tracking-[0.3em] lg:mb-4">
         {product.brand || "Premium Collection"}
       </p>
 
-      {/* =====================================================
-          PRODUCT NAME
-      ===================================================== */}
-
-      <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-gray-900 leading-tight mb-5">
+      {/* PRODUCT NAME */}
+      <h1 className="mb-2 break-words font-serif text-2xl leading-tight text-gray-900 sm:mb-3 sm:text-3xl md:text-4xl lg:mb-4 lg:text-5xl">
         {product.name}
       </h1>
 
-      {/* =====================================================
-          CATEGORY
-      ===================================================== */}
-
-      <div className="flex gap-2 text-sm text-gray-500 mb-6">
-        <span>
-          {product.category?.name}
-        </span>
+      {/* CATEGORY */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 sm:mb-4 sm:text-sm">
+        <span>{product.category?.name}</span>
 
         {product.subCategory?.name && (
           <>
             <span>/</span>
-
-            <span>
-              {product.subCategory.name}
-            </span>
+            <span>{product.subCategory.name}</span>
           </>
         )}
       </div>
 
-      {/* =====================================================
-          PRICE
-      ===================================================== */}
-
-      <div className="flex flex-wrap items-center gap-4 border-b border-gray-200 pb-7 mb-7">
-
-        <span className="text-3xl font-medium text-gray-900">
-          ₹{sellingPrice}
-        </span>
-
-        {mrp > sellingPrice && (
-          <span className="line-through text-gray-400 text-lg">
-            ₹{mrp}
+      {/* PRICE + SINGLE STAR RATING */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-gray-200 pb-3 sm:mb-4 sm:gap-4 sm:pb-4">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-2xl font-medium text-gray-900 sm:text-3xl">
+            ₹{sellingPrice}
           </span>
-        )}
 
-        {discountPercent > 0 && (
-          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-            {discountPercent}% OFF
+          {mrp > sellingPrice && (
+            <span className="text-sm text-gray-400 line-through sm:text-lg">
+              ₹{mrp}
+            </span>
+          )}
+
+          {discountPercent > 0 && (
+            <span className="rounded-full bg-green-100 px-2.5 py-1 text-[10px] text-green-700 sm:px-3 sm:text-sm">
+              {discountPercent}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* ONLY ONE STAR */}
+        <div
+          className="flex items-center gap-1.5"
+          aria-label={`Placeholder rating: ${fakeRating} out of 5`}
+          title="Placeholder rating"
+        >
+          <span className="text-base text-amber-500 sm:text-lg">
+            <FaStar />
           </span>
-        )}
 
+          <span className="text-sm font-normal text-gray-800 sm:text-base">
+            {fakeRating.toFixed(1)}
+          </span>
+        </div>
       </div>
 
-      {/* =====================================================
-          SHORT DESCRIPTION
-      ===================================================== */}
-
-      <p className="text-gray-600 leading-8 mb-8">
+      {/* SHORT DESCRIPTION */}
+      <p className="mb-4 text-sm leading-6 text-gray-600 sm:mb-5 sm:text-base sm:leading-7 lg:leading-8">
         {product.shortDescription ||
           "Premium quality product crafted with care."}
       </p>
 
-      {/* =====================================================
-          VARIANTS
-      ===================================================== */}
-
+      {/* VARIANTS */}
       {variants.length > 0 && (
-        <div className="mb-8">
-
-          <p className="uppercase tracking-[0.25em] text-xs text-gray-500 mb-4">
+        <div className="mb-4 sm:mb-5">
+          <p className="mb-2.5 text-[10px] uppercase tracking-[0.18em] text-gray-500 sm:mb-3 sm:text-xs sm:tracking-[0.25em]">
             Choose Variant
           </p>
 
-          <div className="flex flex-wrap gap-3">
-
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {variants.map((variant) => {
-
               const isSelected =
-                selectedVariant?._id ===
-                variant._id;
+                selectedVariant?._id === variant._id;
 
-              const variantAttribute =
-                variant.attributes?.[0];
+              const variantAttribute = variant.attributes?.[0];
 
               return (
                 <button
                   key={variant._id}
                   type="button"
-                  onClick={() =>
-                    setSelectedVariant(variant)
-                  }
-                  className={`px-5 py-3 rounded-full border transition ${
+                  onClick={() => setSelectedVariant(variant)}
+                  aria-pressed={isSelected}
+                  className={`min-h-10 rounded-full border px-3 py-2 text-xs transition sm:px-5 sm:py-3 sm:text-sm ${
                     isSelected
-                      ? "bg-black text-white border-black"
+                      ? "border-black bg-black text-white"
                       : "border-gray-300 hover:border-black"
                   }`}
                 >
@@ -403,76 +305,119 @@ const isAlreadyInCart = cartItems.some((item) => {
                 </button>
               );
             })}
-
           </div>
         </div>
       )}
 
-      {/* =====================================================
-          STOCK
-      ===================================================== */}
-
-      <div className="mb-8">
-
+      {/* STOCK */}
+      <div className="mb-4 sm:mb-5">
         {isInStock ? (
-          <p className="text-green-600 text-sm">
+          <p className="text-xs text-green-600 sm:text-sm">
             ✓ In Stock ({stock} available)
           </p>
         ) : (
-          <p className="text-red-500 text-sm">
+          <p className="text-xs text-red-500 sm:text-sm">
             Out of Stock
           </p>
         )}
-
       </div>
 
-      {/* =====================================================
-          DELIVERY
-      ===================================================== */}
 
-      <div className="border border-gray-200 rounded-2xl p-3 mb-2">
+{/* QUANTITY + ADD TO CART */}
+<div className="mb-3 w-full min-w-0">
+  <p className="mb-2.5 text-[10px] uppercase tracking-wider sm:mb-3 sm:text-xs">
+    Quantity
+  </p>
 
-        <div className="flex items-center gap-2 mb-5">
+  <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
+    {/* Quantity Selector */}
+    <div className="shrink-0">
+      <QuantitySelector
+        quantity={quantity}
+        setQuantity={setQuantity}
+        min={1}
+        max={Math.max(1, stock)}
+      />
+    </div>
 
-          <FaMapMarkerAlt className="text-gray-700" />
+    {/* Add to Cart */}
+    <button
+      type="button"
+      disabled={!isInStock}
+      onClick={() => handleAddToCart(quantity)}
+      className="
+        flex min-h-11 min-w-0 flex-1 items-center justify-center
+        gap-2 rounded-lg bg-black px-3 py-2.5
+        text-xs font-medium text-white transition
+        hover:bg-gray-800 active:scale-[0.98]
+        disabled:cursor-not-allowed disabled:opacity-50
+        sm:min-h-12 sm:rounded-xl sm:px-4 sm:text-sm
+        lg:min-h-14 lg:text-base
+      "
+    >
+      <FaShoppingCart className="shrink-0" />
+      <span className="truncate">Add to Cart</span>
+    </button>
+  </div>
+</div>
 
-          <h3 className="uppercase tracking-wider text-xs">
+{/* BUY NOW + WISHLIST */}
+<div className="mb-5 w-full min-w-0 sm:mb-6">
+  <ProductActions
+    productId={product?._id}
+    variantId={selectedVariant?._id}
+    quantity={quantity}
+    onAddToCart={handleAddToCart}
+    onBuyNow={handleBuyNow}
+    disabled={!isInStock}
+    isAlreadyInCart={isAlreadyInCart}
+    isAlreadyInWishlist={isAlreadyInWishlist}
+    layout="secondary-actions"
+  />
+</div>
+
+      {/* DELIVERY */}
+      <div className="mt-5 mb-2 rounded-xl border border-gray-200 p-3 sm:mt-7 sm:rounded-2xl sm:p-4">
+        <div className="mb-3 flex items-center gap-2 sm:mb-5">
+          <FaMapMarkerAlt className="h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
+
+          <h3 className="text-[10px] font-medium uppercase tracking-wider sm:text-xs">
             Check Delivery
           </h3>
-
         </div>
 
-        <div className="flex gap-3">
-
+        <form
+          className="flex w-full min-w-0 gap-2 sm:gap-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            checkPincode();
+          }}
+        >
           <input
             type="text"
+            inputMode="numeric"
+            autoComplete="postal-code"
             placeholder="Enter Pincode"
+            aria-label="Enter delivery pincode"
             maxLength={6}
             value={pincode}
-            onChange={(e) =>
-              setPincode(
-                e.target.value.replace(
-                  /\D/g,
-                  ""
-                )
-              )
+            onChange={(event) =>
+              setPincode(event.target.value.replace(/\D/g, ""))
             }
-            className="flex-1 border rounded-lg px-2.5 py-1.5 outline-none focus:border-black"
+            className="h-10 min-w-0 flex-1 rounded-lg border border-gray-300 px-3 text-sm outline-none transition placeholder:text-xs focus:border-black sm:h-11 sm:text-sm"
           />
 
           <button
-            type="button"
-            onClick={checkPincode}
-            className="bg-black text-white px-4 rounded-lg"
+            type="submit"
+            className="h-10 shrink-0 rounded-lg bg-black px-4 text-xs text-white transition hover:bg-gray-800 sm:h-11 sm:px-6 sm:text-sm"
           >
             Check
           </button>
-
-        </div>
+        </form>
 
         {deliveryResult && (
           <p
-            className={`mt-4 text-sm ${
+            className={`mt-3 text-xs leading-5 sm:mt-4 sm:text-sm ${
               deliveryResult.available
                 ? "text-green-600"
                 : "text-red-500"
@@ -483,123 +428,66 @@ const isAlreadyInCart = cartItems.some((item) => {
               : deliveryResult.message}
           </p>
         )}
-
       </div>
 
-      {/* =====================================================
-          QUANTITY
-      ===================================================== */}
+      {/* TRUST FEATURES */}
+      <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-4 sm:mt-8 sm:grid-cols-2 sm:gap-5 lg:mt-10 lg:gap-6">
+        <div className="flex min-w-0 items-start gap-3">
+          <FaTruck className="mt-0.5 h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
 
-      <div className="mb-8">
-
-        <p className="uppercase tracking-wider text-xs mb-4">
-          Quantity
-        </p>
-
-        <QuantitySelector
-          quantity={quantity}
-          setQuantity={setQuantity}
-        />
-
-      </div>
-
-      {/* =====================================================
-          CART / WISHLIST / BUY NOW
-      ===================================================== */}
-
-      <ProductActions
-        productId={product?._id}
-        variantId={selectedVariant?._id}
-        quantity={quantity}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-        disabled={!isInStock}
-        isAlreadyInCart={isAlreadyInCart}
-        isAlreadyInWishlist={
-          isAlreadyInWishlist
-        }
-      />
-
-      {/* =====================================================
-          TRUST FEATURES
-      ===================================================== */}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-10">
-
-        <div className="flex gap-3">
-
-          <FaTruck className="w-5 h-5 text-gray-700" />
-
-          <div>
-
-            <h4 className="font-medium">
+          <div className="min-w-0">
+            <h4 className="text-sm font-medium sm:text-base">
               Free Shipping
             </h4>
 
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
               On prepaid orders above ₹999
             </p>
-
           </div>
-
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <MdAutorenew className="mt-0.5 h-5 w-5 shrink-0 text-gray-700 sm:h-6 sm:w-6" />
 
-          <MdAutorenew className="w-5 h-5 text-gray-700" />
-
-          <div>
-
-            <h4 className="font-medium">
+          <div className="min-w-0">
+            <h4 className="text-sm font-medium sm:text-base">
               Easy Returns
             </h4>
 
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
               7-Day replacement for damaged items
             </p>
-
           </div>
-
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <MdSecurity className="mt-0.5 h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
 
-          <MdSecurity className="w-5 h-5 text-gray-700" />
-
-          <div>
-
-            <h4 className="font-medium">
+          <div className="min-w-0">
+            <h4 className="text-sm font-medium sm:text-base">
               Secure Payments
             </h4>
 
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
               100% encrypted checkout
             </p>
-
           </div>
-
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <FaCheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
 
-          <FaCheckCircle className="w-5 h-5 text-gray-700" />
-
-          <div>
-
-            <h4 className="font-medium">
+          <div className="min-w-0">
+            <h4 className="text-sm font-medium sm:text-base">
               Authentic Product
             </h4>
 
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
               Quality assured product
             </p>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

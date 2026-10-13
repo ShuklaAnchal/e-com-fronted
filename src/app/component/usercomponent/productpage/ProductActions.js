@@ -1,3 +1,4 @@
+
 "use client";
 
 import { FaHeart, FaShoppingCart, FaBolt } from "react-icons/fa";
@@ -18,19 +19,16 @@ export default function ProductActions({
   const [wishlist, setWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
-  // GET CART FROM REDUX
+  // Get cart from Redux
   const cartState = useSelector((state) => state.cart);
 
-  console.log("CART STATE:", cartState);
-
-  // Adjust this depending on your reducer structure
   const cartItems =
     cartState?.cart?.items ||
     cartState?.items ||
     cartState?.cartItems ||
     [];
 
-  // CHECK CURRENT PRODUCT + VARIANT
+  // Check whether the selected product and variant are in the cart
   const isInCart = cartItems.some((item) => {
     const itemProductId =
       item?.productId?._id ||
@@ -44,20 +42,13 @@ export default function ProductActions({
 
     return (
       String(itemProductId) === String(productId) &&
-      String(itemVariantId) === String(variantId)
+      String(itemVariantId ?? "") === String(variantId ?? "")
     );
   });
 
-  console.log("Current Product ID:", productId);
-  console.log("Current Variant ID:", variantId);
-  console.log("Is In Cart:", isInCart);
-
-  // =========================
-  // WISHLIST
-  // =========================
+  // Add to wishlist
   const handleWishlist = async () => {
-    if (!productId) {
-      console.error("Product ID is missing");
+    if (!productId || wishlistLoading || disabled) {
       return;
     }
 
@@ -69,11 +60,7 @@ export default function ProductActions({
         ...(variantId ? { variantId } : {}),
       };
 
-      console.log("Adding to wishlist:", formData);
-
       const result = await dispatch(createWishlist(formData));
-
-      console.log("Wishlist result:", result);
 
       if (result?.success) {
         setWishlist(true);
@@ -86,61 +73,74 @@ export default function ProductActions({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-3 sm:space-y-4">
 
-      {/* =========================
-          WISHLIST
-      ========================= */}
-      <button
-        type="button"
-        disabled={disabled || wishlistLoading}
-        onClick={handleWishlist}
-        className={`w-full rounded-xl border py-4 flex items-center justify-center gap-3 transition ${
-          wishlist
-            ? "border-red-500 text-red-500"
-            : "border-gray-300 text-gray-800"
-        } disabled:opacity-50`}
-      >
-        <FaHeart />
+      {/* Add to Cart and Buy Now */}
 
-        {wishlistLoading
-          ? "Adding..."
-          : wishlist
-            ? "Added to Wishlist"
-            : "Add to Wishlist"}
-      </button>
+      <div className="grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2 sm:gap-3">
+        {/* Buy Now */}
 
-      {/* =========================
-          CART + BUY NOW
-      ========================= */}
-      <div className="grid grid-cols-2 gap-3">
-
-        {/* ADD TO CART */}
-        <button
-          type="button"
-          disabled={disabled || isInCart}
-          onClick={() => onAddToCart(quantity)}
-          className={`rounded-xl py-4 flex items-center justify-center gap-2 transition ${
-            isInCart
-              ? "bg-green-600 text-white cursor-default"
-              : "bg-black text-white  hover:bg-[#d8b98eec]"
-          } disabled:opacity-70`}
-        >
-          <FaShoppingCart />
-
-          {isInCart ? "Added to Cart" : "Add to Cart"}
-        </button>
-
-        {/* BUY NOW */}
         <button
           type="button"
           disabled={disabled}
-          onClick={() => onBuyNow(quantity)}
-          className="bg-gray-900 hover:bg-[#d8b98eec] text-white rounded-xl py-4 flex items-center justify-center gap-2 disabled:opacity-50"
+          onClick={() => onBuyNow?.(quantity)}
+          className="
+            flex min-h-11 w-full min-w-0 items-center
+            justify-center gap-2 rounded-lg
+            bg-gray-900 px-2.5 py-3
+            text-xs font-medium text-white
+            transition-all duration-200
+            hover:bg-black hover:shadow-md
+            active:scale-[0.98]
+            sm:min-h-12 sm:gap-2 sm:rounded-xl
+            sm:px-3 sm:py-3.5 sm:text-sm
+            lg:min-h-14 lg:px-4 lg:py-4 lg:text-base
+            disabled:cursor-not-allowed disabled:opacity-50
+            disabled:active:scale-100
+          "
         >
-          <FaBolt />
-          Buy Now
+          <FaBolt
+            className="shrink-0 text-xs sm:text-sm"
+            aria-hidden="true"
+          />
+
+          <span className="truncate">Buy Now</span>
         </button>
+
+      <button
+        type="button"
+        disabled={disabled || wishlistLoading || wishlist}
+        onClick={handleWishlist}
+        className={`
+          flex min-h-11 w-full items-center justify-center gap-2
+          rounded-lg border px-3 py-3
+          text-xs font-medium transition-all duration-200
+          active:scale-[0.98]
+          sm:min-h-12 sm:gap-3 sm:rounded-xl sm:px-4
+          sm:py-3.5 sm:text-sm
+          lg:min-h-14 lg:py-4 lg:text-base
+          ${
+            wishlist
+              ? "border-red-500 text-red-500"
+              : "border-gray-300 text-gray-800 hover:border-gray-500"
+          }
+          disabled:cursor-not-allowed disabled:opacity-60
+          disabled:active:scale-100
+        `}
+      >
+        <FaHeart
+          className="shrink-0 text-sm sm:text-base"
+          aria-hidden="true"
+        />
+
+        <span className="truncate">
+          {wishlistLoading
+            ? "Adding..."
+            : wishlist
+              ? "Added to Wishlist"
+              : "Add to Wishlist"}
+        </span>
+      </button>
 
       </div>
     </div>

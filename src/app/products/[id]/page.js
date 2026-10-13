@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,61 +16,53 @@ import RelatedProducts from "@/app/component/usercomponent/productpage/RelatedPr
 import ProductReviews from "@/app/component/usercomponent/productpage/ProductReviews";
 
 // =====================================================
-// Accordion Component
+// Accordion Item
 // =====================================================
 
 function AccordionItem({ title, children, isOpen, onClick }) {
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-      {/* Header */}
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <button
         type="button"
         onClick={onClick}
+        aria-expanded={isOpen}
         className="
-          w-full
-          flex
-          items-center
-          justify-between
-          px-6
-          py-5
-          text-left
-          bg-white
-          hover:bg-gray-50
-          transition-colors
+          flex w-full items-center justify-between gap-3
+          bg-white px-3 py-3.5 text-left
+          transition-colors duration-200 hover:bg-gray-50
+          sm:gap-4 sm:px-5 sm:py-4
+          lg:py-5
         "
       >
-        <span className="text-base md:text-lg font-semibold text-gray-900">
+        <span className="text-sm font-semibold text-gray-900 sm:text-base lg:text-lg">
           {title}
         </span>
 
         <span
           className="
-            text-2xl
-            font-light
-            text-gray-900
-            leading-none
-            transition-transform
-            duration-300
+            shrink-0 text-xl font-light leading-none text-gray-900
+            sm:text-2xl
           "
+          aria-hidden="true"
         >
           {isOpen ? "−" : "+"}
         </span>
       </button>
 
-      {/* Content */}
       <div
-        className={`
-          grid
-          transition-all
-          duration-300
-          ease-in-out
-          ${
-            isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-          }
-        `}
+        className={`grid transition-all duration-300 ease-in-out ${
+          isOpen
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
       >
         <div className="overflow-hidden">
-          <div className="px-6 pb-6 pt-1 text-gray-600 leading-7">
+          <div
+            className="
+              px-3 pb-4 pt-1 text-sm leading-6 text-gray-600
+              sm:px-5 sm:pb-5 sm:text-base sm:leading-7
+            "
+          >
             {children}
           </div>
         </div>
@@ -84,22 +77,24 @@ function AccordionItem({ title, children, isOpen, onClick }) {
 
 export default function ProductDetailsPage() {
   const params = useParams();
-
   const id = params?.id;
 
   const [productData, setProductData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Accordion state
   const [openAccordion, setOpenAccordion] = useState(null);
 
-  // ===================================================
+  // =====================================================
   // Fetch Product
-  // ===================================================
+  // =====================================================
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      setLoading(true);
+      return;
+    }
+
+    let cancelled = false;
 
     const getProduct = async () => {
       try {
@@ -108,47 +103,62 @@ export default function ProductDetailsPage() {
 
         const result = await fetchProductbyID(id)(() => {});
 
-        console.log("Fetch Product Result:", result);
+        if (cancelled) return;
 
-        if (result?.success) {
+        if (result?.success && result?.product) {
           setProductData(result);
+          setError("");
         } else {
+          setProductData(null);
           setError("Product not found.");
         }
-      } catch (error) {
-        console.error("Failed to fetch product:", error);
+      } catch (err) {
+        if (cancelled) return;
+
+        console.error("Failed to fetch product:", err);
+        setProductData(null);
         setError("Unable to load product.");
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     getProduct();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  // ===================================================
-  // Loading
-  // ===================================================
+  // =====================================================
+  // Loading State
+  // =====================================================
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-gray-500 text-lg">Loading product...</p>
+      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+        <p className="text-sm text-gray-500 sm:text-base">
+          Loading product...
+        </p>
       </div>
     );
   }
 
-  // ===================================================
-  // Error
-  // ===================================================
+  // =====================================================
+  // Error State
+  // =====================================================
 
   if (error || !productData?.product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white px-4">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-2">Product Not Found</h2>
+      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+        <div className="max-w-md text-center">
+          <h2 className="mb-2 text-xl font-semibold text-gray-900 sm:text-2xl">
+            Product Not Found
+          </h2>
 
-          <p className="text-gray-500">
+          <p className="text-sm leading-6 text-gray-500 sm:text-base sm:leading-7">
             {error || "This product is not available."}
           </p>
         </div>
@@ -156,433 +166,321 @@ export default function ProductDetailsPage() {
     );
   }
 
-  // ===================================================
+  // =====================================================
   // Product Data
-  // ===================================================
+  // =====================================================
 
   const product = productData.product;
-
   const variants = productData.variants || [];
-
   const productDetails = productData.productDetails || [];
-
-  // ===================================================
-  // Product Specifications
-  // Remove Category & Sub Category
-  // ===================================================
 
   const specificationValues =
     productDetails?.[0]?.values?.filter((item) => {
       const attributeName = item?.attributeName?.toLowerCase()?.trim();
 
-      return (
-        attributeName !== "category" &&
-        attributeName !== "sub category" &&
-        attributeName !== "subcategory"
+      return !["category", "sub category", "subcategory"].includes(
+        attributeName
       );
     }) || [];
 
-  // ===================================================
+  // =====================================================
   // Accordion Toggle
-  // ===================================================
+  // =====================================================
 
   const toggleAccordion = (section) => {
-    setOpenAccordion((prev) => (prev === section ? null : section));
+    setOpenAccordion((previous) =>
+      previous === section ? null : section
+    );
   };
 
-  // ===================================================
-  // Return
-  // ===================================================
+  // =====================================================
+  // Main Page
+  // =====================================================
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* =================================================
-          Header
-      ================================================= */}
-
+    <div className="min-h-screen overflow-x-clip bg-white">
       <MarqueeBar />
-
       <Header />
 
-      {/* =================================================
-          Main
-      ================================================= */}
+      <main className="pb-10 pt-20 sm:pb-14 sm:pt-24 md:pb-20 md:pt-28">
+        <section className="px-3 sm:px-5 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            {/* Breadcrumb */}
 
-      <main className="pt-24 md:pt-32 pb-20">
-        <section className="px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            {/* =================================================
-                Breadcrumb
-            ================================================= */}
-
-            <div className="mb-6 md:mb-8 text-sm text-gray-500">
-              Home / {product.category?.name || "Products"} /{" "}
+            <div className="mb-4 break-words text-xs leading-5 text-gray-500 sm:mb-6 sm:text-sm sm:leading-6 md:mb-8">
+              <span>Home</span>
+              {" / "}
+              <span>{product.category?.name || "Products"}</span>
+              {" / "}
               <span className="text-gray-900">{product.name}</span>
             </div>
 
-            {/* =================================================
-                Product Main Section
-            ================================================= */}
+            {/* Main Product Layout */}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-              {/* Gallery */}
+            <div
+              className="
+                grid grid-cols-1 items-start
+                gap-6 sm:gap-8
+                lg:grid-cols-2 lg:gap-12
+                xl:gap-16
+              "
+            >
+              {/* Left Column: Product Gallery */}
 
-              <ProductGallery product={product} variants={variants} />
+              <div
+                className="
+                  relative min-w-0
+                  lg:sticky lg:top-28
+                  lg:z-10 lg:self-start
+                "
+              >
+                <ProductGallery
+                  product={product}
+                  variants={variants}
+                />
+              </div>
 
-              {/* Product Info */}
+              {/* Right Column: Product Information and Details */}
 
-              <ProductInfo
-                product={product}
-                variants={variants}
-                productDetails={productDetails}
-              />
-            </div>
+              <div className="flex min-w-0 flex-col gap-6 sm:gap-8 lg:gap-10">
+                {/* Product Information */}
 
-            {/* =================================================
-                Product Details Accordion
-            ================================================= */}
+                <ProductInfo
+                  product={product}
+                  variants={variants}
+                  productDetails={productDetails}
+                />
 
-            <div className="mt-14 md:mt-20 max-w-full">
-              <div className="space-y-4">
-                {/* =================================================
-                    DESCRIPTION
-                ================================================= */}
+                {/* Product Detail Accordions */}
 
-                <AccordionItem
-                  title="Description"
-                  isOpen={openAccordion === "description"}
-                  onClick={() => toggleAccordion("description")}
-                >
-                  <div className="max-w-5xl">
-                    <p className="whitespace-pre-line">
+                <div className="w-full space-y-3 sm:space-y-4">
+                  {/* Description */}
+
+                  <AccordionItem
+                    title="Description"
+                    isOpen={openAccordion === "description"}
+                    onClick={() => toggleAccordion("description")}
+                  >
+                    <p className="whitespace-pre-line break-words">
                       {product.fullDescription ||
                         product.shortDescription ||
                         "No description available."}
                     </p>
-                  </div>
-                </AccordionItem>
+                  </AccordionItem>
 
-                {/* =================================================
-                    SHIPPING & RETURN
-                ================================================= */}
+                  {/* Shipping and Return */}
 
-                <AccordionItem
-                  title="Shipping & Return"
-                  isOpen={openAccordion === "shipping"}
-                  onClick={() => toggleAccordion("shipping")}
-                >
-                  <div className="space-y-5">
-                    {/* COD */}
+                  <AccordionItem
+                    title="Shipping & Return"
+                    isOpen={openAccordion === "shipping"}
+                    onClick={() => toggleAccordion("shipping")}
+                  >
+                    <div className="space-y-4 sm:space-y-5">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                        <span className="font-medium text-gray-900">
+                          Cash on Delivery
+                        </span>
 
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
-                      <span className="font-medium text-gray-900">
-                        Cash on Delivery
-                      </span>
+                        <span>
+                          {product.shipping?.codAvailable
+                            ? "Available"
+                            : "Not Available"}
+                        </span>
+                      </div>
 
-                      <span>
-                        {product.shipping?.codAvailable
-                          ? "Available"
-                          : "Not Available"}
-                      </span>
-                    </div>
+                      <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                        <span className="font-medium text-gray-900">
+                          Fragile Item
+                        </span>
 
-                    {/* Fragile */}
+                        <span>
+                          {product.shipping?.fragileItem ? "Yes" : "No"}
+                        </span>
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
-                      <span className="font-medium text-gray-900">
-                        Fragile Item
-                      </span>
+                      <div>
+                        <h4 className="mb-1.5 text-sm font-medium text-gray-900 sm:mb-2 sm:text-base">
+                          Shipping Information
+                        </h4>
 
-                      <span>
-                        {product.shipping?.fragileItem ? "Yes" : "No"}
-                      </span>
-                    </div>
-
-                    {/* Shipping */}
-
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">
-                        Shipping Information
-                      </h4>
-
-                      <p>
-                        Your order will be carefully packed and shipped to the
-                        address provided during checkout.
-                      </p>
-                    </div>
-
-                    {/* Return */}
-
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">
-                        Return Policy
-                      </h4>
-
-                      <p>
-                        Please refer to our return policy for information about
-                        eligible returns, replacements and refunds.
-                      </p>
-                    </div>
-                  </div>
-                </AccordionItem>
-
-                {/* =================================================
-                    MANUFACTURING DETAILS
-                ================================================= */}
-
-                <AccordionItem
-                  title="Manufacturing details"
-                  isOpen={openAccordion === "manufacturing"}
-                  onClick={() => toggleAccordion("manufacturing")}
-                >
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Manufacturer */}
-
-                      {product.manufacturer && (
-                        <div>
-                          <p className="text-sm text-gray-500">Manufacturer</p>
-
-                          <p className="font-medium text-gray-900">
-                            {product.manufacturer}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Brand */}
-
-                      {product.brand && (
-                        <div>
-                          <p className="text-sm text-gray-500">Brand</p>
-
-                          <p className="font-medium text-gray-900">
-                            {product.brand}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Country */}
-
-                      {product.countryOfOrigin && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            Country of Origin
-                          </p>
-
-                          <p className="font-medium text-gray-900">
-                            {product.countryOfOrigin}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Manufacturer Address */}
-
-                      {product.manufacturerAddress && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            Manufacturer Address
-                          </p>
-
-                          <p className="font-medium text-gray-900">
-                            {product.manufacturerAddress}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* If no manufacturing data */}
-
-                    {!product.manufacturer &&
-                      !product.brand &&
-                      !product.countryOfOrigin &&
-                      !product.manufacturerAddress && (
-                        <p className="text-gray-500">
-                          Manufacturing details are not available.
+                        <p>
+                          Your order will be carefully packed and shipped to
+                          the address provided during checkout.
                         </p>
-                      )}
-                  </div>
-                </AccordionItem>
+                      </div>
 
-                {/* =================================================
-                    PRODUCT SPECIFICATIONS
-                ================================================= */}
+                      <div>
+                        <h4 className="mb-1.5 text-sm font-medium text-gray-900 sm:mb-2 sm:text-base">
+                          Return Policy
+                        </h4>
 
-                {specificationValues.length > 0 && (
+                        <p>
+                          Please refer to our return policy for information
+                          about eligible returns, replacements and refunds.
+                        </p>
+                      </div>
+                    </div>
+                  </AccordionItem>
+
+                  {/* Manufacturing Details */}
+
                   <AccordionItem
-                    title="Product Specifications"
-                    isOpen={openAccordion === "specifications"}
-                    onClick={() => toggleAccordion("specifications")}
+                    title="Manufacturing Details"
+                    isOpen={openAccordion === "manufacturing"}
+                    onClick={() => toggleAccordion("manufacturing")}
                   >
-                    <div className="border border-gray-200 rounded-xl overflow-hidden">
-                      {specificationValues.map((item, index) => (
-                        <div
-                          key={item._id || index}
-                          className="
-                              grid
-                              grid-cols-1
-                              sm:grid-cols-2
-                              border-b
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {product.manufacturer && (
+                          <div className="min-w-0">
+                            <p className="mb-1 text-xs text-gray-500 sm:text-sm">
+                              Manufacturer
+                            </p>
+
+                            <p className="break-words font-medium text-gray-900">
+                              {product.manufacturer}
+                            </p>
+                          </div>
+                        )}
+
+                        {product.brand && (
+                          <div className="min-w-0">
+                            <p className="mb-1 text-xs text-gray-500 sm:text-sm">
+                              Brand
+                            </p>
+
+                            <p className="break-words font-medium text-gray-900">
+                              {product.brand}
+                            </p>
+                          </div>
+                        )}
+
+                        {product.countryOfOrigin && (
+                          <div className="min-w-0">
+                            <p className="mb-1 text-xs text-gray-500 sm:text-sm">
+                              Country of Origin
+                            </p>
+
+                            <p className="break-words font-medium text-gray-900">
+                              {product.countryOfOrigin}
+                            </p>
+                          </div>
+                        )}
+
+                        {product.manufacturerAddress && (
+                          <div className="min-w-0">
+                            <p className="mb-1 text-xs text-gray-500 sm:text-sm">
+                              Manufacturer Address
+                            </p>
+
+                            <p className="break-words font-medium text-gray-900">
+                              {product.manufacturerAddress}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {!product.manufacturer &&
+                        !product.brand &&
+                        !product.countryOfOrigin &&
+                        !product.manufacturerAddress && (
+                          <p className="text-sm text-gray-500 sm:text-base">
+                            Manufacturing details are not available.
+                          </p>
+                        )}
+                    </div>
+                  </AccordionItem>
+
+                  {/* Product Specifications */}
+
+                  {specificationValues.length > 0 && (
+                    <AccordionItem
+                      title="Product Specifications"
+                      isOpen={openAccordion === "specifications"}
+                      onClick={() => toggleAccordion("specifications")}
+                    >
+                      <div className="overflow-hidden rounded-lg border border-gray-200 sm:rounded-xl">
+                        {specificationValues.map((item, index) => (
+                          <div
+                            key={item._id || index}
+                            className="
+                              grid grid-cols-1
+                              border-b border-gray-200
                               last:border-b-0
-                              border-gray-200
+                              sm:grid-cols-2
                             "
-                        >
-                          {/* Attribute */}
-
-                          <div
-                            className="
-                                bg-gray-50
-                                px-5
-                                py-4
-                                font-medium
-                                text-gray-800
-                              "
                           >
-                            {item.attributeName || "-"}
-                          </div>
-
-                          {/* Value */}
-
-                          <div
-                            className="
-                                px-5
-                                py-4
-                                text-gray-600
+                            <div
+                              className="
+                                bg-gray-50 px-3 py-3
+                                text-sm font-medium text-gray-800
+                                sm:px-5 sm:py-4 sm:text-base
                               "
-                          >
-                            {item.value || "-"}
+                            >
+                              {item.attributeName || "-"}
+                            </div>
 
-                            {item.unit ? ` ${item.unit}` : ""}
+                            <div
+                              className="
+                                break-words px-3 py-3
+                                text-sm text-gray-600
+                                sm:px-5 sm:py-4 sm:text-base
+                              "
+                            >
+                              {item.value || "-"}
+                              {item.unit ? ` ${item.unit}` : ""}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionItem>
-                )}
+                        ))}
+                      </div>
+                    </AccordionItem>
+                  )}
 
-                {/* =================================================
-                    HIGHLIGHTS
-                ================================================= */}
+                  {/* Highlights */}
 
-                {product.highlights?.length > 0 && (
-                  <AccordionItem
-                    title="Highlights"
-                    isOpen={openAccordion === "highlights"}
-                    onClick={() => toggleAccordion("highlights")}
-                  >
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {product.highlights.map((highlight, index) => (
-                        <div
-                          key={index}
-                          className="
-                              border
-                              border-gray-200
-                              rounded-lg
-                              p-4
+                  {product.highlights?.length > 0 && (
+                    <AccordionItem
+                      title="Highlights"
+                      isOpen={openAccordion === "highlights"}
+                      onClick={() => toggleAccordion("highlights")}
+                    >
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {product.highlights.map((highlight, index) => (
+                          <div
+                            key={index}
+                            className="
+                              min-w-0 rounded-lg border border-gray-200
+                              p-3 text-sm leading-6
+                              sm:p-4 sm:text-base sm:leading-7
                             "
-                        >
-                          <p>{highlight}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionItem>
-                )}
+                          >
+                            <p className="break-words">{highlight}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionItem>
+                  )}
+                </div>
               </div>
             </div>
 
-            {productData.reviews?.length > 0 && (
+            {/* Product Reviews */}
+
+            <div className="mt-10 sm:mt-14 md:mt-20">
               <ProductReviews id={product._id} />
-            )}
-            {/* =================================================
-    RELATED PRODUCTS
-================================================= */}
+            </div>
 
-            <RelatedProducts
-              products={product.relatedProducts || []}
-              currentProductId={product._id}
-            />
+            {/* Related Products */}
 
-            {/* =================================================
-                Category / Product Information
-            ================================================= */}
-
-            {/* <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              <div className="border border-gray-200 rounded-2xl p-6">
-
-                <h3 className="text-lg font-semibold mb-5">
-                  Shipping Information
-                </h3>
-
-                <div className="space-y-3 text-gray-600">
-
-                  <p className="flex justify-between gap-4">
-                    <span>COD Available</span>
-
-                    <strong className="text-gray-900">
-                      {product.shipping?.codAvailable
-                        ? "Yes"
-                        : "No"}
-                    </strong>
-                  </p>
-
-                  <p className="flex justify-between gap-4">
-                    <span>Fragile Item</span>
-
-                    <strong className="text-gray-900">
-                      {product.shipping?.fragileItem
-                        ? "Yes"
-                        : "No"}
-                    </strong>
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="border border-gray-200 rounded-2xl p-6">
-
-                <h3 className="text-lg font-semibold mb-5">
-                  Product Information
-                </h3>
-
-                <div className="space-y-3 text-gray-600">
-
-                  <p className="flex justify-between gap-4">
-                    <span>Brand</span>
-
-                    <strong className="text-gray-900">
-                      {product.brand || "-"}
-                    </strong>
-                  </p>
-
-                  <p className="flex justify-between gap-4">
-                    <span>Category</span>
-
-                    <strong className="text-gray-900">
-                      {product.category?.name || "-"}
-                    </strong>
-                  </p>
-
-                  <p className="flex justify-between gap-4">
-                    <span>Sub Category</span>
-
-                    <strong className="text-gray-900">
-                      {product.subCategory?.name || "-"}
-                    </strong>
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div> */}
+            <div className="mt-10 sm:mt-12 md:mt-16">
+              <RelatedProducts
+                products={product.relatedProducts || []}
+                currentProductId={product._id}
+              />
+            </div>
           </div>
         </section>
       </main>
-
-      {/* =================================================
-          Footer
-      ================================================= */}
 
       <Footer />
     </div>

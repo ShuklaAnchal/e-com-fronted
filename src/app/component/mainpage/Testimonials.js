@@ -140,44 +140,44 @@ const Testimonials = () => {
         </h2>
 
         {/* Google Rating */}
-      {/* Google Rating */}
-<div className="mt-8 flex flex-col items-center">
-  <div className="flex items-center gap-4">
-    {/* Rating Number */}
-    <span className="font-serif text-[42px] font-light leading-none text-[#111]">
-      4.8
-    </span>
+        {/* Google Rating */}
+        <div className="mt-8 flex flex-col items-center">
+          <div className="flex items-center gap-4">
+            {/* Rating Number */}
+            <span className="font-serif text-[42px] font-light leading-none text-[#111]">
+              4.8
+            </span>
 
-    {/* Stars + Reviews */}
-    <div className="flex flex-col">
-      <div className="flex items-center gap-[3px]">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <span
-            key={star}
-            className="text-[18px] leading-none text-[#B89455]"
-          >
-            ★
-          </span>
-        ))}
-      </div>
+            {/* Stars + Reviews */}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-[3px]">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className="text-[18px] leading-none text-[#B89455]"
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
 
-      <p className="mt-2 text-[12px] tracking-[0.04em] text-[#777]">
-        Based on 52 Google Reviews
-      </p>
-    </div>
-  </div>
+              <p className="mt-2 text-[12px] tracking-[0.04em] text-[#777]">
+                Based on 52 Google Reviews
+              </p>
+            </div>
+          </div>
 
-  {/* Google Review Label */}
-  <div className="mt-4 flex items-center gap-2">
-    <span className="h-px w-8 bg-[#d8d2c9]" />
+          {/* Google Review Label */}
+          <div className="mt-4 flex items-center gap-2">
+            <span className="h-px w-8 bg-[#d8d2c9]" />
 
-    <span className="text-[10px] uppercase tracking-[0.22em] text-[#999]">
-      Google Rating
-    </span>
+            <span className="text-[10px] uppercase tracking-[0.22em] text-[#999]">
+              Google Rating
+            </span>
 
-    <span className="h-px w-8 bg-[#d8d2c9]" />
-  </div>
-</div>
+            <span className="h-px w-8 bg-[#d8d2c9]" />
+          </div>
+        </div>
 
         {/* Review */}
         <div className="mt-8 flex min-h-[100px] w-full max-w-[950px] items-center justify-center">
