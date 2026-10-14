@@ -87,8 +87,8 @@ export default function ProductActions({
           className="
             flex min-h-11 w-full min-w-0 items-center
             justify-center gap-2 rounded-lg
-            bg-gray-900 px-2.5 py-3
-            text-xs font-medium text-white
+            bg-[#C5A880] px-2.5 py-3
+            text-xs font-medium text-black
             transition-all duration-200
             hover:bg-black hover:shadow-md
             active:scale-[0.98]

@@ -24,6 +24,7 @@ import OrderSummary from "@/app/component/checkout/OrderSummary";
 const INITIAL_FORM = {
   name: "",
   mobileNumber: "",
+  email:"",
   pincode: "",
   locality: "",
   addressline: "",

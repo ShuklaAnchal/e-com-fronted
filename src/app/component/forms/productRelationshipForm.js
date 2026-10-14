@@ -1,19 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import {
   updateProductRelationships,
 } from "@/app/store/action/productAction";
 
+import { useProducts } from "@/app/hooks/productHook";
+
 export default function ProductRelationshipForm({
   product,
-  products = [],
   onClose,
-  refreshProducts,
+  refreshProducts: refreshParentProducts,
 }) {
   const dispatch = useDispatch();
+
+  // =====================================================
+  // PRODUCTS + PAGINATION
+  // =====================================================
+
+  const {
+    products: allProducts = [],
+    loading: productsLoading,
+    loadingMore = false,
+    pagination,
+    loadMoreProducts,
+    refreshProducts: refreshAllProducts,
+  } = useProducts();
 
   // =====================================================
   // STATE
@@ -24,10 +38,25 @@ export default function ProductRelationshipForm({
     useState([]);
 
   const [relatedSearch, setRelatedSearch] = useState("");
-  const [frequentlySearch, setFrequentlySearch] =
-    useState("");
+  const [frequentlySearch, setFrequentlySearch] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // =====================================================
+  // HELPERS
+  // =====================================================
+
+  const getId = (item) => {
+    if (!item) return "";
+
+    const id = typeof item === "string" ? item : item._id;
+
+    return id ? String(id) : "";
+  };
+
+  const hasMoreProducts =
+    pagination &&
+    pagination.currentPage < pagination.totalPages;
 
   // =====================================================
   // INITIALIZE EXISTING RELATIONSHIPS
@@ -37,60 +66,78 @@ export default function ProductRelationshipForm({
     if (!product) return;
 
     setRelatedProducts(
-      (product.relatedProducts || []).map((item) =>
-        typeof item === "string"
-          ? item
-          : item?._id
-      ).filter(Boolean)
+      (product.relatedProducts || [])
+        .map(getId)
+        .filter(Boolean)
     );
 
     setFrequentlyBoughtTogether(
       (product.frequentlyBoughtTogether || [])
-        .map((item) =>
-          typeof item === "string"
-            ? item
-            : item?._id
-        )
+        .map(getId)
         .filter(Boolean)
     );
   }, [product]);
+
+  // =====================================================
+  // LOAD NEXT PAGE
+  // =====================================================
+
+  const handleListScroll = useCallback(
+    (event) => {
+      const element = event.currentTarget;
+
+      const nearBottom =
+        element.scrollHeight -
+          element.scrollTop -
+          element.clientHeight <
+        60;
+
+      if (
+        nearBottom &&
+        hasMoreProducts &&
+        !loadingMore &&
+        !productsLoading &&
+        typeof loadMoreProducts === "function"
+      ) {
+        loadMoreProducts();
+      }
+    },
+    [
+      hasMoreProducts,
+      loadingMore,
+      productsLoading,
+      loadMoreProducts,
+    ]
+  );
 
   // =====================================================
   // REMOVE CURRENT PRODUCT
   // =====================================================
 
   const availableProducts = useMemo(() => {
-    return (products || []).filter(
+    const currentProductId = getId(product);
+
+    return (allProducts || []).filter(
       (item) =>
         item?._id &&
-        item._id.toString() !==
-          product?._id?.toString()
+        getId(item) !== currentProductId
     );
-  }, [products, product]);
+  }, [allProducts, product]);
 
   // =====================================================
   // FILTER RELATED PRODUCTS
   // =====================================================
 
   const filteredRelatedProducts = useMemo(() => {
-    const search = relatedSearch
-      .trim()
-      .toLowerCase();
+    const search = relatedSearch.trim().toLowerCase();
 
-    if (!search) {
-      return availableProducts;
-    }
+    if (!search) return availableProducts;
 
-    return availableProducts.filter((item) => {
-      return (
-        item.name
-          ?.toLowerCase()
-          .includes(search) ||
-        item.slug
-          ?.toLowerCase()
-          .includes(search)
-      );
-    });
+    return availableProducts.filter((item) =>
+      [item.name, item.slug].some((value) =>
+        value?.toLowerCase().includes(search)
+      )
+    );
   }, [availableProducts, relatedSearch]);
 
   // =====================================================
@@ -98,24 +145,15 @@ export default function ProductRelationshipForm({
   // =====================================================
 
   const filteredFrequentlyProducts = useMemo(() => {
-    const search = frequentlySearch
-      .trim()
-      .toLowerCase();
+    const search = frequentlySearch.trim().toLowerCase();
 
-    if (!search) {
-      return availableProducts;
-    }
+    if (!search) return availableProducts;
 
-    return availableProducts.filter((item) => {
-      return (
-        item.name
-          ?.toLowerCase()
-          .includes(search) ||
-        item.slug
-          ?.toLowerCase()
-          .includes(search)
-      );
-    });
+    return availableProducts.filter((item) =>
+      [item.name, item.slug].some((value) =>
+        value?.toLowerCase().includes(search)
+      )
+    );
   }, [availableProducts, frequentlySearch]);
 
   // =====================================================
@@ -123,45 +161,47 @@ export default function ProductRelationshipForm({
   // =====================================================
 
   const toggleRelatedProduct = (productId) => {
-    setRelatedProducts((prev) => {
-      const exists = prev.includes(productId);
+    const id = String(productId);
 
-      if (exists) {
-        return prev.filter(
-          (id) => id !== productId
-        );
-      }
-
-      return [...prev, productId];
-    });
+    setRelatedProducts((previous) =>
+      previous.includes(id)
+        ? previous.filter((itemId) => itemId !== id)
+        : [...previous, id]
+    );
   };
 
   // =====================================================
   // TOGGLE FREQUENTLY BOUGHT TOGETHER
   // =====================================================
 
-  const toggleFrequentlyBoughtProduct = (
-    productId
-  ) => {
-    setFrequentlyBoughtTogether((prev) => {
-      const exists = prev.includes(productId);
+  const toggleFrequentlyBoughtProduct = (productId) => {
+    const id = String(productId);
 
-      if (exists) {
-        return prev.filter(
-          (id) => id !== productId
-        );
-      }
-
-      return [...prev, productId];
-    });
+    setFrequentlyBoughtTogether((previous) =>
+      previous.includes(id)
+        ? previous.filter((itemId) => itemId !== id)
+        : [...previous, id]
+    );
   };
 
   // =====================================================
-  // SAVE
+  // GET PRODUCT NAME
   // =====================================================
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const getProductName = (id) => {
+    const item = (allProducts || []).find(
+      (entry) => getId(entry) === String(id)
+    );
+
+    return item?.name || String(id);
+  };
+
+  // =====================================================
+  // SAVE RELATIONSHIPS
+  // =====================================================
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     if (!product?._id) {
       alert("Product ID is missing");
@@ -169,134 +209,133 @@ export default function ProductRelationshipForm({
     }
 
     try {
-      setLoading(true);
+      setSaving(true);
 
       const data = {
         relatedProducts,
         frequentlyBoughtTogether,
       };
 
-      console.log(
-        "Updating product relationships:",
-        {
-          productId: product._id,
-          data,
-        }
-      );
-
       await dispatch(
-        updateProductRelationships(
-          product._id,
-          data
-        )
+        updateProductRelationships(product._id, data)
       );
 
-      alert(
-        "Product relationships updated successfully"
-      );
+      alert("Product relationships updated successfully");
 
-      if (refreshProducts) {
-        await refreshProducts();
+      if (typeof refreshParentProducts === "function") {
+        await refreshParentProducts();
+      } else if (typeof refreshAllProducts === "function") {
+        await refreshAllProducts();
       }
 
-      if (onClose) {
+      if (typeof onClose === "function") {
         onClose();
       }
     } catch (error) {
-      console.error(
-        "Update relationships error:",
-        error
-      );
+      console.error("Update relationships error:", error);
 
       alert(
         error?.message ||
           "Failed to update product relationships"
       );
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   // =====================================================
-  // PRODUCT ITEM
+  // REUSABLE PRODUCT ITEM
   // =====================================================
 
-  const ProductItem = ({
-    item,
-    selected,
-    onToggle,
-  }) => {
-    return (
-      <label
-        className={`
-          flex items-center gap-3
-          p-3
-          border
-          rounded-lg
-          cursor-pointer
-          transition
-          ${
-            selected
-              ? "border-[#5C4033] bg-[#F8F4F1]"
-              : "border-gray-200 hover:border-[#5C4033]"
-          }
-        `}
-      >
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={() =>
-            onToggle(item._id)
-          }
-          className="w-4 h-4 accent-[#5C4033]"
-        />
+  const ProductItem = ({ item, selected, onToggle }) => (
+    <label
+      className={`
+        flex items-center gap-3 p-3 border rounded-lg
+        cursor-pointer transition
+        ${
+          selected
+            ? "border-[#5C4033] bg-[#F8F4F1]"
+            : "border-gray-200 hover:border-[#5C4033]"
+        }
+      `}
+    >
+      <input
+        type="checkbox"
+        checked={selected}
+        onChange={() => onToggle(getId(item))}
+        className="w-4 h-4 accent-[#5C4033]"
+      />
 
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-gray-800 truncate">
-            {item.name}
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-gray-800 truncate">
+          {item.name || "Unnamed product"}
+        </p>
+
+        {item.slug && (
+          <p className="text-xs text-gray-500 truncate">
+            {item.slug}
           </p>
+        )}
+      </div>
+    </label>
+  );
 
-          {item.slug && (
-            <p className="text-xs text-gray-500 truncate">
-              {item.slug}
-            </p>
-          )}
+  // =====================================================
+  // SHARED PRODUCT LIST
+  // =====================================================
+
+  const renderProductList = ({
+    items,
+    selectedIds,
+    onToggle,
+    emptyMessage,
+  }) => (
+    <div
+      onScroll={handleListScroll}
+      className="max-h-64 overflow-y-auto overscroll-contain space-y-2 pr-1"
+    >
+      {items.length > 0 ? (
+        items.map((item) => (
+          <ProductItem
+            key={getId(item)}
+            item={item}
+            selected={selectedIds.includes(getId(item))}
+            onToggle={onToggle}
+          />
+        ))
+      ) : (
+        <div className="text-center py-8 text-gray-500 border border-dashed rounded-lg">
+          {productsLoading ? "Loading products..." : emptyMessage}
         </div>
-      </label>
-    );
-  };
+      )}
 
-  // =====================================================
-  // SELECTED PRODUCT NAMES
-  // =====================================================
+      {loadingMore && (
+        <p className="py-3 text-center text-sm text-gray-500">
+          Loading more products...
+        </p>
+      )}
 
-  const getProductName = (id) => {
-    const item = availableProducts.find(
-      (product) =>
-        product._id?.toString() ===
-        id?.toString()
-    );
-
-    return item?.name || id;
-  };
+      {!loadingMore &&
+        !productsLoading &&
+        items.length > 0 &&
+        !hasMoreProducts && (
+          <p className="py-3 text-center text-xs text-gray-400">
+            All products loaded
+          </p>
+        )}
+    </div>
+  );
 
   // =====================================================
   // RENDER
   // =====================================================
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6"
-    >
-      {/* =================================================
-          PRODUCT INFORMATION
-      ================================================= */}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* PRODUCT INFORMATION */}
 
       <div className="bg-[#F8F4F1] border border-[#E7DED7] rounded-lg p-4">
-        <p className="text-xs text-gray-500 mb-1">
-          Product
-        </p>
+        <p className="text-xs text-gray-500 mb-1">Product</p>
 
         <h3 className="text-lg font-semibold text-[#5C4033]">
           {product?.name || "Product"}
@@ -309,12 +348,10 @@ export default function ProductRelationshipForm({
         )}
       </div>
 
-      {/* =================================================
-          RELATED PRODUCTS
-      ================================================= */}
+      {/* RELATED PRODUCTS */}
 
-      <div>
-        <div className="flex items-center justify-between mb-3">
+      <section>
+        <div className="flex items-center justify-between gap-3 mb-3">
           <div>
             <h3 className="text-lg font-semibold text-[#5C4033]">
               Related Products
@@ -325,45 +362,25 @@ export default function ProductRelationshipForm({
             </p>
           </div>
 
-          <span className="text-sm font-medium text-[#5C4033]">
+          <span className="text-sm font-medium text-[#5C4033] whitespace-nowrap">
             {relatedProducts.length} selected
           </span>
         </div>
 
-        {/* Search */}
-
         <input
           type="text"
           value={relatedSearch}
-          onChange={(e) =>
-            setRelatedSearch(e.target.value)
-          }
+          onChange={(event) => setRelatedSearch(event.target.value)}
           placeholder="Search related products..."
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 mb-3 outline-none focus:border-[#5C4033]"
         />
 
-        {/* Product List */}
-
-        <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
-          {filteredRelatedProducts.length > 0 ? (
-            filteredRelatedProducts.map((item) => (
-              <ProductItem
-                key={item._id}
-                item={item}
-                selected={relatedProducts.includes(
-                  item._id
-                )}
-                onToggle={toggleRelatedProduct}
-              />
-            ))
-          ) : (
-            <div className="text-center py-8 text-gray-500 border border-dashed rounded-lg">
-              No products found.
-            </div>
-          )}
-        </div>
-
-        {/* Selected */}
+        {renderProductList({
+          items: filteredRelatedProducts,
+          selectedIds: relatedProducts,
+          onToggle: toggleRelatedProduct,
+          emptyMessage: "No products found.",
+        })}
 
         {relatedProducts.length > 0 && (
           <div className="mt-3">
@@ -375,7 +392,7 @@ export default function ProductRelationshipForm({
               {relatedProducts.map((id) => (
                 <span
                   key={id}
-                  className="px-3 py-1 bg-[#F8F4F1] text-[#5C4033] rounded-full text-sm"
+                  className="px-3 py-1 bg-[#F8F4F1] text-[#5C4033] rounded-full text-sm break-all"
                 >
                   {getProductName(id)}
                 </span>
@@ -383,14 +400,12 @@ export default function ProductRelationshipForm({
             </div>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* =================================================
-          FREQUENTLY BOUGHT TOGETHER
-      ================================================= */}
+      {/* FREQUENTLY BOUGHT TOGETHER */}
 
-      <div>
-        <div className="flex items-center justify-between mb-3">
+      <section>
+        <div className="flex items-center justify-between gap-3 mb-3">
           <div>
             <h3 className="text-lg font-semibold text-[#5C4033]">
               Frequently Bought Together
@@ -401,49 +416,27 @@ export default function ProductRelationshipForm({
             </p>
           </div>
 
-          <span className="text-sm font-medium text-[#5C4033]">
+          <span className="text-sm font-medium text-[#5C4033] whitespace-nowrap">
             {frequentlyBoughtTogether.length} selected
           </span>
         </div>
 
-        {/* Search */}
-
         <input
           type="text"
           value={frequentlySearch}
-          onChange={(e) =>
-            setFrequentlySearch(e.target.value)
+          onChange={(event) =>
+            setFrequentlySearch(event.target.value)
           }
           placeholder="Search frequently bought products..."
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 mb-3 outline-none focus:border-[#5C4033]"
         />
 
-        {/* Product List */}
-
-        <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
-          {filteredFrequentlyProducts.length > 0 ? (
-            filteredFrequentlyProducts.map(
-              (item) => (
-                <ProductItem
-                  key={item._id}
-                  item={item}
-                  selected={frequentlyBoughtTogether.includes(
-                    item._id
-                  )}
-                  onToggle={
-                    toggleFrequentlyBoughtProduct
-                  }
-                />
-              )
-            )
-          ) : (
-            <div className="text-center py-8 text-gray-500 border border-dashed rounded-lg">
-              No products found.
-            </div>
-          )}
-        </div>
-
-        {/* Selected */}
+        {renderProductList({
+          items: filteredFrequentlyProducts,
+          selectedIds: frequentlyBoughtTogether,
+          onToggle: toggleFrequentlyBoughtProduct,
+          emptyMessage: "No products found.",
+        })}
 
         {frequentlyBoughtTogether.length > 0 && (
           <div className="mt-3">
@@ -452,30 +445,26 @@ export default function ProductRelationshipForm({
             </p>
 
             <div className="flex flex-wrap gap-2">
-              {frequentlyBoughtTogether.map(
-                (id) => (
-                  <span
-                    key={id}
-                    className="px-3 py-1 bg-[#F8F4F1] text-[#5C4033] rounded-full text-sm"
-                  >
-                    {getProductName(id)}
-                  </span>
-                )
-              )}
+              {frequentlyBoughtTogether.map((id) => (
+                <span
+                  key={id}
+                  className="px-3 py-1 bg-[#F8F4F1] text-[#5C4033] rounded-full text-sm break-all"
+                >
+                  {getProductName(id)}
+                </span>
+              ))}
             </div>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* =================================================
-          ACTION BUTTONS
-      ================================================= */}
+      {/* ACTION BUTTONS */}
 
-      <div className="flex justify-end gap-3 pt-4 border-t">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t">
         <button
           type="button"
           onClick={onClose}
-          disabled={loading}
+          disabled={saving}
           className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
         >
           Cancel
@@ -483,12 +472,10 @@ export default function ProductRelationshipForm({
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={saving}
           className="px-5 py-2.5 rounded-lg bg-[#5C4033] text-white hover:bg-[#4A3228] disabled:opacity-50"
         >
-          {loading
-            ? "Saving..."
-            : "Save Relationships"}
+          {saving ? "Saving..." : "Save Relationships"}
         </button>
       </div>
     </form>

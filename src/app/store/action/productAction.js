@@ -52,6 +52,40 @@ export const asyncfetchproduct =
     }
   };
 
+// FETCH PRODUCTS WITH BACKEND PAGINATION
+export const asyncfetchproductsforAdmin =
+  ({ page = 1, limit = 10 } = {}) =>
+  async (dispatch) => {
+    try {
+      const token = getToken();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await axios.get(
+        `/products/fetch-all-products-admin?page=${page}&limit=${limit}`,
+        config,
+      );
+      // Store only current page products
+      dispatch(fetchProduct(data.products || []));
+
+      return data;
+    } catch (error) {
+      dispatch(
+        iserror(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch products",
+        ),
+      );
+
+      return null;
+    }
+  };  
+
 export const mainpageproducts =
   ({ page = 1, limit = 10 } = {}) =>
   async (dispatch) => {

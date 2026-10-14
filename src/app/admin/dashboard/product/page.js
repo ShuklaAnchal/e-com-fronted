@@ -7,7 +7,7 @@ import ProductRelationshipForm from "@/app/component/forms/productRelationshipFo
 import Table from "@/app/component/table/table";
 
 import useModal from "@/app/hooks/useModalHook";
-import { useProducts } from "@/app/hooks/productHook";
+import { useProducts } from "@/app/hooks/adminProductHook";
 
 import { productColumns } from "@/app/colums/productColoum";
 import { deleteListedProduct } from "@/app/store/action/productAction";

@@ -192,11 +192,11 @@ function ReviewCard({ review }) {
               {name}
             </h3>
 
-            {review.isSample && (
+            {/* {review.isSample && (
               <span className="rounded-full bg-[#F3EEE7] px-2.5 py-1 text-[10px] uppercase tracking-wider text-[#766555]">
                 Sample review
               </span>
-            )}
+            )} */}
           </div>
 
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
