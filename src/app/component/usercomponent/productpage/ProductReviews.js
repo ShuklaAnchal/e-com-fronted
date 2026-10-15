@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { asyncfetchProductWiseReview } from "@/app/store/action/reviewAction";
 
-const INITIAL_VISIBLE = 6;
+const INITIAL_VISIBLE = 3;
 const LOAD_MORE_COUNT = 6;
 
 // Demonstration content only. These are not genuine customer submissions.

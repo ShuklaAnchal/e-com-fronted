@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 const testimonials = [
@@ -115,40 +115,75 @@ const testimonials = [
   },
 ];
 
+const AUTO_SCROLL_INTERVAL = 5000;
+
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef(0);
 
+  const totalReviews = testimonials.length;
   const activeTestimonial = testimonials[activeIndex];
+
+  // Automatically move to the next review
+  useEffect(() => {
+    if (isPaused || totalReviews <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((previousIndex) =>
+        (previousIndex + 1) % totalReviews
+      );
+    }, AUTO_SCROLL_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [isPaused, totalReviews]);
+
+  const goToPrevious = () => {
+    setActiveIndex((previousIndex) =>
+      (previousIndex - 1 + totalReviews) % totalReviews
+    );
+  };
+
+  const goToNext = () => {
+    setActiveIndex((previousIndex) =>
+      (previousIndex + 1) % totalReviews
+    );
+  };
+
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (event) => {
+    const touchEndX = event.changedTouches[0].clientX;
+    const difference = touchStartX.current - touchEndX;
+
+    if (Math.abs(difference) > 50) {
+      if (difference > 0) {
+        goToNext();
+      } else {
+        goToPrevious();
+      }
+    }
+  };
+
+  if (!activeTestimonial) return null;
 
   return (
     <section className="w-full border-t border-gray-200 bg-white">
       <div className="mx-auto flex min-h-[520px] w-full max-w-[1720px] flex-col items-center px-5 py-14 sm:px-8 sm:py-16 md:px-12 lg:px-16">
         {/* Heading */}
-        <h2
-          className="
-            text-center
-            text-[24px]
-            font-normal
-            uppercase
-            tracking-[0.18em]
-            text-[#111]
-            sm:text-[26px]
-            md:text-[27px]
-          "
-        >
+        <h2 className="text-center text-[24px] font-normal uppercase tracking-[0.18em] text-[#111] sm:text-[26px] md:text-[27px]">
           Customer Reviews
         </h2>
 
         {/* Google Rating */}
-        {/* Google Rating */}
         <div className="mt-8 flex flex-col items-center">
           <div className="flex items-center gap-4">
-            {/* Rating Number */}
             <span className="font-serif text-[42px] font-light leading-none text-[#111]">
               4.8
             </span>
 
-            {/* Stars + Reviews */}
             <div className="flex flex-col">
               <div className="flex items-center gap-[3px]">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -167,7 +202,6 @@ const Testimonials = () => {
             </div>
           </div>
 
-          {/* Google Review Label */}
           <div className="mt-4 flex items-center gap-2">
             <span className="h-px w-8 bg-[#d8d2c9]" />
 
@@ -179,102 +213,121 @@ const Testimonials = () => {
           </div>
         </div>
 
-        {/* Review */}
-        <div className="mt-8 flex min-h-[100px] w-full max-w-[950px] items-center justify-center">
-          <p
-            className="
-              text-center
-              text-[15px]
-              font-normal
-              leading-[1.8]
-              tracking-[0.01em]
-              text-[#222]
-              sm:text-[16px]
-              md:text-[17px]
-            "
+        {/* Review Slider */}
+        <div
+          className="mt-8 flex w-full flex-col items-center"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onFocus={() => setIsPaused(true)}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+              setIsPaused(false);
+            }
+          }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          aria-live="off"
+        >
+          {/* Review Text */}
+          <div
+            key={activeTestimonial.id}
+            className="flex min-h-[100px] w-full max-w-[950px] items-center justify-center animate-review-fade"
           >
-            “{activeTestimonial.review}”
-          </p>
-        </div>
-
-        {/* Customer */}
-        <div className="mt-8 flex flex-col items-center">
-          {/* Rating */}
-          <div className="mb-3 flex gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className="text-[15px] leading-none text-[#FFB800]"
-              >
-                ★
-              </span>
-            ))}
+            <p className="text-center text-[15px] font-normal leading-[1.8] tracking-[0.01em] text-[#222] sm:text-[16px] md:text-[17px]">
+              “{activeTestimonial.review}”
+            </p>
           </div>
 
-          <p className="text-[15px] font-medium text-[#111]">
-            {activeTestimonial.name}
-          </p>
+          {/* Customer Details */}
+          <div className="mt-8 flex flex-col items-center">
+            <div className="mb-3 flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className="text-[15px] leading-none text-[#FFB800]"
+                >
+                  ★
+                </span>
+              ))}
+            </div>
 
-          <p className="mt-1 text-[13px] text-gray-500">
-            {activeTestimonial.date}
-          </p>
+            <p className="text-[15px] font-medium text-[#111]">
+              {activeTestimonial.name}
+            </p>
 
-          <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-gray-400">
-            Google Review
-          </p>
+            <p className="mt-1 text-[13px] text-gray-500">
+              {activeTestimonial.date}
+            </p>
+
+            <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-gray-400">
+              Google Review
+            </p>
+          </div>
+
+          {/* Review Photos */}
+          {activeTestimonial.photos?.length > 0 && (
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {activeTestimonial.photos.map((photo, index) => (
+                <div
+                  key={photo}
+                  className="relative h-[70px] w-[70px] overflow-hidden rounded-md border border-gray-200"
+                >
+                  <Image
+                    src={photo}
+                    alt={`${activeTestimonial.name} review photo ${index + 1}`}
+                    fill
+                    sizes="70px"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Review Photos */}
-        {activeTestimonial.photos?.length > 0 && (
-          <div className="mt-6 flex gap-3">
-            {activeTestimonial.photos.map((photo, index) => (
-              <div
-                key={index}
-                className="
-                  relative
-                  h-[70px]
-                  w-[70px]
-                  overflow-hidden
-                  rounded-md
-                  border
-                  border-gray-200
-                "
-              >
-                <Image
-                  src={photo}
-                  alt={`${activeTestimonial.name} review photo ${index + 1}`}
-                  fill
-                  sizes="70px"
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Manual Slider Controls */}
+        <div className="mt-10 flex items-center justify-center gap-5">
+          <button
+            type="button"
+            onClick={goToPrevious}
+            aria-label="Previous review"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8d2c9] text-xl text-[#333] transition hover:bg-[#f5f1eb]"
+          >
+            &#8592;
+          </button>
 
-        {/* Slider Dots */}
-        <div className="mt-10 flex items-center justify-center gap-[15px]">
-          {testimonials.map((testimonial, index) => (
-            <button
-              key={testimonial.id}
-              type="button"
-              aria-label={`Go to review ${index + 1}`}
-              onClick={() => setActiveIndex(index)}
-              className={`
-                h-[7px]
-                w-[7px]
-                rounded-full
-                transition-all
-                duration-300
-                ${
+          {/* Clickable Dots */}
+          <div className="flex items-center justify-center gap-[12px]">
+            {testimonials.map((testimonial, index) => (
+              <button
+                key={testimonial.id}
+                type="button"
+                aria-label={`Go to review ${index + 1}`}
+                aria-pressed={activeIndex === index}
+                onClick={() => setActiveIndex(index)}
+                className={`h-[7px] rounded-full transition-all duration-300 ${
                   activeIndex === index
-                    ? "scale-110 bg-[#222]"
-                    : "bg-[#b8b8b8] hover:bg-[#777]"
-                }
-              `}
-            />
-          ))}
+                    ? "w-5 bg-[#222]"
+                    : "w-[7px] bg-[#b8b8b8] hover:bg-[#777]"
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={goToNext}
+            aria-label="Next review"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8d2c9] text-xl text-[#333] transition hover:bg-[#f5f1eb]"
+          >
+            &#8594;
+          </button>
         </div>
+
+        {/* Auto-scroll status */}
+        <p className="mt-4 text-[10px] uppercase tracking-[0.15em] text-gray-400">
+          {isPaused ? "Autoplay paused" : "Discover our customer stories"}
+        </p>
       </div>
     </section>
   );

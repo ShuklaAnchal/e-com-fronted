@@ -20,10 +20,10 @@ export default function Home() {
       <Header />
       <div className="flex flex-col gap-6 webprimarycolor">
         <Hero />
-        <ReelProducts />
         <Collection />
         <Banner />
         <Products />
+         <ReelProducts />
         <Tranding />
         <OfflinePreseance />
         <HomeBlogSection />
