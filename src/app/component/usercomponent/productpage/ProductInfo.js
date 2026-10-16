@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +19,16 @@ import { addToCartAction } from "@/app/store/action/cartAction";
 import QuantitySelector from "./QuantitySelector";
 import ProductActions from "./ProductActions";
 
-// Generate a consistent placeholder rating between 3.5 and 4.8
+// Normalize MongoDB IDs and populated references.
+const getId = (value) => {
+  if (value && typeof value === "object") {
+    return String(value._id || value.id || "");
+  }
+
+  return String(value ?? "");
+};
+
+// Replace this with your actual backend review average when available.
 const getFakeRating = (value = "product") => {
   let hash = 0;
 
@@ -30,19 +39,7 @@ const getFakeRating = (value = "product") => {
   return (35 + (Math.abs(hash) % 14)) / 10;
 };
 
-// Stable pseudo-random activity indicator, 50–500.
-// This is NOT a real purchase count.
-const getProductActivityCount = (productId) => {
-  const value = String(productId || "product");
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) | 0;
-  }
-
-  return 50 + (Math.abs(hash) % 451);
-};
-
+const EMPTY_ARRAY = [];
 export default function ProductInfo({
   product,
   variants = [],
@@ -51,166 +48,297 @@ export default function ProductInfo({
   const dispatch = useDispatch();
   const router = useRouter();
 
-  // REDUX DATA
-  const cartItems = useSelector((state) => state.cart?.cartItems || []);
+  // Redux state: declare each selector only once.
+  const cartItems = useSelector(
+    (state) => state.cart?.cartItems ?? state.cart?.cart ?? EMPTY_ARRAY,
+  );
 
   const wishlistItems = useSelector(
-    (state) => state.wishlist?.wishlistItems || [],
+    (state) => state.wishlist?.wishlistItems ?? EMPTY_ARRAY,
   );
 
-  // DEFAULT VARIANT
-  const defaultVariant =
-    variants.find((variant) => variant.isDefault) || variants[0] || null;
+  // Avoid accessing localStorage during server rendering.
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // STATES
-  const [quantity, setQuantity] = useState(1);
+  useEffect(() => {
+    const syncAuthentication = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem("userToken")));
+    };
+
+    syncAuthentication();
+
+    // Also handle login/logout events dispatched by your app.
+    window.addEventListener("storage", syncAuthentication);
+    window.addEventListener("auth-change", syncAuthentication);
+
+    return () => {
+      window.removeEventListener("storage", syncAuthentication);
+      window.removeEventListener("auth-change", syncAuthentication);
+    };
+  }, []);
+
+  // Select the default variant, falling back to the first available variant.
+  const defaultVariant = useMemo(
+    () => variants.find((variant) => variant?.isDefault) || variants[0] || null,
+    [variants],
+  );
+
   const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
+  const [quantity, setQuantity] = useState(1);
+
   const [pincode, setPincode] = useState("");
   const [deliveryResult, setDeliveryResult] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // PRICING
-  const pricing = selectedVariant?.pricing || {};
+  // Keep the selection valid if variants arrive asynchronously.
+  useEffect(() => {
+    setSelectedVariant((current) => {
+      if (
+        current?._id &&
+        variants.some((variant) => getId(variant?._id) === getId(current._id))
+      ) {
+        return (
+          variants.find(
+            (variant) => getId(variant?._id) === getId(current._id),
+          ) || defaultVariant
+        );
+      }
 
-  const sellingPrice = pricing.sellingPrice || 0;
-  const mrp = pricing.mrp || 0;
-  const discountPercent = pricing.discountPercent || 0;
+      return defaultVariant;
+    });
+  }, [variants, defaultVariant]);
 
-  // FAKE RATING
-  const fakeRating = getFakeRating(
-    String(product?._id || product?.name || "product"),
+  // Reset quantity if a variant's stock changes.
+  const stock = Math.max(
+    0,
+    Number(selectedVariant?.inventory?.stockQuantity ?? 0),
   );
 
-  // PRODUCT ACTIVITY INDICATOR
-  const activityCount = getProductActivityCount(product?._id || product?.name);
+  const isInStock =
+    Boolean(selectedVariant?._id) &&
+    stock > 0 &&
+    selectedVariant?.inventory?.inStock !== false;
 
-  // STOCK
-  const stock = selectedVariant?.inventory?.stockQuantity || 0;
-
-  const isInStock = Boolean(selectedVariant?.inventory?.inStock) && stock > 0;
-
-  // LOW STOCK MESSAGE: based on actual inventory
-  const showLowStock = isInStock && stock <= 10;
-
-  // CHECK CART
-  const isAlreadyInCart = cartItems.some((item) => {
-    const cartProductId =
-      typeof item.product === "object" ? item.product?._id : item.product;
-
-    const cartVariantId =
-      typeof item.variantId === "object" ? item.variantId?._id : item.variantId;
-
-    return (
-      String(cartProductId) === String(product?._id) &&
-      String(cartVariantId) === String(selectedVariant?._id)
+  useEffect(() => {
+    setQuantity((current) =>
+      Math.min(Math.max(1, current), Math.max(1, stock)),
     );
-  });
+  }, [stock, selectedVariant?._id]);
 
-  // CHECK WISHLIST
-  const isAlreadyInWishlist = wishlistItems.some((item) => {
-    const wishlistProductId =
-      typeof item.product === "object" ? item.product?._id : item.product;
+  // Pricing comes from the selected variant.
+  const pricing = selectedVariant?.pricing || {};
 
-    const wishlistVariantId =
-      typeof item.variantId === "object" ? item.variantId?._id : item.variantId;
+  const sellingPrice = Number(pricing.sellingPrice ?? 0);
+  const mrp = Number(pricing.mrp ?? 0);
 
-    return (
-      String(wishlistProductId) === String(product?._id) &&
-      String(wishlistVariantId) === String(selectedVariant?._id)
-    );
-  });
+  const discountPercent =
+    Number(
+      pricing.discountPercent ??
+        (mrp > sellingPrice && mrp > 0
+          ? Math.round(((mrp - sellingPrice) / mrp) * 100)
+          : 0),
+    ) || 0;
 
-  // ADD TO CART
-  const handleAddToCart = async (qty) => {
-    if (!selectedVariant) {
-      alert("Please select a variant.");
-      return;
-    }
+  // Only show a rating if your review data is available.
+  const fakeRating = getFakeRating(
+    getId(product?._id) || product?.name || "product",
+  );
 
-    if (!isInStock) {
-      alert("This product is currently out of stock.");
-      return;
-    }
+  // Match the selected product AND variant.
+  const isAlreadyInCart = useMemo(() => {
+    return cartItems.some((item) => {
+      const productId = getId(item?.productId || item?.product);
 
-    if (isAlreadyInCart) {
-      alert("This product variant is already in your cart.");
-      return;
-    }
-
-    try {
-      const result = await dispatch(
-        addToCartAction(
-          {
-            ...product,
-            selectedVariant,
-          },
-          qty,
-        ),
+      const variantId = getId(
+        item?.variantId || item?.selectedVariant || item?.variant,
       );
 
-      if (result?.success) {
-        console.log("Product added to cart successfully");
-      } else {
-        alert(result?.message || "Unable to add product.");
+      return (
+        productId === getId(product?._id) &&
+        variantId === getId(selectedVariant?._id)
+      );
+    });
+  }, [cartItems, product?._id, selectedVariant?._id]);
+
+  const isAlreadyInWishlist = useMemo(() => {
+    return wishlistItems.some((item) => {
+      const productId = getId(item?.productId || item?.product);
+
+      const variantId = getId(
+        item?.variantId || item?.selectedVariant || item?.variant,
+      );
+
+      // Match by product and variant where the wishlist stores variants.
+      // Product-level wishlist entries also count as a match.
+      return (
+        productId === getId(product?._id) &&
+        (!variantId || variantId === getId(selectedVariant?._id))
+      );
+    });
+  }, [wishlistItems, product?._id, selectedVariant?._id]);
+
+  // Shared validation for Add to Cart and Buy Now.
+  const validatePurchase = useCallback(
+    (qty) => {
+      if (!product?._id) {
+        return "Product information is unavailable.";
       }
-    } catch (error) {
-      console.error("ADD TO CART ERROR:", error);
-    }
-  };
 
-  // BUY NOW
-  const handleBuyNow = async (qty) => {
-    if (!selectedVariant) {
-      console.error("Please select a variant.");
-      return;
-    }
+      if (!selectedVariant?._id) {
+        return "Please select a product variant.";
+      }
 
-    if (!isInStock) {
-      console.error("This product is currently out of stock.");
-      return;
-    }
+      if (!Number.isInteger(Number(qty)) || Number(qty) < 1) {
+        return "Please select a valid quantity.";
+      }
 
-    try {
+      if (!isInStock) {
+        return "This product is currently out of stock.";
+      }
+
+      if (Number(qty) > stock) {
+        return `Only ${stock} item(s) are available.`;
+      }
+
+      if (!Number.isFinite(sellingPrice) || sellingPrice <= 0) {
+        return "The price for this variant is currently unavailable.";
+      }
+
+      return null;
+    },
+    [product?._id, selectedVariant, isInStock, stock, sellingPrice],
+  );
+
+  // Add to cart.
+  // Assumes your existing action signature is:
+  // addToCartAction(productWithVariant, quantity)
+  const handleAddToCart = useCallback(
+    async (qty = quantity) => {
+      const validationError = validatePurchase(qty);
+
+      if (validationError) {
+        window.alert(validationError);
+        return false;
+      }
+
+      if (isSubmitting) return false;
+
+      setIsSubmitting(true);
+
+      try {
+        const result = await dispatch(
+          addToCartAction(
+            {
+              ...product,
+              selectedVariant,
+            },
+            Number(qty),
+          ),
+        );
+
+        // Support Redux Toolkit async thunks.
+        if (result?.meta?.requestStatus === "rejected") {
+          throw new Error(
+            result.payload?.message ||
+              result.payload ||
+              result.error?.message ||
+              "Unable to add this item to your cart.",
+          );
+        }
+
+        const response = result?.payload ?? result;
+
+        // Recognize common API/action failure shapes.
+        if (
+          response?.success === false ||
+          response?.error ||
+          response?.status === "error"
+        ) {
+          throw new Error(
+            response?.message ||
+              response?.error?.message ||
+              "Unable to add this item to your cart.",
+          );
+        }
+
+        // Do not block adding a product just because it is
+        // already in the cart. Your cart action must merge or
+        // increment the matching product/variant quantity.
+        return true;
+      } catch (error) {
+        console.error("ADD TO CART ERROR:", error);
+
+        window.alert(
+          typeof error === "string"
+            ? error
+            : error?.message || "Unable to add this item. Please try again.",
+        );
+
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      dispatch,
+      product,
+      selectedVariant,
+      quantity,
+      validatePurchase,
+      isSubmitting,
+    ],
+  );
+
+  // Buy Now: validate, add/update the cart, then navigate.
+  const handleBuyNow = useCallback(
+    async (qty = quantity) => {
+      const validationError = validatePurchase(qty);
+
+      if (validationError) {
+        window.alert(validationError);
+        return;
+      }
+
+      // If the selected variant is already in the cart, proceed
+      // to the cart without accidentally adding it a second time.
       if (isAlreadyInCart) {
         router.push("/user/cart");
         return;
       }
 
-      const result = await dispatch(
-        addToCartAction(
-          {
-            ...product,
-            selectedVariant,
-          },
-          qty,
-        ),
-      );
+      const added = await handleAddToCart(qty);
 
-      if (result?.success) {
+      if (added) {
         router.push("/user/cart");
-      } else {
-        console.error(result?.message || "Unable to proceed.");
       }
-    } catch (error) {
-      console.error("BUY NOW ERROR:", error);
-    }
-  };
+    },
+    [quantity, validatePurchase, isAlreadyInCart, handleAddToCart, router],
+  );
 
-  // DELIVERY CHECK
+  // Delivery estimate only; this does not call a courier API.
   const checkPincode = () => {
-    if (pincode.length !== 6) {
+    if (!/^[1-9][0-9]{5}$/.test(pincode)) {
       setDeliveryResult({
         available: false,
-        message: "Please enter a valid 6 digit pincode.",
+        message: "Please enter a valid 6-digit Indian PIN code.",
       });
       return;
     }
 
-    // This is an estimate, not a live courier serviceability check.
     setDeliveryResult({
-      available: true,
-      date: "Estimated delivery in 3–5 business days",
+      available: null,
+      message:
+        "PIN code entered. Confirm delivery availability and ETA at checkout.",
     });
   };
+
+  if (!product?._id) {
+    return (
+      <div className="w-full py-6 text-sm text-gray-500">
+        Product information is currently unavailable.
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full min-w-0 flex-col">
@@ -226,7 +354,11 @@ export default function ProductInfo({
 
       {/* CATEGORY */}
       <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 sm:mb-4 sm:text-sm">
-        <span>{product.category?.name}</span>
+        <span>
+          {typeof product.category === "object"
+            ? product.category?.name
+            : product.category}
+        </span>
 
         {product.subCategory?.name && (
           <>
@@ -236,64 +368,47 @@ export default function ProductInfo({
         )}
       </div>
 
-      {/* PRICE + RATING */}
-      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-gray-200 pb-3 sm:mb-3 sm:gap-4 sm:pb-4">
+      {/* PRICE */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-gray-200 pb-4 sm:mb-4 sm:gap-4">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-2xl font-medium text-gray-900 sm:text-3xl">
-            ₹{sellingPrice}
+            ₹{sellingPrice.toLocaleString("en-IN")}
           </span>
 
           {mrp > sellingPrice && (
             <span className="text-sm text-gray-400 line-through sm:text-lg">
-              ₹{mrp}
+              ₹{mrp.toLocaleString("en-IN")}
             </span>
           )}
 
-          {discountPercent > 0 && (
+          {mrp > sellingPrice && discountPercent > 0 && (
             <span className="rounded-full bg-green-100 px-2.5 py-1 text-[10px] text-green-700 sm:px-3 sm:text-sm">
               {discountPercent}% OFF
             </span>
           )}
         </div>
 
-        {/* STAR RATING */}
+        {/* Illustrative only. Do not present as a real review score. */}
         <div
           className="flex items-center gap-1.5"
-          aria-label={`Placeholder rating: ${fakeRating} out of 5`}
-          title="Illustrative rating, not a verified review score"
+          aria-label={`Illustrative rating ${fakeRating} out of 5, not customer reviews`}
+          title="Illustrative rating, not a verified customer review score"
         >
-          <FaStar className="text-base text-amber-500 sm:text-lg" />
-
-          <span className="text-sm font-normal text-gray-800 sm:text-base">
+          <FaStar
+            aria-hidden="true"
+            className="text-base text-amber-500 sm:text-lg"
+          />
+          <span className="text-sm text-gray-800 sm:text-base">
             {fakeRating.toFixed(1)}
           </span>
+          <span className="text-xs text-gray-500">(illustrative)</span>
         </div>
       </div>
 
-      {/* LIMITED-TIME OFFER: SMALL TEXT AFTER PRICE */}
-      <div className="mb-3 flex items-center gap-1.5">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          className="h-3.5 w-3.5 shrink-0 text-amber-700"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 2" />
-        </svg>
-
-        <span className="text-[11px] font-medium tracking-wide text-amber-800 sm:text-xs">
-          Limited-time offer
-        </span>
-      </div>
-
-      {/* SHORT DESCRIPTION */}
+      {/* DESCRIPTION */}
       <p className="mb-4 text-sm leading-6 text-gray-600 sm:mb-5 sm:text-base sm:leading-7 lg:leading-8">
         {product.shortDescription ||
-          "Premium quality product crafted with care."}
+          "A thoughtfully crafted product from Siyaas."}
       </p>
 
       {/* VARIANTS */}
@@ -305,26 +420,40 @@ export default function ProductInfo({
 
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {variants.map((variant) => {
-              const isSelected = selectedVariant?._id === variant._id;
+              const isSelected =
+                getId(selectedVariant?._id) === getId(variant?._id);
 
-              const variantAttribute = variant.attributes?.[0];
+              const attribute = variant.attributes?.[0];
+
+              const label =
+                attribute?.value || variant.name || variant.sku || "Variant";
+
+              const variantStock = Number(
+                variant.inventory?.stockQuantity ?? 0,
+              );
+
+              const variantAvailable =
+                variantStock > 0 && variant.inventory?.inStock !== false;
 
               return (
                 <button
                   key={variant._id}
                   type="button"
+                  disabled={!variantAvailable}
                   onClick={() => {
                     setSelectedVariant(variant);
                     setQuantity(1);
+                    setDeliveryResult(null);
                   }}
                   aria-pressed={isSelected}
                   className={`min-h-10 rounded-full border px-3 py-2 text-xs transition sm:px-5 sm:py-3 sm:text-sm ${
                     isSelected
                       ? "border-black bg-black text-white"
                       : "border-gray-300 hover:border-black"
-                  }`}
+                  } disabled:cursor-not-allowed disabled:opacity-40`}
                 >
-                  {variantAttribute?.value || variant.sku || "Variant"}
+                  {label}
+                  {!variantAvailable ? " (Out of stock)" : ""}
                 </button>
               );
             })}
@@ -333,49 +462,20 @@ export default function ProductInfo({
       )}
 
       {/* STOCK */}
-      <div className="mb-3 sm:mb-4">
+      <div className="mb-3 sm:mb-4" aria-live="polite">
         {isInStock ? (
           <p className="text-xs text-green-600 sm:text-sm">
-            ✓ In Stock ({stock} available)
+            ✓ In Stock
+            {stock <= 10 ? ` — Only ${stock} left` : ""}
           </p>
         ) : (
-          <p className="text-xs text-red-500 sm:text-sm">Out of Stock</p>
+          <p className="text-xs text-red-500 sm:text-sm">
+            Out of stock or variant unavailable
+          </p>
         )}
       </div>
 
-      {/* LOW STOCK URGENCY */}
-      {showLowStock && (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-orange-200 bg-orange-50 p-3">
-          <span className="text-sm" aria-hidden="true">
-            🔥
-          </span>
-
-          <div>
-            <p className="text-xs font-semibold text-orange-800 sm:text-sm">
-              {stock <= 5
-                ? `Hurry! Only ${stock} left in stock`
-                : `Limited stock: ${stock} available`}
-            </p>
-
-            <p className="mt-1 text-[11px] leading-4 text-orange-700 sm:text-xs">
-              Stock is limited. Order soon if you would like this item.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* PRODUCT ACTIVITY INDICATOR */}
-
-      {/* PRODUCT ACTIVITY INDICATOR */}
-      <div className="mb-4 flex items-center gap-2 sm:mb-5">
-        <FaShoppingCart className="shrink-0 text-[#5C4033]" />
-
-        <p className="text-xs font-medium text-[#5C4033] sm:text-sm">
-          {activityCount} people bought in the last 30 days
-        </p>
-      </div>
-
-      {/* QUANTITY + ADD TO CART */}
+      {/* QUANTITY */}
       <div className="mb-3 w-full min-w-0">
         <p className="mb-2.5 text-[10px] uppercase tracking-wider sm:mb-3 sm:text-xs">
           Quantity
@@ -393,12 +493,18 @@ export default function ProductInfo({
 
           <button
             type="button"
-            disabled={!isInStock}
+            disabled={!isInStock || isSubmitting}
             onClick={() => handleAddToCart(quantity)}
             className="flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-black px-3 py-2.5 text-xs font-medium text-white transition hover:bg-gray-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-12 sm:rounded-xl sm:px-4 sm:text-sm lg:min-h-14 lg:text-base"
           >
             <FaShoppingCart className="shrink-0" />
-            <span className="truncate">Add to Cart</span>
+            <span className="truncate">
+              {isSubmitting
+                ? "Adding..."
+                : isAlreadyInCart
+                  ? "Add More"
+                  : "Add to Cart"}
+            </span>
           </button>
         </div>
       </div>
@@ -406,23 +512,22 @@ export default function ProductInfo({
       {/* BUY NOW + WISHLIST */}
       <div className="mb-5 w-full min-w-0 sm:mb-6">
         <ProductActions
-          productId={product?._id}
+          productId={product._id}
           variantId={selectedVariant?._id}
           quantity={quantity}
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
-          disabled={!isInStock}
+          disabled={!isInStock || isSubmitting}
           isAlreadyInCart={isAlreadyInCart}
           isAlreadyInWishlist={isAlreadyInWishlist}
           layout="secondary-actions"
         />
       </div>
 
-      {/* DELIVERY */}
+      {/* DELIVERY CHECK */}
       <div className="mt-5 mb-2 rounded-xl border border-gray-200 p-3 sm:mt-7 sm:rounded-2xl sm:p-4">
         <div className="mb-3 flex items-center gap-2 sm:mb-5">
           <FaMapMarkerAlt className="h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
-
           <h3 className="text-[10px] font-medium uppercase tracking-wider sm:text-xs">
             Check Delivery
           </h3>
@@ -439,14 +544,15 @@ export default function ProductInfo({
             type="text"
             inputMode="numeric"
             autoComplete="postal-code"
-            placeholder="Enter Pincode"
-            aria-label="Enter delivery pincode"
+            placeholder="Enter PIN code"
+            aria-label="Enter delivery PIN code"
             maxLength={6}
             value={pincode}
-            onChange={(event) =>
-              setPincode(event.target.value.replace(/\D/g, ""))
-            }
-            className="h-10 min-w-0 flex-1 rounded-lg border border-gray-300 px-3 text-sm outline-none transition placeholder:text-xs focus:border-black sm:h-11 sm:text-sm"
+            onChange={(event) => {
+              setPincode(event.target.value.replace(/\D/g, ""));
+              setDeliveryResult(null);
+            }}
+            className="h-10 min-w-0 flex-1 rounded-lg border border-gray-300 px-3 text-sm outline-none transition placeholder:text-xs focus:border-black sm:h-11"
           />
 
           <button
@@ -459,13 +565,14 @@ export default function ProductInfo({
 
         {deliveryResult && (
           <p
+            role="status"
             className={`mt-3 text-xs leading-5 sm:mt-4 sm:text-sm ${
-              deliveryResult.available ? "text-green-600" : "text-red-500"
+              deliveryResult.available === false
+                ? "text-red-500"
+                : "text-gray-600"
             }`}
           >
-            {deliveryResult.available
-              ? `✓ ${deliveryResult.date}`
-              : deliveryResult.message}
+            {deliveryResult.message}
           </p>
         )}
       </div>
@@ -474,10 +581,8 @@ export default function ProductInfo({
       <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-4 sm:mt-8 sm:grid-cols-2 sm:gap-5 lg:mt-10 lg:gap-6">
         <div className="flex min-w-0 items-start gap-3">
           <FaTruck className="mt-0.5 h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
-
           <div className="min-w-0">
             <h4 className="text-sm font-medium sm:text-base">Free Shipping</h4>
-
             <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
               On prepaid orders above ₹999
             </p>
@@ -486,40 +591,34 @@ export default function ProductInfo({
 
         <div className="flex min-w-0 items-start gap-3">
           <MdAutorenew className="mt-0.5 h-5 w-5 shrink-0 text-gray-700 sm:h-6 sm:w-6" />
-
           <div className="min-w-0">
             <h4 className="text-sm font-medium sm:text-base">Easy Returns</h4>
-
             <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
-              7-Day replacement for damaged items
+              7-day replacement for damaged items, subject to policy
             </p>
           </div>
         </div>
 
         <div className="flex min-w-0 items-start gap-3">
           <MdSecurity className="mt-0.5 h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
-
           <div className="min-w-0">
             <h4 className="text-sm font-medium sm:text-base">
               Secure Payments
             </h4>
-
             <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
-              100% encrypted checkout
+              Secure checkout with your configured payment provider
             </p>
           </div>
         </div>
 
         <div className="flex min-w-0 items-start gap-3">
           <FaCheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gray-700 sm:h-5 sm:w-5" />
-
           <div className="min-w-0">
             <h4 className="text-sm font-medium sm:text-base">
-              Authentic Product
+              Quality Assured
             </h4>
-
             <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
-              Quality assured product
+              Carefully crafted Siyaas products
             </p>
           </div>
         </div>

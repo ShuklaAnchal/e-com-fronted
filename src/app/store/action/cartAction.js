@@ -41,15 +41,12 @@ export const fetchCart = () => async (dispatch, getState) => {
     };
 
     const { data } = await axios.get("/cart/get-all-cart-product", config);
-   console.log({data});
-   
+
     // ======================================================
     // GET ITEMS FROM API
     // ======================================================
 
-    const rawItems = data?.cart?.items || [];
-    console.log({rawItems});
-    
+    const rawItems = data?.cart?.items || [];    
     // ======================================================
     // NORMALIZE CART ITEMS
     // ======================================================

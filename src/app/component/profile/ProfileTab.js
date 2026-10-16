@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { updateUSerDetailes } from "@/app/store/action/userAction";
+import { useDispatch } from "react-redux";
 
 /* ============================================================
    HELPERS
@@ -35,6 +37,8 @@ export default function ProfileTab({
 
   const [saving, setSaving] = useState(false);
 
+  const dispatch = useDispatch();
+
   const [profileForm, setProfileForm] = useState({
     name: "",
     email: "",
@@ -66,18 +70,13 @@ export default function ProfileTab({
     e.preventDefault();
 
     try {
-      setSaving(true);
-
-      /*
-        Connect your update profile API here.
-
-        Example:
-
+      setSaving(true);e:
+   console.log("running");
+   
         await dispatch(
-          updateProfile(profileForm)
+          updateUSerDetailes(profileForm)
         );
-      */
-
+     
       console.log(
         "PROFILE UPDATE:",
         profileForm

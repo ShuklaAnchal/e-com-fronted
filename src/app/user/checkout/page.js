@@ -21,10 +21,12 @@ import DeliveryAddress from "@/app/component/checkout/DeliveryAddress";
 import PaymentMethod from "@/app/component/checkout/PaymentMethod";
 import OrderSummary from "@/app/component/checkout/OrderSummary";
 
+import { fetchCurrentUser } from "@/app/store/action/adminAction";
+
 const INITIAL_FORM = {
   name: "",
   mobileNumber: "",
-  email:"",
+  email: "",
   pincode: "",
   locality: "",
   addressline: "",
@@ -84,16 +86,57 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
 
-    const token = localStorage.getItem("userToken");
+  useEffect(() => {
+    if (!mounted) return;
 
-    if (!token || token === "undefined" || token === "null") {
-      router.push("/sign-up?redirect=/user/checkout");
-      return;
-    }
+    let cancelled = false;
 
-    dispatch(fetchCart());
-  }, [dispatch, router]);
+    const loadUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("userToken");
+
+        if (!token || token === "undefined" || token === "null") {
+          router.replace("/sign-up?redirect=/user/checkout");
+          return;
+        }
+
+        const response = await dispatch(fetchCurrentUser());
+
+        if (cancelled) return;
+
+        // Adjust these paths to match the response returned by your action.
+        const user =
+          response?.user ||
+          response?.data?.user ||
+          response?.data?.data?.user ||
+          response?.payload?.user;
+
+        if (!user) {
+          console.error("Unable to load the current user profile.");
+          return;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          name: user.name || "",
+          mobileNumber: user.mobileNumber || "",
+          email: user.email || "",
+        }));
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load user profile:", error);
+        }
+      }
+    };
+
+    loadUserProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted, dispatch, router]);
 
   /* =====================================================
      GET ADDRESS ID
@@ -500,93 +543,48 @@ export default function CheckoutPage() {
 
     const razorpayOrderId =
       razorpayOrder?.id ||
+      razorpayOrder?.result?.id ||
       razorpayOrder?.order?.id ||
       razorpayOrder?.razorpayOrder?.id;
 
     const razorpayAmount =
-      razorpayOrder?.amount ||
-      razorpayOrder?.order?.amount ||
+      razorpayOrder?.amount ??
+      razorpayOrder?.result?.amount ??
+      razorpayOrder?.order?.amount ??
       razorpayOrder?.razorpayOrder?.amount;
 
     const razorpayCurrency =
-      razorpayOrder?.currency || razorpayOrder?.order?.currency || "INR";
+      razorpayOrder?.currency ||
+      razorpayOrder?.result?.currency ||
+      razorpayOrder?.order?.currency ||
+      "INR";
 
     if (!razorpayOrderId) {
       console.error("RAZORPAY RESPONSE:", razorpayOrder);
-
       throw new Error("Razorpay order ID was not received from server.");
     }
 
+    if (
+      !Number.isFinite(Number(razorpayAmount)) ||
+      Number(razorpayAmount) <= 0
+    ) {
+      console.error("Invalid Razorpay amount:", razorpayAmount);
+      throw new Error("Valid Razorpay amount was not received from server.");
+    }
+
+    console.log("Razorpay order ID:", razorpayOrderId);
+    console.log("Razorpay amount in paise:", Number(razorpayAmount));
+    console.log("Razorpay amount in rupees:", Number(razorpayAmount) / 100);
+
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-
-      amount: razorpayAmount || Math.round(total * 100),
-
+      amount: Number(razorpayAmount),
       currency: razorpayCurrency,
-
       name: "Siyaas",
-
       description: `Payment for Order ${orderId}`,
-
       order_id: razorpayOrderId,
 
-      handler: async function (response) {
-        try {
-          setPlacingOrder(true);
-
-          console.log("RAZORPAY SUCCESS:", response);
-
-          const verificationData = {
-            orderId: orderId,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-          };
-
-          const verifyResult = await dispatch(verifyPayment(verificationData));
-
-          console.log("PAYMENT VERIFY RESULT:", verifyResult);
-
-          if (!verifyResult?.success) {
-            alert(verifyResult?.message || "Payment verification failed.");
-            return;
-          }
-
-          /*
-           * Payment is successfully verified.
-           */
-
-          router.push(`/user/order-success`);
-        } catch (error) {
-          console.error("PAYMENT VERIFICATION ERROR:", error);
-
-          alert(error?.message || "Payment verification failed.");
-        } finally {
-          setPlacingOrder(false);
-        }
-      },
-
-      prefill: {
-        name: formData.name || "",
-
-        contact: formData.mobileNumber || "",
-      },
-
-      notes: {
-        orderId: String(orderId),
-      },
-
-      theme: {
-        color: "#C9A227",
-      },
-
-      modal: {
-        ondismiss: function () {
-          setPlacingOrder(false);
-
-          console.log("Razorpay payment window closed.");
-        },
-      },
+      // Keep your existing handler, prefill, notes, theme and modal here.
     };
 
     const razorpay = new window.Razorpay(options);
@@ -755,26 +753,17 @@ export default function CheckoutPage() {
 
       const orderPayload = {
         products,
-
-        /*
-         * Existing address:
-         *
-         * shippingAddressId = selected MongoDB ID
-         *
-         * New address:
-         *
-         * shippingAddress = form data
-         */
-
         shippingAddressId,
-
         shippingAddress,
 
+        // Discount is only for displaying/reporting savings.
         discount: Number(discount) || 0,
 
+        // Pass calculated amounts for clarity.
+        subtotal: Number(subtotal) || 0,
         shippingCost: Number(shippingCost) || 0,
-
         tax: Number(tax) || 0,
+        totalPrice: Number(total) || 0,
 
         paymentMethod: backendPaymentMethod,
       };
@@ -1016,46 +1005,14 @@ export default function CheckoutPage() {
   ===================================================== */
 
   return (
-    <div
-      className="
-        min-h-screen
-        bg-luxury-cream
-        pt-28
-        pb-20
-      "
-    >
+    <div className="min-h-screen bg-luxury-cream pt-28 pb-20">
       <CheckoutHeader />
 
       <form onSubmit={handlePlaceOrder}>
-        <div
-          className="
-            max-w-7xl
-            mx-auto
-            px-4
-            sm:px-6
-            lg:px-8
-            mt-10
-          "
-        >
-          <div
-            className="
-              grid
-              grid-cols-1
-              lg:grid-cols-12
-              gap-8
-              lg:gap-10
-            "
-          >
-            {/* =================================================
-                LEFT SIDE
-            ================================================= */}
-
-            <div
-              className="
-                lg:col-span-7
-                space-y-8
-              "
-            >
+        <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
+            {/* LEFT SIDE: CONTACT, ADDRESS & PAYMENT */}
+            <div className="space-y-8 lg:col-span-7">
               <ContactInformation formData={formData} onChange={handleChange} />
 
               <DeliveryAddress
@@ -1079,15 +1036,8 @@ export default function CheckoutPage() {
               />
             </div>
 
-            {/* =================================================
-                RIGHT SIDE
-            ================================================= */}
-
-            <div
-              className="
-                lg:col-span-5
-              "
-            >
+            {/* RIGHT SIDE: ORDER SUMMARY */}
+            <aside className="lg:col-span-5 lg:sticky lg:top-28">
               <OrderSummary
                 cartItems={cartItems}
                 mrpTotal={mrpTotal}
@@ -1104,12 +1054,12 @@ export default function CheckoutPage() {
                 savingAddress={savingAddress}
                 onEditCart={() => router.push("/user/cart")}
                 onChangeAddress={() =>
-                  document.getElementById("delivery-address")?.scrollIntoView({
-                    behavior: "smooth",
-                  })
+                  document
+                    .getElementById("delivery-address")
+                    ?.scrollIntoView({ behavior: "smooth" })
                 }
               />
-            </div>
+            </aside>
           </div>
         </div>
       </form>

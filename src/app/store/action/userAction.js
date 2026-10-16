@@ -183,7 +183,6 @@ export const asyncfetchUsers = () => async (dispatch) => {
 };
 
 // CUSTOMER LOGOUT
-
 export const logoutCustomer = () => async (dispatch) => {
   try {
     const token = localStorage.getItem("userToken");
@@ -207,6 +206,41 @@ export const logoutCustomer = () => async (dispatch) => {
     dispatch(customerError("Logout failed"));
     return {
       success: false,
+    };
+  }
+};
+
+// Update the logged-in user's details
+export const updateUSerDetailes = (profileForm) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "UPDATE_USER_REQUEST",
+    });
+
+    const { data } = await axios.put("/user/profile/update", profileForm);
+
+    dispatch(editCustomer(data.user));
+
+    return {
+      success: true,
+      user: data.user,
+      message: data.message,
+    };
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Failed to update user details";
+
+    dispatch({
+      type: "UPDATE_USER_FAIL",
+      payload: message,
+    });
+
+    return {
+      success: false,
+      message,
     };
   }
 };

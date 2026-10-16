@@ -3,17 +3,43 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { fetchOrderbyID } from "@/app/store/action/orderAction";
+import { useDispatch } from "react-redux";
 
 /* ============================================================
    HELPERS
 ============================================================ */
 
-const formatDate = (date) =>
-  new Date(date || Date.now()).toLocaleDateString("en-IN", {
+const formatDate = (date) => {
+  if (!date) return "Not available";
+
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Not available";
+  }
+
+  return parsedDate.toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+};
+
+const getOrderData = (response) => {
+  // Supports common Axios and API response structures.
+  const payload = response?.data ?? response;
+
+  return payload?.order ?? payload?.data?.order ?? payload?.data ?? payload;
+};
+
+const normalizeStatus = (status) => {
+  if (!status) return "Pending";
+
+  return String(status)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
 
 /* ============================================================
    ORDER STEPS
@@ -23,9 +49,7 @@ function StepLine({ done }) {
   return (
     <div
       className={`h-px flex-1 transition-all duration-700 ${
-        done
-          ? "bg-[#C5A880]"
-          : "bg-[#C5A880]/15"
+        done ? "bg-[#C5A880]" : "bg-[#C5A880]/15"
       }`}
     />
   );
@@ -64,9 +88,7 @@ function Step({ number, label, done, active }) {
 
       <span
         className={`hidden text-[9px] uppercase tracking-[0.2em] sm:block ${
-          done || active
-            ? "text-[#C5A880]"
-            : "text-[#C5A880]/30"
+          done || active ? "text-[#C5A880]" : "text-[#C5A880]/30"
         }`}
       >
         {label}
@@ -83,49 +105,35 @@ function AnimatedCheckmark() {
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setAnimate(true);
     }, 200);
 
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="relative flex items-center justify-center">
-      {/* Outer glow ring */}
-
       <div
-        className={`absolute h-36 w-36 rounded-full bg-[#C5A880]/8 transition-all duration-1000 ${
-          animate
-            ? "scale-100 opacity-100"
-            : "scale-50 opacity-0"
+        className={`absolute h-36 w-36 rounded-full bg-[#C5A880]/[0.08] transition-all duration-1000 ${
+          animate ? "scale-100 opacity-100" : "scale-50 opacity-0"
         }`}
       />
-
-      {/* Middle ring */}
 
       <div
         className={`absolute h-28 w-28 rounded-full border border-[#C5A880]/20 transition-all duration-700 delay-100 ${
-          animate
-            ? "scale-100 opacity-100"
-            : "scale-50 opacity-0"
+          animate ? "scale-100 opacity-100" : "scale-50 opacity-0"
         }`}
       />
 
-      {/* Inner circle */}
-
       <div
         className={`relative flex h-20 w-20 items-center justify-center rounded-full border border-[#C5A880]/40 bg-[#C5A880]/10 transition-all duration-700 delay-200 ${
-          animate
-            ? "scale-100 opacity-100"
-            : "scale-50 opacity-0"
+          animate ? "scale-100 opacity-100" : "scale-50 opacity-0"
         }`}
       >
         <svg
           className={`h-8 w-8 text-[#C5A880] transition-all duration-500 delay-500 ${
-            animate
-              ? "scale-100 opacity-100"
-              : "scale-0 opacity-0"
+            animate ? "scale-100 opacity-100" : "scale-0 opacity-0"
           }`}
           fill="none"
           stroke="currentColor"
@@ -147,22 +155,16 @@ function AnimatedCheckmark() {
    INFO ROW
 ============================================================ */
 
-function InfoRow({
-  label,
-  value,
-  gold = false,
-}) {
+function InfoRow({ label, value, gold = false }) {
   return (
-    <div className="flex items-center justify-between border-b border-[#C5A880]/10 py-3.5 last:border-0">
+    <div className="flex items-center justify-between gap-4 border-b border-[#C5A880]/10 py-3.5 last:border-0">
       <span className="text-[11px] uppercase tracking-[0.15em] text-gray-400">
         {label}
       </span>
 
       <span
-        className={`text-[12px] font-medium tracking-wide ${
-          gold
-            ? "text-[#C5A880]"
-            : "text-[#121212]"
+        className={`break-words text-right text-[12px] font-medium tracking-wide ${
+          gold ? "text-[#A68A5E]" : "text-[#121212]"
         }`}
       >
         {value}
@@ -177,36 +179,129 @@ function InfoRow({
 
 export default function OrderSuccessContent() {
   const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
 
   const [visible, setVisible] = useState(false);
+  const [order, setOrder] = useState(null);
+  const [orderLoading, setOrderLoading] = useState(true);
+  const [orderError, setOrderError] = useState("");
 
-  /* ============================================================
-     GET ORDER ID FROM URL
-  ============================================================ */
+const dispatch = useDispatch();
 
-  const orderId =
-    searchParams.get("orderId");
+useEffect(() => {
+  let cancelled = false;
 
-  /* ============================================================
-     ESTIMATED DELIVERY
-  ============================================================ */
+  const loadOrder = async () => {
+    if (!orderId) {
+      setOrder(null);
+      setOrderError("Order ID is missing.");
+      setOrderLoading(false);
+      return;
+    }
 
-  const estimatedDelivery = new Date(
-    Date.now() +
-      5 * 24 * 60 * 60 * 1000
-  );
+    try {
+      setOrderLoading(true);
+      setOrderError("");
 
+      // Dispatch the Redux async thunk
+      const response = await dispatch(
+        fetchOrderbyID(orderId)
+      );
+
+      console.log("Fetched order data:", response);
+
+      // Handle common API response structures
+      const orderData =
+        response?.order ??
+        response?.data?.order ??
+        response?.data ??
+        response;
+
+      if (
+        !orderData ||
+        typeof orderData !== "object" ||
+        orderData.success === false ||
+        orderData.error
+      ) {
+        throw new Error(
+          orderData?.message || "Order details were not found."
+        );
+      }
+
+      if (!cancelled) {
+        setOrder(orderData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch order details:", error);
+
+      if (!cancelled) {
+        setOrder(null);
+        setOrderError(
+          error?.message ||
+          error?.response?.data?.message ||
+          "Unable to load order details."
+        );
+      }
+    } finally {
+      if (!cancelled) {
+        setOrderLoading(false);
+      }
+    }
+  };
+
+  loadOrder();
+
+  return () => {
+    cancelled = true;
+  };
+}, [dispatch, orderId]);
   /* ============================================================
      PAGE ANIMATION
   ============================================================ */
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setVisible(true);
     }, 50);
 
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, []);
+
+  /* ============================================================
+     ORDER VALUES
+  ============================================================ */
+
+  const paymentMethod = String(
+    order?.paymentMethod ?? order?.payment_method ?? "",
+  ).toUpperCase();
+
+  const displayedPaymentMethod = paymentMethod
+    ? paymentMethod === "COD"
+      ? "Cash on Delivery"
+      : paymentMethod === "RAZORPAY"
+        ? "Razorpay"
+        : normalizeStatus(paymentMethod)
+    : "Not available";
+
+  // Use only the status returned by the backend.
+  const rawPaymentStatus =
+    order?.paymentStatus ??
+    order?.payment_status ??
+    order?.payment?.status ??
+    "";
+
+  const displayedPaymentStatus = rawPaymentStatus
+    ? normalizeStatus(rawPaymentStatus)
+    : paymentMethod === "COD"
+      ? "Pay on Delivery"
+      : "Pending";
+
+  const placedDate =
+    order?.createdAt ?? order?.created_at ?? order?.orderDate ?? order?.date;
+
+  const estimatedDelivery = placedDate
+    ? new Date(new Date(placedDate).getTime() + 5 * 24 * 60 * 60 * 1000)
+    : new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
 
   /* ============================================================
      RENDER
@@ -215,67 +310,35 @@ export default function OrderSuccessContent() {
   return (
     <div
       className={`min-h-screen bg-[#FAF7F2] pb-24 pt-10 transition-opacity duration-700 ${
-        visible
-          ? "opacity-100"
-          : "opacity-0"
+        visible ? "opacity-100" : "opacity-0"
       }`}
     >
-      {/* ======================================================
-          PROGRESS STEPS
-      ====================================================== */}
+      {/* PROGRESS STEPS */}
 
       <div className="border-b border-[#C5A880]/10 bg-white py-5">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-5 md:px-8">
-
-          <Step
-            number={1}
-            label="Cart"
-            done
-          />
-
+          <Step number={1} label="Cart" done />
           <StepLine done />
-
-          <Step
-            number={2}
-            label="Checkout"
-            done
-          />
-
+          <Step number={2} label="Checkout" done />
           <StepLine done />
-
-          <Step
-            number={3}
-            label="Confirmed"
-            done
-            active
-          />
-
+          <Step number={3} label="Confirmed" done active />
         </div>
       </div>
 
-      {/* ======================================================
-          MAIN
-      ====================================================== */}
+      {/* MAIN */}
 
       <div className="mx-auto max-w-2xl px-5 pt-16 md:px-8">
-
-        {/* ====================================================
-            ANIMATED CHECKMARK
-        ==================================================== */}
+        {/* ANIMATED CHECKMARK */}
 
         <div className="mb-8 flex justify-center">
           <AnimatedCheckmark />
         </div>
 
-        {/* ====================================================
-            HEADING
-        ==================================================== */}
+        {/* HEADING */}
 
         <div
           className={`mb-10 text-center transition-all duration-700 delay-300 ${
-            visible
-              ? "translate-y-0 opacity-100"
-              : "translate-y-4 opacity-0"
+            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
           <p className="mb-3 text-[10px] uppercase tracking-[0.45em] text-[#C5A880]">
@@ -289,21 +352,16 @@ export default function OrderSuccessContent() {
           <div className="mx-auto mb-4 h-px w-12 bg-[#C5A880]" />
 
           <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-500">
-            Your order has been placed successfully.
-            We will notify you once your items are
-            on their way.
+            Your order has been placed successfully. We will notify you once
+            your items are on their way.
           </p>
         </div>
 
-        {/* ====================================================
-            ORDER DETAILS CARD
-        ==================================================== */}
+        {/* ORDER DETAILS CARD */}
 
         <div
           className={`mb-5 border border-[#C5A880]/15 bg-white p-6 shadow-sm transition-all duration-700 delay-500 md:p-8 ${
-            visible
-              ? "translate-y-0 opacity-100"
-              : "translate-y-4 opacity-0"
+            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
           <p className="mb-5 text-[9px] uppercase tracking-[0.35em] text-[#C5A880]">
@@ -312,42 +370,47 @@ export default function OrderSuccessContent() {
 
           <InfoRow
             label="Order ID"
-            value={
-              orderId
-                ? `#${orderId}`
-                : "Processing..."
-            }
+            value={orderId ? `#${orderId}` : "Not available"}
             gold
           />
 
           <InfoRow
             label="Date Placed"
-            value={formatDate()}
+            value={orderLoading ? "Loading..." : formatDate(placedDate)}
           />
 
           <InfoRow
             label="Estimated Delivery"
-            value={formatDate(
-              estimatedDelivery
-            )}
+            value={formatDate(estimatedDelivery)}
+          />
+
+          <InfoRow
+            label="Payment Method"
+            value={orderLoading ? "Loading..." : displayedPaymentMethod}
+            gold
           />
 
           <InfoRow
             label="Payment Status"
-            value="Paid"
+            value={orderLoading ? "Loading..." : displayedPaymentStatus}
             gold
           />
+
+          {orderError && (
+            <p
+              className="mt-4 text-xs leading-relaxed text-red-600"
+              role="status"
+            >
+              {orderError} Please check your orders page for the latest details.
+            </p>
+          )}
         </div>
 
-        {/* ====================================================
-            SHIPPING NOTE
-        ==================================================== */}
+        {/* SHIPPING NOTE */}
 
         <div
           className={`mb-10 flex items-start gap-4 border border-[#C5A880]/15 bg-white p-5 transition-all duration-700 delay-700 ${
-            visible
-              ? "translate-y-0 opacity-100"
-              : "translate-y-4 opacity-0"
+            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
           <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border border-[#C5A880]/30">
@@ -372,74 +435,39 @@ export default function OrderSuccessContent() {
             </p>
 
             <p className="text-[12px] leading-relaxed text-gray-500">
-              A confirmation email with tracking
-              details will be sent to your
-              registered email address within
-              24 hours.
+              A confirmation email with tracking details will be sent to your
+              registered email address within 24 hours.
             </p>
           </div>
         </div>
 
-        {/* ====================================================
-            CTA BUTTONS
-        ==================================================== */}
+        {/* CTA BUTTONS */}
 
         <div
           className={`flex flex-col gap-3 transition-all duration-700 delay-[900ms] sm:flex-row ${
-            visible
-              ? "translate-y-0 opacity-100"
-              : "translate-y-4 opacity-0"
+            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
           <Link
             href="/user"
-            className="
-              flex-1
-              border
-              border-[#C5A880]/30
-              py-4
-              text-center
-              text-[10px]
-              uppercase
-              tracking-[0.25em]
-              text-[#A68A5E]
-              transition
-              hover:border-[#C5A880]
-              hover:bg-[#C5A880]/5
-            "
+            className="flex-1 border border-[#C5A880]/30 py-4 text-center text-[10px] uppercase tracking-[0.25em] text-[#A68A5E] transition hover:border-[#C5A880] hover:bg-[#C5A880]/5"
           >
             View My Orders
           </Link>
 
           <Link
             href="/products"
-            className="
-              flex-1
-              bg-[#121212]
-              py-4
-              text-center
-              text-[10px]
-              uppercase
-              tracking-[0.25em]
-              text-[#C5A880]
-              transition
-              hover:bg-[#C5A880]
-              hover:text-[#121212]
-            "
+            className="flex-1 bg-[#121212] py-4 text-center text-[10px] uppercase tracking-[0.25em] text-[#C5A880] transition hover:bg-[#C5A880] hover:text-[#121212]"
           >
             Continue Shopping
           </Link>
         </div>
 
-        {/* ====================================================
-            FOOTER NOTE
-        ==================================================== */}
+        {/* FOOTER NOTE */}
 
         <div
           className={`mt-14 text-center transition-all duration-700 delay-[1100ms] ${
-            visible
-              ? "opacity-100"
-              : "opacity-0"
+            visible ? "opacity-100" : "opacity-0"
           }`}
         >
           <div className="mx-auto mb-6 h-px w-16 bg-[#C5A880]/30" />
@@ -449,12 +477,10 @@ export default function OrderSuccessContent() {
           </p>
 
           <p className="mx-auto max-w-xs text-[11px] leading-relaxed text-gray-400">
-            Every Siyaas piece is carefully inspected
-            and packaged to reach you in perfect
-            condition.
+            Every Siyaas piece is carefully inspected and packaged to reach you
+            in perfect condition.
           </p>
         </div>
-
       </div>
     </div>
   );
