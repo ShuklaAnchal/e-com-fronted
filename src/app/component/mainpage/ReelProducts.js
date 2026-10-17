@@ -268,11 +268,11 @@ const ReelProducts = () => {
               speed={600}
               breakpoints={{
                 320: {
-                  slidesPerView: 1,
+                  slidesPerView: 2,
                   spaceBetween: 14,
                 },
                 480: {
-                  slidesPerView: 1,
+                  slidesPerView: 2,
                   spaceBetween: 16,
                 },
                 640: {
@@ -298,19 +298,11 @@ const ReelProducts = () => {
                   key={item._id}
                   className="py-2 h-auto"
                 >
-                  <article className="h-full bg-white overflow-hidden">
+                  <article className="overflow-hidden border-b-2 border-white shadow-md rounded-2xl transition-transform duration-700">
                     {/* REEL VIDEO */}
                     <div
                       className="
-                        relative overflow-hidden
-                        h-[400px]
-                        sm:h-[400px]
-                        md:h-[400px]
-                        lg:h-[440px]
-                        xl:h-[400px]
-                        bg-[#FAF7F2] shadow-md rounded-2xl
-                        transition-shadow duration-500
-                        hover:shadow-xl
+relative overflow-hidden h-[220px] sm:h-[250px] lg:h-[240px]
                       "
                     >
                       <video
