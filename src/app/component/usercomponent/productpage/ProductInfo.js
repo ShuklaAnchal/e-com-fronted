@@ -289,6 +289,8 @@ export default function ProductInfo({
     ],
   );
 
+  const fakeReviewCount = Math.floor(Math.random() * (300 - 30 + 1)) + 30;
+  
   // Buy Now: validate, add/update the cart, then navigate.
   const handleBuyNow = useCallback(
     async (qty = quantity) => {
@@ -401,7 +403,7 @@ export default function ProductInfo({
           <span className="text-sm text-gray-800 sm:text-base">
             {fakeRating.toFixed(1)}
           </span>
-          <span className="text-xs text-gray-500">(illustrative)</span>
+          <span className="text-xs text-gray-500">  ({fakeReviewCount})</span>
         </div>
       </div>
 

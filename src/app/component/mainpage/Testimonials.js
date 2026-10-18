@@ -11,10 +11,10 @@ const testimonials = [
     review:
       "I recently tried the Oud Rose reed diffuser from Siyaas Candles for my room, and it has completely elevated the vibe of my space. It’s long-lasting, not overpowering, and creates a calm, luxurious atmosphere every time I walk in.",
     date: "11 months ago",
-    photos: [
-      "https://lh3.googleusercontent.com/grass-cs/ACvplmPcwMasY8_i8g3HZfKaSdDXNZ56KrNNkUBKSM9Ro3_xRqbeQo9WAvhWTw0ZLmvSqfG-sQk00EbbWW5ime3uBhqXUJjmRJ2uMyxxBF2D_D1uQ5j-HXuK9CU1CiAJFMhET-Sh88bf0d2S80s=s138-p-k-rw",
-      "https://lh3.googleusercontent.com/grass-cs/ACvplmNf2lCtiqH1mUbHleqxBSkQ_nponZi2lI-EC-p4am-CiSS_0e0aRpKJ89YmzbNWne1xXWq4SD8rGrd8rC3cT852MiKfUyuSlVS6wYc-MOsAZyrSfPRay5bpmHp_K9CPq1M_ja_JfFa_w2c=s138-p-k-rw",
-    ],
+    // photos: [
+    //   "https://lh3.googleusercontent.com/grass-cs/ACvplmPcwMasY8_i8g3HZfKaSdDXNZ56KrNNkUBKSM9Ro3_xRqbeQo9WAvhWTw0ZLmvSqfG-sQk00EbbWW5ime3uBhqXUJjmRJ2uMyxxBF2D_D1uQ5j-HXuK9CU1CiAJFMhET-Sh88bf0d2S80s=s138-p-k-rw",
+    //   "https://lh3.googleusercontent.com/grass-cs/ACvplmNf2lCtiqH1mUbHleqxBSkQ_nponZi2lI-EC-p4am-CiSS_0e0aRpKJ89YmzbNWne1xXWq4SD8rGrd8rC3cT852MiKfUyuSlVS6wYc-MOsAZyrSfPRay5bpmHp_K9CPq1M_ja_JfFa_w2c=s138-p-k-rw",
+    // ],
   },
   {
     id: 2,
@@ -23,10 +23,10 @@ const testimonials = [
     review:
       "I’m a huge fan of candles, and aromatherapy has always been my go to for peace and relaxation. Siyaas candles have truly won me over this is already my second purchase! The fragrances are soothing, the designs are adorable, and the quality is amazing.",
     date: "a year ago",
-    photos: [
-      "https://lh3.googleusercontent.com/grass-cs/ACvplmOOaDElY--NngNZgHmcgStOv75ptPz89WAdM1bdZpaqGEI9dnByFT68Kgr2-z3yKakkS8AzlwHHKKjM_sJgWibqje_f_Sgm_n9xT743JkmiIRMyR9AFcen3LJaNeehuI6uHQBCOhJitZaI8=s138-p-k-rw",
-      "https://lh3.googleusercontent.com/grass-cs/ACvplmNM9JZND4kKLGNtfp-C_PRIouCe1SEBy49E7CBDYydOmdQxq0gwke3pRI-9UHYgma_UE2ZpPYs12fZGtVkvTnuuLbDXrxmrFoJe-ocxE8Hy0hvrOmF-uBUo-RWd52R1aQgXJo5dCtydRPaQ=s138-p-k-rw",
-    ],
+    // photos: [
+    //   "https://lh3.googleusercontent.com/grass-cs/ACvplmOOaDElY--NngNZgHmcgStOv75ptPz89WAdM1bdZpaqGEI9dnByFT68Kgr2-z3yKakkS8AzlwHHKKjM_sJgWibqje_f_Sgm_n9xT743JkmiIRMyR9AFcen3LJaNeehuI6uHQBCOhJitZaI8=s138-p-k-rw",
+    //   "https://lh3.googleusercontent.com/grass-cs/ACvplmNM9JZND4kKLGNtfp-C_PRIouCe1SEBy49E7CBDYydOmdQxq0gwke3pRI-9UHYgma_UE2ZpPYs12fZGtVkvTnuuLbDXrxmrFoJe-ocxE8Hy0hvrOmF-uBUo-RWd52R1aQgXJo5dCtydRPaQ=s138-p-k-rw",
+    // ],
   },
   {
     id: 3,
@@ -44,9 +44,9 @@ const testimonials = [
     review:
       "Siyaas ka Body Butter Wax bahut smooth hai! winter me skin bilkul dry nahi hoti. Fragrance bhi soft aur premium hai.",
     date: "8 months ago",
-    photos: [
-      "https://lh3.googleusercontent.com/grass-cs/ACvplmM1Uy3C_ZSaLYTVr40hXZrYDBATDmGOHo16wvvqdCsVzsS72bTz3YI0iuIA-prYmgV58KWEP7UeTLxvefsf9eloUjQLXMzBb7an8-s13noByiwYynY4P0sGb3F1Xsv501IC-OWeuXZ6U-Dh=s138-p-k-rw",
-    ],
+    // photos: [
+    //   "https://lh3.googleusercontent.com/grass-cs/ACvplmM1Uy3C_ZSaLYTVr40hXZrYDBATDmGOHo16wvvqdCsVzsS72bTz3YI0iuIA-prYmgV58KWEP7UeTLxvefsf9eloUjQLXMzBb7an8-s13noByiwYynY4P0sGb3F1Xsv501IC-OWeuXZ6U-Dh=s138-p-k-rw",
+    // ],
   },
   {
     id: 5,
@@ -264,7 +264,7 @@ const Testimonials = () => {
             </p>
           </div>
 
-          {/* Review Photos */}
+          {/* Review Photos
           {activeTestimonial.photos?.length > 0 && (
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               {activeTestimonial.photos.map((photo, index) => (
@@ -282,7 +282,7 @@ const Testimonials = () => {
                 </div>
               ))}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Manual Slider Controls */}

@@ -107,13 +107,7 @@ export default function RelatedProducts({
                 />
 
                 {/* View Count: Top Left */}
-                <div className="absolute left-2 top-2 z-50 flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1.5 text-white shadow-sm backdrop-blur-sm sm:left-3 sm:top-3">
-                  <AiOutlineEye className="text-sm sm:text-base" />
-
-                  <span className="text-[9px] font-medium tracking-wide sm:text-[10px]">
-                    {getViewCount(item._id)}
-                  </span>
-                </div>
+            
 
                 {/* Discount Badge */}
                 {discountPercent > 0 && (

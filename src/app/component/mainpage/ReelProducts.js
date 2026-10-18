@@ -67,20 +67,19 @@ const PRODUCTS = [
 
 const REEL_VIEWS = PRODUCTS.reduce((views, item) => {
   views[item._id] =
-    Math.floor(Math.random() * (2_000_000 - 600_000 + 1)) +
-    600_000;
+    Math.floor(Math.random() * (2000 - 600 + 1)) + 600;
 
   return views;
 }, {});
 
 const formatViews = (views) => {
-  if (views >= 1_000_000) {
-    return `${(views / 1_000_000)
+  if (views >= 1000) {
+    return `${(views / 1000)
       .toFixed(1)
-      .replace(/\.0$/, "")}M`;
+      .replace(/\.0$/, "")}K`;
   }
 
-  return `${Math.round(views / 1_000)}K`;
+  return views.toString();
 };
 
 /* ============================================================
