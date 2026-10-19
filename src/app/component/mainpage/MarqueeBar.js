@@ -7,7 +7,7 @@ const MarqueeBar = () => {
     { icon: <FaUndo className="text-luxury-gold" />, text: "6 Days Easy Return" },
     { icon: <MdLocationOn className="text-luxury-gold" />, text: "Cash On Delivery Available" },
     { icon: <FaTruck className="text-luxury-gold" />, text: "Free Domestic Shipping" },
-    { icon: <FaTag className="text-luxury-gold" />, text: "Flat 10% off on you first order use code siyaas10" },
+    { icon: <FaTag className="text-luxury-gold" />, text: "Flat 10% off on you first order use code dushera10" },
   ]
 
   const row = (

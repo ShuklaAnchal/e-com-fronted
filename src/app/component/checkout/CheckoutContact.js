@@ -19,90 +19,98 @@ export default function ContactInformation({
   const [messageType, setMessageType] = useState("");
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    let cancelled = false;
 
-    const loadUserProfile = async () => {
+useEffect(() => {
+  let cancelled = false;
+
+  const loadUserProfile = async () => {
+    try {
+      const token = localStorage.getItem("userToken");
+
+      if (
+        !token ||
+        token === "undefined" ||
+        token === "null"
+      ) {
+        return;
+      }
+
       setLoading(true);
 
-      try {
-        const token = localStorage.getItem("userToken");
+      const result = await dispatch(fetchCurrentUser());
 
-        if (
-          !token ||
-          token === "undefined" ||
-          token === "null"
-        ) {
-          return;
-        }
+      if (cancelled) return;
 
-        const result = await dispatch(fetchCurrentUser());
-
-        if (cancelled) return;
-
-        if (
-          result?.meta?.requestStatus === "rejected" ||
-          result?.error
-        ) {
-          console.error(
-            "Failed to load profile:",
-            result?.error || result?.payload
-          );
-          return;
-        }
-
-        const payload = result?.payload;
-
-        const user =
-          payload?.user ||
-          payload?.data?.user ||
-          payload?.data?.data?.user ||
-          payload?.data ||
-          payload?.payload?.user ||
-          payload?.payload ||
-          payload;
-
-        if (!user || typeof user !== "object") return;
-
-        [
-          {
-            name: "name",
-            value: user.name || user.fullName,
-          },
-          {
-            name: "mobileNumber",
-            value:
-              user.mobileNumber ||
-              user.mobile ||
-              user.phoneNumber,
-          },
-          {
-            name: "email",
-            value: user.email,
-          },
-        ].forEach(({ name, value }) => {
-          if (value != null && String(value).trim()) {
-            onChange?.({
-              target: {
-                name,
-                value: String(value),
-              },
-            });
-          }
-        });
-      } catch (error) {
-        console.error("Profile loading failed:", error);
-      } finally {
-        if (!cancelled) setLoading(false);
+      if (
+        result?.meta?.requestStatus === "rejected" ||
+        result?.error
+      ) {
+        console.error(
+          "Failed to load profile:",
+          result?.error || result?.payload
+        );
+        return;
       }
-    };
 
-    loadUserProfile();
+      const payload = result?.payload;
 
-    return () => {
-      cancelled = true;
-    };
-  }, [dispatch]);
+      const user =
+        payload?.user ||
+        payload?.data?.user ||
+        payload?.data?.data?.user ||
+        payload?.data ||
+        payload?.payload?.user ||
+        payload?.payload ||
+        payload;
+
+      if (!user || typeof user !== "object") return;
+
+      const fields = [
+        {
+          name: "name",
+          value: user.name || user.fullName,
+        },
+        {
+          name: "mobileNumber",
+          value:
+            user.mobileNumber ||
+            user.mobile ||
+            user.phoneNumber,
+        },
+        {
+          name: "email",
+          value: user.email,
+        },
+      ];
+
+      fields.forEach(({ name, value }) => {
+        if (value == null || !String(value).trim()) return;
+
+        onChange?.({
+          target: {
+            name,
+            value: String(value).trim(),
+          },
+        });
+      });
+    } catch (error) {
+      if (!cancelled) {
+        console.error("Profile loading failed:", error);
+      }
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+  };
+
+  loadUserProfile();
+
+  return () => {
+    cancelled = true;
+  };
+}, [dispatch]);
+
 
   const handleFieldChange = (event) => {
     const { name, value } = event.target;

@@ -406,16 +406,16 @@ export default function CartPage() {
               </div>
             );
 
-            const removeButton = (
-              <button
-                type="button"
-                disabled={isRemoving || isUpdating}
-                onClick={() => handleRemove(item, key)}
-                className="mt-2 text-[9px] uppercase tracking-[0.15em] text-gray-400 transition hover:text-red-500 disabled:opacity-50"
-              >
-                {isRemoving ? "Removing..." : "Remove"}
-              </button>
-            );
+   const removeButton = (
+  <button
+    type="button"
+    disabled={isRemoving || isUpdating}
+    onClick={() => handleRemove(item, key)}
+    className="mt-2 text-[9px] uppercase tracking-[0.15em] text-gray-400 transition hover:text-red-500 disabled:opacity-50"
+  >
+    {isRemoving ? "Removing..." : "Remove"}
+  </button>
+);
 
             return (
               <div
@@ -437,39 +437,43 @@ export default function CartPage() {
                       {imageElement}
                     </button>
 
-                    <div className="min-w-0">
-                      <p className="mb-1 text-[8px] uppercase tracking-[0.2em] text-[#C5A880]">
-                        {brand}
-                      </p>
+             
+<div className="min-w-0">
+  <p className="mb-1 text-[8px] uppercase tracking-[0.2em] text-[#C5A880]">
+    {brand}
+  </p>
 
-                      <h3
-                        onClick={() => {
-                          if (productId) {
-                            router.push(`/products/${productId}`);
-                          }
-                        }}
-                        className="cursor-pointer font-serif text-sm font-light uppercase tracking-[0.06em] text-[#121212] hover:text-[#B08F5A]"
-                      >
-                        {name}
-                      </h3>
+  <h3
+    onClick={() => {
+      if (productId) {
+        router.push(`/products/${productId}`);
+      }
+    }}
+    className="cursor-pointer font-serif text-sm font-light uppercase tracking-[0.06em] text-[#121212] hover:text-[#B08F5A]"
+  >
+    {name}
+  </h3>
 
-                      {variantLabel && (
-                        <p className="mt-1 text-[10px] text-gray-500">
-                          Variant: {variantLabel}
-                        </p>
-                      )}
+  {variantLabel && (
+    <p className="mt-1 text-[10px] text-gray-500">
+      Variant: {variantLabel}
+    </p>
+  )}
 
-                      <p className="mt-2 text-xs text-gray-500">
-                        {formatPrice(price)}
-                        {mrp > price && (
-                          <span className="ml-2 text-gray-400 line-through">
-                            {formatPrice(mrp)}
-                          </span>
-                        )}
-                      </p>
+  <p className="mt-2 text-xs text-gray-500">
+    {formatPrice(price)}
+    {mrp > price && (
+      <span className="ml-2 text-gray-400 line-through">
+        {formatPrice(mrp)}
+      </span>
+    )}
+  </p>
 
-                      {removeButton}
-                    </div>
+  <div className="mt-2">
+    {removeButton}
+  </div>
+</div>
+
                   </div>
 
                   <div className="flex justify-center">
