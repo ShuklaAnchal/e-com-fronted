@@ -131,7 +131,7 @@ BANNER
         "
       >
         <Image
-          src="/banner-hand.png"
+          src="/custome-banner.jpeg"
           alt="Custom Candles Available"
           fill
           priority
