@@ -38,7 +38,7 @@ const Hero = () => {
     >
       {/* Desktop / Tablet Banner */}
       <img
-        src="/Dussehra-Candlelight-Celebration.png"
+        src="/here-banner-desktop.png"
         alt="Explore Siyaas Dussehra candle collection"
         draggable={false}
         className="
@@ -57,7 +57,7 @@ const Hero = () => {
 
       {/* Mobile Banner */}
       <img
-        src="/Dussehra-Candlelight-Festival-Poster.png"
+        src="/hero-banner-mobile.png"
         alt="Explore Siyaas festive candle collection"
         draggable={false}
         className="

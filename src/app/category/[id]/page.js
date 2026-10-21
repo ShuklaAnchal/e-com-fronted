@@ -286,7 +286,7 @@ const CategoryProductsPage = () => {
               shadow-sm
             "
                           >
-                            Rakhi Special
+                           Dussehra Special
                           </span>
                         </div>
 
