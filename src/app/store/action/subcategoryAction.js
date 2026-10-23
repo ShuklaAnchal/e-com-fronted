@@ -14,18 +14,31 @@ const getToken = () => {
   return null;
 };
 
-export const asyncfetchSubcategory = () => async (dispatch, getState) => {
-  try {
-    const { data } = await axios.get("/subcategory/fetch-all-subcategories");
-    // console.log("Fetched products:", data.products);
-    
-    dispatch(fetchSubCategory(data.subcategories));
-    return data;
-  } catch (error) {
-    console.error("Error in fetcing subcategory:", error.message);
-    dispatch(iserror(error.message));
-  }
-};
+
+export const asyncfetchSubcategory =
+  ({ page = 1, limit = 10 } = {}) =>
+  async (dispatch) => {
+    try {
+      const { data } = await axios.get(
+        "/subcategory/fetch-all-subcategories",
+        {
+          params: { page, limit },
+        }
+      );
+
+      dispatch(fetchSubCategory(data.subcategories || []));
+      return data;
+    } catch (error) {
+      console.error(
+        "Error in fetching subcategories:",
+        error.message
+      );
+
+      dispatch(iserror(error.message));
+      throw error;
+    }
+  };
+
 
 //fetch the product by the id
 export const fetchSubcategorybyID = (id) => async (dispatch, getState) => {

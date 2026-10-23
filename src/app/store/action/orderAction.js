@@ -16,26 +16,43 @@ const getToken = () => {
   return null;
 };
 
-//fetch all orders admin wise
-export const asyncfetchAllOrders = () => async (dispatch, getState) => {
-  try {
-    const token = getToken(); // get token from localStorage
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`, // attach token in headers
-      },
-    };
+// Fetch all admin orders with pagination
+export const asyncfetchAllOrders =
+  ({ page = 1, limit = 10 } = {}) =>
+  async (dispatch) => {
+    try {
+      const token = getToken();
 
-    const { data } = await axios.get("/order/Admin-Allordersview", config);
-    // console.log("Fetched products:", data.products);
-    dispatch(fetchorderAdmin(data));
-    return data;
-  } catch (error) {
-    console.error("Error in fetcing product:", error.message);
-    dispatch(iserror(error.message));
-  }
-};
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          page,
+          limit,
+        },
+      };
+
+      const { data } = await axios.get(
+        "/order/Admin-Allordersview",
+        config
+      );
+
+      dispatch(fetchorderAdmin(data));
+
+      return data;
+    } catch (error) {
+      console.error(
+        "Error fetching admin orders:",
+        error.message
+      );
+
+      dispatch(iserror(error.message));
+      throw error;
+    }
+  };
+
 
 //fetch all orders user wise
 export const asyncfetchUserwiseOrders = () => async (dispatch, getState) => {

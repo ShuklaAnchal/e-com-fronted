@@ -17,7 +17,14 @@ export default function SubcatgoryPage() {
 
   const { modal, openModal, closeModal } = useModal();
 
-  const { Subcategories, loading, refreshSubcategories } = useSubcategories();
+  const {
+    Subcategories,
+    loading,
+    pagination,
+    nextPage,
+    previousPage,
+    refreshCurrentSubcategories,
+  } = useSubcategories();
 
   const handleEdit = (subcategory) => {
     openModal(
@@ -85,7 +92,14 @@ export default function SubcatgoryPage() {
         </button>
       </div>
 
-      <Table columns={columns} data={Subcategories || []} />
+      <Table
+        columns={columns}
+        data={Subcategories}
+        pagination={pagination}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+        loading={loading}
+      />
 
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}

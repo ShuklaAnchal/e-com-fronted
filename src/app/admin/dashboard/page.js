@@ -13,7 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 const index = () => {
-  return <div className="h-full w-full primaryColor">dfkh</div>;
+  return <div className="h-full w-full primaryColor">
+      <div className='h-screen w-screen flex '>
+<div className='h-full w-full flex items-center justify-center primaryColor text-bold text-xl'>
+Coming Sooon
+</div>
+    </div>
+  </div>;
 };
 
 export default index;

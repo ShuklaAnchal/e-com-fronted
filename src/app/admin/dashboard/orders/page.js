@@ -17,7 +17,17 @@ export default function OrderPage() {
   const router = useRouter();
   const { modal, openModal, closeModal } = useModal();
 
-  const { allOrders, loading, refreshOrders } = useOrders();
+  const {
+    allOrders,
+    loading,
+
+    // Fetch functions
+    refreshOrders,
+    // Pagination
+    pagination,
+    nextPage,
+    previousPage,
+  } = useOrders();
 
   const handleOrderStatus = (order) => {
     const currentStatus = order?.orderStatus;
@@ -217,7 +227,14 @@ export default function OrderPage() {
         <h1 className="text-2xl font-semibold text-[#5C4033]">Orders</h1>
       </div>
 
-      <Table columns={columns} data={allOrders || []} />
+      <Table
+        columns={columns}
+        data={allOrders || []}
+        pagination={pagination}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+        loading={loading}
+      />
 
       <Modal isOpen={modal.isOpen} title={modal.title} onClose={closeModal}>
         {modal.content}

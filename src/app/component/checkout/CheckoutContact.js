@@ -38,7 +38,8 @@ useEffect(() => {
       setLoading(true);
 
       const result = await dispatch(fetchCurrentUser());
-
+   console.log([result]);
+   
       if (cancelled) return;
 
       if (
@@ -62,7 +63,8 @@ useEffect(() => {
         payload?.payload?.user ||
         payload?.payload ||
         payload;
-
+    console.log({user});
+    
       if (!user || typeof user !== "object") return;
 
       const fields = [

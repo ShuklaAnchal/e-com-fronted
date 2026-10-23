@@ -526,21 +526,21 @@ export default function CheckoutPage() {
      OPEN RAZORPAY
   ===================================================== */
 
-  const openRazorpay = async ({ orderId, razorpayOrder }) => {
-    const isLoaded = await loadRazorpayScript();
-    console.log({ razorpayOrder });
-    console.log({ orderId });
 
-    if (!isLoaded) {
+/* =====================================================
+   OPEN RAZORPAY
+===================================================== */
+
+const openRazorpay = async ({ orderId, razorpayOrder }) => {
+  try {
+    // 1. Load Razorpay SDK
+    const isLoaded = await loadRazorpayScript();
+
+    if (!isLoaded || !window.Razorpay) {
       throw new Error("Razorpay SDK failed to load.");
     }
 
-    /*
-     * Your backend response may use different
-     * property names. Adjust these according
-     * to your /payment/create-order response.
-     */
-
+    // 2. Extract Razorpay order details
     const razorpayOrderId =
       razorpayOrder?.id ||
       razorpayOrder?.result?.id ||
@@ -557,11 +557,16 @@ export default function CheckoutPage() {
       razorpayOrder?.currency ||
       razorpayOrder?.result?.currency ||
       razorpayOrder?.order?.currency ||
+      razorpayOrder?.razorpayOrder?.currency ||
       "INR";
 
+    // 3. Validate order details
     if (!razorpayOrderId) {
-      console.error("RAZORPAY RESPONSE:", razorpayOrder);
-      throw new Error("Razorpay order ID was not received from server.");
+      console.error("RAZORPAY ORDER RESPONSE:", razorpayOrder);
+
+      throw new Error(
+        "Razorpay order ID was not received from server."
+      );
     }
 
     if (
@@ -569,57 +574,166 @@ export default function CheckoutPage() {
       Number(razorpayAmount) <= 0
     ) {
       console.error("Invalid Razorpay amount:", razorpayAmount);
-      throw new Error("Valid Razorpay amount was not received from server.");
+
+      throw new Error(
+        "Valid Razorpay amount was not received from server."
+      );
     }
 
-    console.log("Razorpay order ID:", razorpayOrderId);
-    console.log("Razorpay amount in paise:", Number(razorpayAmount));
-    console.log("Razorpay amount in rupees:", Number(razorpayAmount) / 100);
+    const razorpayKey =
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
+    if (!razorpayKey) {
+      throw new Error("Razorpay public key is missing.");
+    }
+
+    console.log("Razorpay Order ID:", razorpayOrderId);
+    console.log("Razorpay Amount (paise):", Number(razorpayAmount));
+    console.log("Razorpay Currency:", razorpayCurrency);
+
+    // 4. Configure Razorpay Checkout
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      key: razorpayKey,
       amount: Number(razorpayAmount),
       currency: razorpayCurrency,
       name: "Siyaas",
       description: `Payment for Order ${orderId}`,
       order_id: razorpayOrderId,
 
-      // Keep your existing handler, prefill, notes, theme and modal here.
+      // Keep your existing prefill values here if required.
+      prefill: {
+        name: formData.name?.trim() || "",
+        email: formData.email?.trim() || "",
+        contact: String(formData.mobileNumber || "")
+          .replace(/\D/g, "")
+          .slice(-10),
+      },
+
+      notes: {
+        orderId: String(orderId),
+      },
+
+      theme: {
+        color: "#C5A880",
+      },
+
+      // 5. Handle successful checkout and verify with backend
+      handler: async (response) => {
+        try {
+          console.log(
+            "RAZORPAY PAYMENT RESPONSE:",
+            response
+          );
+
+          if (
+            !response?.razorpay_order_id ||
+            !response?.razorpay_payment_id ||
+            !response?.razorpay_signature
+          ) {
+            throw new Error(
+              "Required Razorpay payment details are missing."
+            );
+          }
+
+          const verificationResult = await dispatch(
+            verifyPayment({
+              orderId,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            })
+          );
+
+          console.log(
+            "VERIFY PAYMENT RESULT:",
+            verificationResult
+          );
+
+          // Handle a rejected Redux Toolkit thunk, if applicable.
+          if (verificationResult?.error) {
+            throw new Error(
+              verificationResult?.payload?.message ||
+                verificationResult?.error?.message ||
+                "Payment verification failed."
+            );
+          }
+
+          // IMPORTANT:
+          // Confirm this condition matches the actual response
+          // returned by your verifyPayment Redux action.
+          const verificationData =
+            verificationResult?.payload ?? verificationResult;
+
+          const isVerified =
+            verificationData?.success === true;
+
+          if (!isVerified) {
+            throw new Error(
+              verificationData?.message ||
+                "Payment verification failed."
+            );
+          }
+
+          // Redirect only after successful backend verification.
+          router.push(
+            `/user/order-success?orderId=${encodeURIComponent(orderId)}`
+          );
+        } catch (error) {
+          console.error(
+            "VERIFY PAYMENT ERROR:",
+            error
+          );
+
+          alert(
+            error?.response?.data?.message ||
+              error?.message ||
+              "Unable to verify payment. Please contact support before trying to pay again."
+          );
+        } finally {
+          setPlacingOrder(false);
+        }
+      },
+
+      // 6. Handle checkout modal dismissal
+      modal: {
+        ondismiss: () => {
+          setPlacingOrder(false);
+        },
+      },
     };
 
+    // 7. Create Razorpay instance
     const razorpay = new window.Razorpay(options);
-    console.log("========== RAZORPAY DEBUG ==========");
 
-    console.log(
-      "Frontend Razorpay Key:",
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-    );
+    // 8. Handle payment failures
+    razorpay.on("payment.failed", (response) => {
+      console.error(
+        "RAZORPAY PAYMENT FAILED:",
+        response
+      );
 
-    console.log(
-      "Frontend Key Mode:",
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test_")
-        ? "TEST"
-        : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_live_")
-          ? "LIVE"
-          : "UNKNOWN",
-    );
-
-    console.log("Razorpay Order ID:", razorpayOrderId);
-    console.log("Razorpay Amount:", razorpayAmount);
-    console.log("Razorpay Currency:", razorpayCurrency);
-
-    console.log("====================================");
-
-    razorpay.on("payment.failed", function (response) {
-      console.error("RAZORPAY PAYMENT FAILED:", response);
-
-      alert(response?.error?.description || "Payment failed.");
+      alert(
+        response?.error?.description ||
+          "Payment failed. Please try again."
+      );
 
       setPlacingOrder(false);
     });
 
+    // 9. Open Razorpay Checkout
     razorpay.open();
-  };
+  } catch (error) {
+    console.error("OPEN RAZORPAY ERROR:", error);
+
+    alert(
+      error?.message ||
+        "Unable to open Razorpay Checkout."
+    );
+
+    setPlacingOrder(false);
+  }
+};
+
 
   /* =====================================================
    PLACE ORDER

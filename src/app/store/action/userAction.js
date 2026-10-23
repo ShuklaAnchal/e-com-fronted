@@ -173,7 +173,15 @@ export const verifyOtp =
 
 export const asyncfetchUsers = () => async (dispatch) => {
   try {
-    const { data } = await axios.get("/user/getall-user");
+    const token = getToken();
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await axios.get("/user/getall-user", config);
     console.log("Fetched Users:", data.user);
     return data;
   } catch (error) {

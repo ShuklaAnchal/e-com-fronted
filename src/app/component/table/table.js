@@ -98,94 +98,71 @@ const Table = ({
         </table>
 
         {/* Backend Pagination */}
-        <div className="flex items-center justify-between mt-4 px-4 pb-3 text-sm text-texthearder">
-          <div>
-            Page {pagination?.page || 1} of {pagination?.totalPages || 1}
-          </div>
+    {/* Desktop Pagination */}
+<div className="hidden md:flex items-center justify-between px-3 mt-3">
+  <span className="text-sm text-[#05004E]">
+    Page {pagination?.currentPage || 1} of {pagination?.totalPages || 1}
+  </span>
 
-          <div className="flex gap-2">
-            <button
-              onClick={onPreviousPage}
-              disabled={loading || !pagination || pagination.page <= 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={onPreviousPage}
+      disabled={loading || !pagination || pagination.currentPage <= 1}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
 
-            <button
-              onClick={onNextPage}
-              disabled={
-                loading ||
-                !pagination ||
-                pagination.page >= pagination.totalPages
-              }
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+    <button
+      type="button"
+      onClick={onNextPage}
+      disabled={
+        loading ||
+        !pagination ||
+        pagination.currentPage >= pagination.totalPages
+      }
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+</div>
       </div>
 
       {/* Mobile Cards */}
-      <div className="md:hidden space-y-3 mt-5">
-        {loading ? (
-          <div className="text-center py-8">Loading...</div>
-        ) : rows.length === 0 ? (
-          <div className="text-center py-8">No attributes found</div>
-        ) : (
-          rows.map((row) => (
-            <div
-              key={row.id}
-              className="border border-[#DCDCDD] rounded-lg p-4 bg-white shadow-sm grid sm:grid-cols-3 grid-cols-2"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <div key={cell.id} className="mb-2">
-                  <div className="text-[10px] font-semibold text-gray-500">
-                    {flexRender(
-                      cell.column.columnDef.header,
-                      cell.getContext(),
-                    )}
-                  </div>
+{/* Mobile Pagination */}
+<div className="md:hidden flex items-center justify-between gap-3 mt-3">
+  <span className="text-sm text-[#05004E]">
+    Page {pagination?.currentPage || 1} of {pagination?.totalPages || 1}
+  </span>
 
-                  <div className="text-[11px] text-[#05004E]">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))
-        )}
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={onPreviousPage}
+      disabled={loading || !pagination || pagination.currentPage <= 1}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+      aria-label="Previous page"
+    >
+      {"<<"}
+    </button>
 
-        {/* Mobile Backend Pagination */}
-        <div className="flex items-center justify-between mt-4 px-4 text-sm text-texthearder">
-          <div>
-            Page {pagination?.page || 1} of {pagination?.totalPages || 1}
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={onPreviousPage}
-              disabled={loading || !pagination || pagination.page <= 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              {"<<"}
-            </button>
-
-            <button
-              onClick={onNextPage}
-              disabled={
-                loading ||
-                !pagination ||
-                pagination.page >= pagination.totalPages
-              }
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              {">>"}
-            </button>
-          </div>
-        </div>
-      </div>
+    <button
+      type="button"
+      onClick={onNextPage}
+      disabled={
+        loading ||
+        !pagination ||
+        pagination.currentPage >= pagination.totalPages
+      }
+      className="px-3 py-1 border rounded disabled:opacity-50"
+      aria-label="Next page"
+    >
+      {">>"}
+    </button>
+  </div>
+</div>
     </>
   );
 };
