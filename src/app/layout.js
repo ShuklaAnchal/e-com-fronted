@@ -2,6 +2,7 @@ import { Cormorant_Garamond, Montserrat } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "./ReduxProvider";
 import ClientWrapper from "./ClientWrapper"; // new wra
+import MetaPixel from "./MetaPixel";
 
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-serif",
@@ -47,6 +48,7 @@ export default function RootLayout({ children }) {
         className="min-h-full flex flex-col bg-[#FAF7F2] text-[#2C2C2C] font-sans"
       >
  
+        <MetaPixel />
         <ReduxProvider>
           <ClientWrapper>{children}</ClientWrapper>
         </ReduxProvider>
