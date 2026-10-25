@@ -277,7 +277,7 @@ export default function OrderSummary({
         </div>
 
         {/* ORDER TOTAL */}
-        <div className="mt-6 flex items-center justify-between border-t border-luxury-gold/20 pt-6">
+        {/* <div className="mt-6 flex items-center justify-between border-t border-luxury-gold/20 pt-6">
           <div>
             <p className="font-serif text-lg uppercase tracking-wide text-luxury-dark">
               Total
@@ -291,7 +291,7 @@ export default function OrderSummary({
           <p className="font-serif text-2xl text-luxury-dark">
             {formatPrice(calculatedTotal)}
           </p>
-        </div>
+        </div> */}
 
         {/* ORDER TOTAL */}
         <div className="mt-6 flex items-center justify-between border-t border-luxury-gold/20 pt-6">

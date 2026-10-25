@@ -315,7 +315,7 @@ useEffect(() => {
     >
       {/* PROGRESS STEPS */}
 
-      <div className="border-b border-[#C5A880]/10 bg-white py-5">
+      <div className="border-b border-[#C5A880]/10 bg-white py-5 mt-10">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-5 md:px-8">
           <Step number={1} label="Cart" done />
           <StepLine done />
