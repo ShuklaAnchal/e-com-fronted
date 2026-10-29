@@ -37,18 +37,41 @@ export const metadata = {
 //   description: "Experience the art of scented light with Siyaas. Handcrafted soy candles, diffusers, and luxury wooden crafts for every mood.",
 // };
 
+const META_PIXEL_ID = "25556566083983018";
+
+const metaPixelSnippet = `
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');
+`;
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
       className={`${cormorantGaramond.variable} ${montserrat.variable} h-full antialiased`}
     >
+      <head>
+        {/* Meta Pixel Code */}
+        <script
+          id="meta-pixel"
+          dangerouslySetInnerHTML={{ __html: metaPixelSnippet }}
+        />
+        {/* End Meta Pixel Code */}
+      </head>
       <body
         suppressHydrationWarning={true}
         className="min-h-full flex flex-col bg-[#FAF7F2] text-[#2C2C2C] font-sans"
       >
- 
-        <MetaPixel />
+
+        <MetaPixel pixelId={META_PIXEL_ID} />
         <ReduxProvider>
           <ClientWrapper>{children}</ClientWrapper>
         </ReduxProvider>
