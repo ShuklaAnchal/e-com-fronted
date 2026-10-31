@@ -5,10 +5,12 @@ import { FaHeart, FaShoppingCart, FaBolt } from "react-icons/fa";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createWishlist } from "@/app/store/action/wishlistAction";
+import { trackMetaEvent } from "@/app/utils/metaPixel";
 
 export default function ProductActions({
   productId,
   variantId,
+  price,
   quantity,
   onAddToCart,
   onBuyNow,
@@ -64,6 +66,13 @@ export default function ProductActions({
 
       if (result?.success) {
         setWishlist(true);
+
+        trackMetaEvent("AddToWishlist", {
+          content_ids: [String(productId)],
+          content_type: "product",
+          value: Number(price) || 0,
+          currency: "INR",
+        });
       }
     } catch (error) {
       console.error("WISHLIST ERROR:", error);

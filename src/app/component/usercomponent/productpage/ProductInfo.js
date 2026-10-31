@@ -516,6 +516,7 @@ export default function ProductInfo({
         <ProductActions
           productId={product._id}
           variantId={selectedVariant?._id}
+          price={sellingPrice}
           quantity={quantity}
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}

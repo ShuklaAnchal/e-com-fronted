@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { fetchOrderbyID } from "@/app/store/action/orderAction";
 import { useDispatch } from "react-redux";
+import { trackMetaEvent, getMetaContentIds } from "@/app/utils/metaPixel";
 
 /* ============================================================
    HELPERS
@@ -177,6 +178,31 @@ function InfoRow({ label, value, gold = false }) {
    PAGE CONTENT
 ============================================================ */
 
+// Fire Purchase once per order, even if the success page is refreshed.
+const trackPurchase = (orderId, order) => {
+  const storageKey = `meta_purchase_tracked_${orderId}`;
+
+  try {
+    if (sessionStorage.getItem(storageKey)) return;
+    sessionStorage.setItem(storageKey, "1");
+  } catch {
+    // Storage unavailable; track anyway.
+  }
+
+  const products = Array.isArray(order?.products) ? order.products : [];
+
+  trackMetaEvent("Purchase", {
+    value: Number(order?.totalPrice) || 0,
+    currency: "INR",
+    content_ids: getMetaContentIds(products),
+    content_type: "product",
+    num_items: products.reduce(
+      (total, item) => total + (Number(item?.quantity) || 0),
+      0,
+    ),
+  });
+};
+
 export default function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
@@ -230,6 +256,7 @@ useEffect(() => {
 
       if (!cancelled) {
         setOrder(orderData);
+        trackPurchase(orderId, orderData);
       }
     } catch (error) {
       console.error("Failed to fetch order details:", error);

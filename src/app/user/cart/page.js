@@ -15,6 +15,7 @@ import {
 } from "@/app/store/action/cartAction";
 
 import { getMediaUrl } from "@/app/utils/mediaUrl";
+import { trackMetaEvent, getMetaContentIds } from "@/app/utils/metaPixel";
 
 const PLACEHOLDER_IMAGE = "/placeholder-product.png";
 
@@ -232,6 +233,14 @@ export default function CartPage() {
   );
 
   const handleCheckout = () => {
+    trackMetaEvent("InitiateCheckout", {
+      content_ids: getMetaContentIds(cartItems),
+      content_type: "product",
+      num_items: totalItems,
+      value: Number(subtotal) || 0,
+      currency: "INR",
+    });
+
     const token =
       typeof window !== "undefined"
         ? localStorage.getItem("userToken")

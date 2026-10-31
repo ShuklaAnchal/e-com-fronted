@@ -22,6 +22,7 @@ import PaymentMethod from "@/app/component/checkout/PaymentMethod";
 import OrderSummary from "@/app/component/checkout/OrderSummary";
 
 import { fetchCurrentUser } from "@/app/store/action/adminAction";
+import { trackMetaEvent, getMetaContentIds } from "@/app/utils/metaPixel";
 
 const INITIAL_FORM = {
   name: "",
@@ -947,6 +948,14 @@ const openRazorpay = async ({ orderId, razorpayOrder }) => {
       console.log("ORDER ID:", orderId);
 
       console.log("ORDER AMOUNT:", orderAmount);
+
+      trackMetaEvent("AddPaymentInfo", {
+        content_ids: getMetaContentIds(cartItems),
+        content_type: "product",
+        value: orderAmount,
+        currency: "INR",
+        payment_type: backendPaymentMethod,
+      });
 
       /* =================================================
        COD

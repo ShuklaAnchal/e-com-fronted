@@ -5,6 +5,7 @@ import {
   setCartFail,
   updateLocalCart,
 } from "../reducer/cartReducer";
+import { trackMetaEvent } from "@/app/utils/metaPixel";
 
 const getToken = () => {
   if (typeof window !== "undefined") {
@@ -107,6 +108,14 @@ export const addToCartAction =
         variantLabel,
       };
 
+      const trackAddToCart = () =>
+        trackMetaEvent("AddToCart", {
+          content_ids: [String(product._id)],
+          content_type: "product",
+          value: Number(variantPrice) * Number(quantity),
+          currency: "INR",
+        });
+
       if (token) {
         const config = {
           headers: {
@@ -126,6 +135,8 @@ export const addToCartAction =
         );
 
         await dispatch(fetchCart());
+
+        trackAddToCart();
 
         return {
           success: true,
@@ -156,6 +167,8 @@ export const addToCartAction =
 
       dispatch(updateLocalCart(updatedCart));
       dispatch(setCartSuccess(updatedCart));
+
+      trackAddToCart();
 
       return {
         success: true,
