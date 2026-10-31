@@ -49,7 +49,7 @@ const Hero = () => {
           w-full
           h-full
           min-h-screen
-          object-cover
+          object-fill
           object-center
           select-none
         "

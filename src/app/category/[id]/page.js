@@ -286,7 +286,7 @@ const CategoryProductsPage = () => {
               shadow-sm
             "
                           >
-                           Dussehra Special
+                           Diwali Special
                           </span>
                         </div>
 
